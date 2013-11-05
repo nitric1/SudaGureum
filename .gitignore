@@ -1,0 +1,12 @@
+*.vcxproj.user
+*.aps
+*.APS
+*.opensdf
+*.sdf
+*.suo
+LocMetrics*
+
+Debug
+Release
+x64
+ipch
