@@ -7,6 +7,11 @@ namespace SudaGureum
         std::string prefix_;
         std::string command_;
         std::vector<std::string> params_;
+
+        IrcMessage();
+        IrcMessage(const std::string &command);
+        IrcMessage(const std::string &command, const std::vector<std::string> &params);
+        IrcMessage(const std::string &prefix, const std::string &command, const std::vector<std::string> &params);
     };
 
     class IrcParser

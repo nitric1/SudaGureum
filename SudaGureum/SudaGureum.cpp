@@ -2,25 +2,29 @@
 
 #include "SudaGureum.h"
 
-#include "IrcParser.h"
+#include "IrcClient.h"
 
-void proc(const SudaGureum::IrcMessage &message)
+namespace SudaGureum
 {
-    std::cout << message.prefix_ << std::endl;
-    std::cout << message.command_ << std::endl;
-    for(const std::string &param: message.params_)
+    void run()
     {
-        std::cout << param << std::endl;
+        IrcClientPool pool;
+
+        auto client1 = pool.connect("irc.ozinger.org", 6667, boost::assign::list_of("SudaGureum1")("SudaGureum2"));
+
+        pool.run(4);
+
+        Sleep(100);
+
+        auto client2 = pool.connect("irc.ozinger.org", 6667, boost::assign::list_of("SudaGureum1")("SudaGureum2"));
+
+        pool.join();
     }
 }
 
 int main()
 {
-    SudaGureum::IrcParser parser;
-
-    parser.parse("PING :13722", &proc);
-    parser.parse("11301\r\n", &proc);
-    // parser.parse("", &proc);
+    SudaGureum::run();
 
     return 0;
 }
