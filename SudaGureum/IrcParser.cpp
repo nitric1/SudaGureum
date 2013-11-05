@@ -6,6 +6,28 @@
 
 namespace SudaGureum
 {
+    IrcMessage::IrcMessage()
+    {
+    }
+
+    IrcMessage::IrcMessage(const std::string &command)
+        : command_(command)
+    {
+    }
+
+    IrcMessage::IrcMessage(const std::string &command, const std::vector<std::string> &params)
+        : command_(command)
+        , params_(params)
+    {
+    }
+
+    IrcMessage::IrcMessage(const std::string &prefix, const std::string &command, const std::vector<std::string> &params)
+        : prefix_(prefix)
+        , command_(command)
+        , params_(params)
+    {
+    }
+
     IrcParser::IrcParser()
         : state_(None)
     {
@@ -39,16 +61,16 @@ namespace SudaGureum
             case InLine:
                 if(ch == '\r' || ch == '\n')
                 {
-                    std::getline(buffer_, line);
                     if(ch == '\r')
                     {
                         state_ = WaitLf;
                     }
-                    if(!parseMessage(line, cb))
+                    if(!parseMessage(buffer_.str(), cb))
                     {
                         state_ = Error;
                         return false;
                     }
+                    buffer_.str("");
                     break;
                 }
                 else
@@ -145,15 +167,7 @@ namespace SudaGureum
             }
         }
 
-        /*
-        static const boost::regex PrefixRegex("[0-9A-Za-z][0-9A-Za-z\\-]*(\\.[0-9A-Za-z][0-9A-Za-z\\-]*)*", boost::regex::extended);
-        if(!prefix.empty() && !boost::regex_match(prefix, PrefixRegex))
-        {
-            return false;
-        }
-        */
-
-        static const boost::regex CommandRegex("[A-Za-z]+|[0-9]{3}", boost::regex::extended);
+        static const boost::regex CommandRegex("[A-Za-z]+|[0-9]{3}", boost::regex::extended); // TODO: non-static or something
         if(!boost::regex_match(message.command_, CommandRegex))
         {
             return false;
