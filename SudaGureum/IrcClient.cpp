@@ -1,11 +1,21 @@
 #include "Common.h"
 
+#include "Batang/Utility.h"
+
 #include "IrcClient.h"
 
 namespace SudaGureum
 {
     namespace
     {
+        void print(const std::wstring &wstr)
+        {
+            size_t len = static_cast<size_t>(WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr));
+            std::vector<char> buf(len);
+            WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buf.data(), static_cast<int>(len), nullptr, nullptr);
+            std::cout << buf.data();
+        }
+
         std::string encodeMessage(const IrcMessage &message)
         {
             std::string line;
@@ -47,6 +57,33 @@ namespace SudaGureum
     {
     }
 
+    void IrcClient::nickname(const std::string &nickname)
+    {
+        nickname_ = nickname;
+
+        sendMessage(IrcMessage("NICK", boost::assign::list_of(nickname)));
+    }
+
+    void IrcClient::join(const std::string &channel)
+    {
+        sendMessage(IrcMessage("JOIN", boost::assign::list_of(channel)));
+    }
+
+    void IrcClient::join(const std::string &channel, const std::string &key)
+    {
+        sendMessage(IrcMessage("JOIN", boost::assign::list_of(channel)(key)));
+    }
+
+    void IrcClient::part(const std::string &channel, const std::string &message)
+    {
+        sendMessage(IrcMessage("PART", boost::assign::list_of(channel)(message)));
+    }
+
+    void IrcClient::privmsg(const std::string &channel, const std::string &message)
+    {
+        sendMessage(IrcMessage("PRIVMSG", boost::assign::list_of(channel)(message)));
+    }
+
     void IrcClient::connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames)
     {
         if(nicknames.empty() || nicknames[0].empty())
@@ -68,7 +105,7 @@ namespace SudaGureum
                 {
                     connectBeginning_ = true;
                     sendMessage(IrcMessage("USER", boost::assign::list_of(nicknameCandidates_[0])("0")("*")(nicknameCandidates_[0])));
-                    sendMessage(IrcMessage("NICK", boost::assign::list_of(nicknameCandidates_[0])));
+                    nickname(nicknameCandidates_[0]);
                     read();
                 }
                 else
@@ -84,10 +121,11 @@ namespace SudaGureum
         if(nicknameCandidates_.size() <= currentNicknameIndex_)
         {
             close();
+            // or random nickname?
             return;
         }
 
-        sendMessage(IrcMessage("NICK", boost::assign::list_of(nicknameCandidates_[currentNicknameIndex_])));
+        nickname(nicknameCandidates_[currentNicknameIndex_]);
     }
 
     void IrcClient::read()
@@ -108,7 +146,7 @@ namespace SudaGureum
         {
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
             bufferToWrite_.push_back(encodeMessage(message) + "\r\n");
-            std::cout << bufferToWrite_.back();
+            print(Batang::decodeUTF8(bufferToWrite_.back()));
         }
         write();
     }
@@ -194,15 +232,15 @@ namespace SudaGureum
 
     void IrcClient::procMessage(const IrcMessage &message)
     {
-        std::cout << encodeMessage(message) << std::endl;
+        // TODO: asserts or fail-safe process
 
-        if(message.command_ == "PING")
+        print(Batang::decodeUTF8(encodeMessage(message)) + L"\r\n");
+
+        // Dictionary order
+
+        if(message.command_ == "ERROR")
         {
-            sendMessage(IrcMessage("PONG", message.params_));
-        }
-        else if(message.command_ == "ERROR")
-        {
-            if(quitReady_) // gracefully
+            if(quitReady_) // graceful quit
             {
                 socket_.close();
                 if(clearMe_)
@@ -211,11 +249,28 @@ namespace SudaGureum
                 }
             }
         }
-        else if(message.command_ == "PRIVMSG")
+        else if(message.command_ == "JOIN")
         {
+            auto it = channelsPeople_.find(message.params_.at(0));
+            if(it != channelsPeople_.end())
+            {
+                it->second.insert(message.prefix_);
+            }
         }
         else if(message.command_ == "NOTICE")
         {
+        }
+        else if(message.command_ == "PING")
+        {
+            sendMessage(IrcMessage("PONG", message.params_));
+        }
+        else if(message.command_ == "PRIVMSG")
+        {
+        }
+        else if(message.command_ == "001") // RPL_WELCOME
+        {
+            connectBeginning_ = false;
+            sendMessage(IrcMessage("JOIN", boost::assign::list_of("#zvuc")));
         }
         else if(message.command_ == "432") // ERR_ERRONEUSNICKNAME
         {
@@ -244,11 +299,6 @@ namespace SudaGureum
             {
                 tryNextNickname();
             }
-        }
-        else if(message.command_ == "001") // RPL_WELCOME
-        {
-            connectBeginning_ = false;
-            sendMessage(IrcMessage("JOIN", boost::assign::list_of("#zvuc")));
         }
     }
 

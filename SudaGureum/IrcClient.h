@@ -9,7 +9,52 @@ namespace SudaGureum
     class IrcClient : public std::enable_shared_from_this<IrcClient>
     {
     private:
+        struct LessCaseInsensitive : public std::binary_function<std::string, std::string, bool>
+        {
+            bool operator()(const std::string &lhs, const std::string &rhs) const
+            {
+                return boost::algorithm::ilexicographical_compare(lhs, rhs);
+            }
+        };
+
+        struct EqualToCaseInsensitive : public std::binary_function<std::string, std::string, bool>
+        {
+            bool operator()(const std::string &lhs, const std::string &rhs) const
+            {
+                return boost::algorithm::iequals(lhs, rhs);
+            }
+        };
+
+        struct HashCaseInsensitive : public std::unary_function<std::string, size_t>
+        {
+            size_t operator()(const std::string &str) const
+            {
+                size_t seed = 0;
+                std::locale locale;
+
+                for(char ch: str)
+                {
+                    boost::hash_combine(seed, std::toupper(ch, locale));
+                }
+
+                return seed;
+            }
+        };
+
+        typedef std::set<std::string, LessCaseInsensitive> ChannelPeopleSet;
+        typedef std::unordered_map<std::string, std::set<std::string>,
+            HashCaseInsensitive, EqualToCaseInsensitive> ChannelMap;
+
+    private:
         IrcClient(boost::asio::io_service &ios, IrcClientPool &pool);
+
+    public:
+        void nickname(const std::string &nickname);
+        // please include #'s or &'s
+        void join(const std::string &channel);
+        void join(const std::string &channel, const std::string &key);
+        void part(const std::string &channel, const std::string &message);
+        void privmsg(const std::string &channel, const std::string &message);
 
     private:
         void connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames);
@@ -39,6 +84,9 @@ namespace SudaGureum
         bool connectBeginning_;
         std::vector<std::string> nicknameCandidates_;
         size_t currentNicknameIndex_;
+        std::string nickname_;
+
+        ChannelMap channelsPeople_;
 
         bool quitReady_;
         bool clearMe_;
