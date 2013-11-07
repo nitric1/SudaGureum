@@ -161,6 +161,7 @@
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="SudaGureum.h" />
+    <ClInclude Include="WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -172,6 +173,7 @@
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
     <ClCompile Include="SudaGureum.cpp" />
+    <ClCompile Include="WebSocketServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Batang\Batang.vcxproj">
