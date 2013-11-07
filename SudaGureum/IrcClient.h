@@ -41,9 +41,27 @@ namespace SudaGureum
             }
         };
 
-        typedef std::set<std::string, LessCaseInsensitive> ChannelPeopleSet;
-        typedef std::unordered_map<std::string, std::set<std::string>,
+    public:
+        typedef std::set<std::string, LessCaseInsensitive> ChannelParticipantSet;
+
+        struct Channel
+        {
+            enum Accessivity
+            {
+                Public = '=',
+                Private = '*',
+                Secret = '@'
+            };
+            char accessivity_;
+            std::string topic_;
+            ChannelParticipantSet participants_;
+        };
+
+        typedef std::unordered_map<std::string, Channel,
             HashCaseInsensitive, EqualToCaseInsensitive> ChannelMap;
+
+    private:
+        static std::string getNicknameFromPrefix(const std::string &prefix);
 
     private:
         IrcClient(boost::asio::io_service &ios, IrcClientPool &pool);
@@ -63,6 +81,7 @@ namespace SudaGureum
         void sendMessage(const IrcMessage &message);
         void write(bool force = false);
         void close(bool clearMe = true);
+        bool isMyPrefix(const std::string &prefix);
 
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
@@ -86,7 +105,7 @@ namespace SudaGureum
         size_t currentNicknameIndex_;
         std::string nickname_;
 
-        ChannelMap channelsPeople_;
+        ChannelMap channels_;
 
         bool quitReady_;
         bool clearMe_;
@@ -111,9 +130,10 @@ namespace SudaGureum
 
     private:
         boost::asio::io_service ios_;
-        boost::asio::signal_set signals_; // TODO: temp
+        boost::asio::signal_set signals_; // TODO: temporary
         std::vector<std::shared_ptr<std::thread>> threads_;
-        std::vector<std::shared_ptr<IrcClient>> clients_;
+        std::mutex clientsLock_;
+        std::unordered_set<std::shared_ptr<IrcClient>> clients_;
 
         friend class IrcClient;
     };
