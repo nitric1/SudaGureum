@@ -22,6 +22,7 @@
 #include <sstream>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>

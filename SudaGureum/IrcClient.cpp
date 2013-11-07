@@ -45,6 +45,23 @@ namespace SudaGureum
         }
     }
 
+    std::string IrcClient::getNicknameFromPrefix(const std::string &prefix)
+    {
+        size_t userPrefixPos = prefix.find("!");
+        if(userPrefixPos != std::string::npos)
+        {
+            return prefix.substr(0, userPrefixPos);
+        }
+
+        size_t hostPrefixPos = prefix.find("@");
+        if(hostPrefixPos != std::string::npos)
+        {
+            return prefix.substr(0, hostPrefixPos);
+        }
+
+        return prefix;
+    }
+
     IrcClient::IrcClient(boost::asio::io_service &ios, IrcClientPool &pool)
         : pool_(pool)
         , ios_(ios)
@@ -121,7 +138,7 @@ namespace SudaGureum
         if(nicknameCandidates_.size() <= currentNicknameIndex_)
         {
             close();
-            // or random nickname?
+            // XXX: or random nickname?
             return;
         }
 
@@ -146,7 +163,7 @@ namespace SudaGureum
         {
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
             bufferToWrite_.push_back(encodeMessage(message) + "\r\n");
-            print(Batang::decodeUTF8(bufferToWrite_.back()));
+            print(Batang::decodeUTF8(nickname_ + ">>> " + bufferToWrite_.back()));
         }
         write();
     }
@@ -197,6 +214,11 @@ namespace SudaGureum
         sendMessage(IrcMessage("QUIT", boost::assign::list_of("Bye!"))); // TODO: timeout required
     }
 
+    bool IrcClient::isMyPrefix(const std::string &prefix)
+    {
+        return nickname_ == getNicknameFromPrefix(prefix);
+    }
+
     void IrcClient::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
     {
         if(ec)
@@ -232,11 +254,11 @@ namespace SudaGureum
 
     void IrcClient::procMessage(const IrcMessage &message)
     {
-        // TODO: asserts or fail-safe process
+        // TODO: asserts(error and close) or fail-safe process
 
-        print(Batang::decodeUTF8(encodeMessage(message)) + L"\r\n");
+        print(Batang::decodeUTF8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
 
-        // Dictionary order
+        // Dictionary order command; letters first.
 
         if(message.command_ == "ERROR")
         {
@@ -251,14 +273,38 @@ namespace SudaGureum
         }
         else if(message.command_ == "JOIN")
         {
-            auto it = channelsPeople_.find(message.params_.at(0));
-            if(it != channelsPeople_.end())
+            const std::string &channel = message.params_.at(0);
+            if(isMyPrefix(message.prefix_))
             {
-                it->second.insert(message.prefix_);
+                channels_.emplace(channel, Channel());
+            }
+            else
+            {
+                auto it = channels_.find(channel);
+                if(it != channels_.end())
+                {
+                    it->second.participants_.insert(getNicknameFromPrefix(message.prefix_));
+                }
             }
         }
         else if(message.command_ == "NOTICE")
         {
+        }
+        else if(message.command_ == "PART")
+        {
+            const std::string &channel = message.params_.at(0);
+            if(isMyPrefix(message.prefix_))
+            {
+                channels_.erase(channel);
+            }
+            else
+            {
+                auto it = channels_.find(channel);
+                if(it != channels_.end())
+                {
+                    it->second.participants_.erase(getNicknameFromPrefix(message.prefix_));
+                }
+            }
         }
         else if(message.command_ == "PING")
         {
@@ -271,6 +317,53 @@ namespace SudaGureum
         {
             connectBeginning_ = false;
             sendMessage(IrcMessage("JOIN", boost::assign::list_of("#zvuc")));
+        }
+        else if(message.command_ == "331") // RPL_NOTOPIC
+        {
+            auto it = channels_.find(message.params_.at(1));
+            if(it != channels_.end())
+            {
+                it->second.topic_ = "";
+            }
+        }
+        else if(message.command_ == "332") // RPL_TOPIC
+        {
+            auto it = channels_.find(message.params_.at(1));
+            if(it != channels_.end())
+            {
+                it->second.topic_ = message.params_.at(2);
+            }
+        }
+        else if(message.command_ == "353") // RPL_NAMREPLY
+        {
+            auto it = channels_.find(message.params_.at(2));
+            if(it != channels_.end())
+            {
+                char accessivity = message.params_.at(1)[0];
+                switch(accessivity)
+                {
+                case Channel::Public:
+                case Channel::Private:
+                case Channel::Secret:
+                    // OK
+                    break;
+
+                default:
+                    return;
+                }
+
+                it->second.accessivity_ = accessivity;
+
+                std::vector<std::string> participants;
+                boost::algorithm::split(participants, message.params_.at(3), boost::algorithm::is_space());
+                for(std::string &participant: participants)
+                {
+                    it->second.participants_.emplace(std::move(participant)); // TODO: split permission
+                }
+            }
+        }
+        else if(message.command_ == "366") // RPL_ENDOFNAMES
+        {
         }
         else if(message.command_ == "432") // ERR_ERRONEUSNICKNAME
         {
@@ -340,12 +433,16 @@ namespace SudaGureum
     {
         std::shared_ptr<IrcClient> client(new IrcClient(ios_, *this));
         client->connect(addr, port, nicknames);
-        clients_.push_back(client);
+        {
+            std::lock_guard<std::mutex> lock(clientsLock_);
+            clients_.insert(client);
+        }
         return client;
     }
 
     void IrcClientPool::closeAll()
     {
+        std::lock_guard<std::mutex> lock(clientsLock_);
         for(auto client: clients_)
         {
             client->close(false);
@@ -355,7 +452,8 @@ namespace SudaGureum
 
     void IrcClientPool::closed(const std::shared_ptr<IrcClient> &client)
     {
-        auto it = std::find(clients_.begin(), clients_.end(), client);
+        std::lock_guard<std::mutex> lock(clientsLock_);
+        auto it = clients_.find(client);
         if(it != clients_.end())
         {
             clients_.erase(it);
