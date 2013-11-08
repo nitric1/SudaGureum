@@ -43,7 +43,27 @@ namespace SudaGureum
 
             return line;
         }
+
+        static size_t participantModeFromPermission(char permission)
+        {
+            switch(permission)
+            {
+            case 'q':
+                return IrcClient::Participant::Owner;
+            case 'a':
+                return IrcClient::Participant::Admin;
+            case 'o':
+                return IrcClient::Participant::Op;
+            case 'h':
+                return IrcClient::Participant::HalfOp;
+            case 'v':
+                return IrcClient::Participant::Voice;
+            }
+            return std::numeric_limits<size_t>::max();
+        }
     }
+
+    const IrcClient::NicknamePrefixMap IrcClient::DefaultNicknamePrefixMap = IrcClient::makeDefaultNicknamePrefixMap();
 
     std::string IrcClient::getNicknameFromPrefix(const std::string &prefix)
     {
@@ -62,11 +82,17 @@ namespace SudaGureum
         return prefix;
     }
 
+    IrcClient::NicknamePrefixMap IrcClient::makeDefaultNicknamePrefixMap()
+    {
+        return boost::assign::map_list_of('~', 'q')('&', 'a')('@', 'o')('%', 'h')('+', 'v');
+    }
+
     IrcClient::IrcClient(boost::asio::io_service &ios, IrcClientPool &pool)
         : pool_(pool)
         , ios_(ios)
         , socket_(ios)
         , inWrite_(false)
+        , nicknamePrefixMap_(DefaultNicknamePrefixMap)
         , connectBeginning_(false)
         , currentNicknameIndex_(0)
         , quitReady_(false)
@@ -101,13 +127,15 @@ namespace SudaGureum
         sendMessage(IrcMessage("PRIVMSG", boost::assign::list_of(channel)(message)));
     }
 
-    void IrcClient::connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames)
+    void IrcClient::connect(const std::string &addr, uint16_t port, const std::string &encoding,
+        const std::vector<std::string> &nicknames)
     {
         if(nicknames.empty() || nicknames[0].empty())
         {
             return;
         }
 
+        encoding_ = encoding;
         nicknameCandidates_ = nicknames;
         currentNicknameIndex_ = 0;
 
@@ -219,11 +247,34 @@ namespace SudaGureum
         return nickname_ == getNicknameFromPrefix(prefix);
     }
 
+    IrcClient::Participant IrcClient::parseParticipant(const std::string &nicknameWithPrefix)
+    {
+        Participant participant;
+        if(nicknameWithPrefix.empty())
+        {
+            return participant;
+        }
+
+        auto it = nicknamePrefixMap_.find(nicknameWithPrefix[0]);
+        if(it != nicknamePrefixMap_.end())
+        {
+            participant.modes_.set(participantModeFromPermission(it->second));
+            participant.nickname_ = nicknameWithPrefix.substr(1);
+        }
+        else
+        {
+            participant.nickname_ = nicknameWithPrefix;
+        }
+        return participant;
+    }
+
     void IrcClient::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
     {
         if(ec)
         {
-            //
+            // TODO: error log
+            close();
+            return;
         }
 
         parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
@@ -244,7 +295,9 @@ namespace SudaGureum
 
             if(ec)
             {
-                //
+                // TODO: error log
+                close();
+                return;
             }
         }
 
@@ -258,7 +311,7 @@ namespace SudaGureum
 
         print(Batang::decodeUTF8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
 
-        // Dictionary order command; letters first.
+        // Dictionary order; letters first.
 
         if(message.command_ == "ERROR")
         {
@@ -277,13 +330,88 @@ namespace SudaGureum
             if(isMyPrefix(message.prefix_))
             {
                 channels_.emplace(channel, Channel());
+
+                // TODO: request channel modes
             }
             else
             {
                 auto it = channels_.find(channel);
                 if(it != channels_.end())
                 {
-                    it->second.participants_.insert(getNicknameFromPrefix(message.prefix_));
+                    it->second.participants_.insert(Participant(getNicknameFromPrefix(message.prefix_)));
+                }
+            }
+        }
+        else if(message.command_ == "MODE")
+        {
+            const std::string &channel = message.params_.at(0);
+            auto it = channels_.find(channel);
+            if(it != channels_.end())
+            {
+                const std::string &modifier = message.params_.at(1);
+
+                size_t nextParamIdx = 2;
+                auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
+
+                boost::logic::tribool operation = boost::logic::indeterminate;
+                for(char ch: modifier)
+                {
+                    switch(ch)
+                    {
+                    case '+':
+                        operation = true;
+                        break;
+
+                    case '-':
+                        operation = false;
+                        break;
+
+                    case 'O': // channel creator
+                        break;
+
+                    case 'q': // owner
+                    case 'a': // admin
+                    case 'o': // op
+                    case 'h': // half-op
+                    case 'v': // voice
+                        if(!boost::logic::indeterminate(operation))
+                        {
+                            auto partIt = it->second.participants_.find(nextParam());
+                            if(partIt != it->second.participants_.end())
+                            {
+                                it->second.participants_.modify(partIt, [operation, ch](Participant &p)
+                                {
+                                    if(operation)
+                                    {
+                                        p.modes_.set(participantModeFromPermission(ch));
+                                    }
+                                    else
+                                    {
+                                        p.modes_.reset(participantModeFromPermission(ch));
+                                    }
+                                });
+                            }
+                        }
+                        break;
+
+                    case 'l': // limit
+                        break;
+
+                    case 'k': // key
+                        break;
+
+                    case 'b': // ban
+                        break;
+
+                    case 'e': // ban exception
+                        break;
+
+                    case 'I': // invitation mask
+                        break;
+
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -316,7 +444,49 @@ namespace SudaGureum
         else if(message.command_ == "001") // RPL_WELCOME
         {
             connectBeginning_ = false;
-            sendMessage(IrcMessage("JOIN", boost::assign::list_of("#zvuc")));
+            sendMessage(IrcMessage("JOIN", boost::assign::list_of("#HNO3")));
+        }
+        else if(message.command_ == "005") // RPL_ISUPPORT
+        {
+            std::string name, value;
+            for(auto it = ++ message.params_.begin(), end = -- message.params_.end(); it != end; ++ it)
+            {
+                size_t equalPos = it->find("=");
+                if(equalPos != std::string::npos)
+                {
+                    name = it->substr(0, equalPos);
+                    value = it->substr(equalPos + 1);
+                    channelOptions_.emplace(name, value);
+                }
+                else
+                {
+                    value.clear();
+                    channelOptions_.emplace(name, value);
+                }
+
+                if(name == "CHANMODES")
+                {
+                    std::vector<std::string> supportedModes;
+                }
+                if(name == "PREFIX")
+                {
+                    static const boost::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)", boost::regex::extended);
+                    boost::smatch matched;
+                    if(boost::regex_match(value, matched, PrefixRegex))
+                    {
+                        if(matched[1].length() == matched[2].length())
+                        {
+                            nicknamePrefixMap_.clear();
+                            for(auto valueIt = matched[1].first, keyIt = matched[2].first;
+                                valueIt != matched[1].second && keyIt != matched[2].second;
+                                ++ valueIt, ++ keyIt)
+                            {
+                                nicknamePrefixMap_.insert(CcPair(*keyIt, *valueIt));
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if(message.command_ == "331") // RPL_NOTOPIC
         {
@@ -324,6 +494,8 @@ namespace SudaGureum
             if(it != channels_.end())
             {
                 it->second.topic_ = "";
+                it->second.topicSetter_ = "";
+                it->second.topicSetTime_ = boost::posix_time::ptime();
             }
         }
         else if(message.command_ == "332") // RPL_TOPIC
@@ -332,6 +504,16 @@ namespace SudaGureum
             if(it != channels_.end())
             {
                 it->second.topic_ = message.params_.at(2);
+            }
+        }
+        else if(message.command_ == "333") // RPL_TOPICSETTER (tentative)
+        {
+            auto it = channels_.find(message.params_.at(1));
+            if(it != channels_.end())
+            {
+                it->second.topicSetter_ = message.params_.at(2);
+                it->second.topicSetTime_ = boost::posix_time::from_time_t(
+                    boost::lexical_cast<time_t>(message.params_.at(3)));
             }
         }
         else if(message.command_ == "353") // RPL_NAMREPLY
@@ -354,11 +536,11 @@ namespace SudaGureum
 
                 it->second.accessivity_ = accessivity;
 
-                std::vector<std::string> participants;
-                boost::algorithm::split(participants, message.params_.at(3), boost::algorithm::is_space());
-                for(std::string &participant: participants)
+                std::vector<std::string> participantNicknames;
+                boost::algorithm::split(participantNicknames, message.params_.at(3), boost::algorithm::is_space());
+                for(std::string &nickname: participantNicknames)
                 {
-                    it->second.participants_.emplace(std::move(participant)); // TODO: split permission
+                    it->second.participants_.insert(parseParticipant(nickname));
                 }
             }
         }
@@ -429,10 +611,11 @@ namespace SudaGureum
         }
     }
 
-    std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames)
+    std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::string &encoding,
+        const std::vector<std::string> &nicknames)
     {
         std::shared_ptr<IrcClient> client(new IrcClient(ios_, *this));
-        client->connect(addr, port, nicknames);
+        client->connect(addr, port, encoding, nicknames);
         {
             std::lock_guard<std::mutex> lock(clientsLock_);
             clients_.insert(client);

@@ -35,6 +35,8 @@ namespace SudaGureum
 
     bool IrcParser::parse(const std::string &str, const std::function<void (const IrcMessage &)> &cb)
     {
+        // TODO: cut if buffer is too large
+
         if(state_ == Error)
         {
             return false;

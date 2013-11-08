@@ -14,6 +14,7 @@
 // Standard C/C++ library & boost library inclusion
 
 #include <atomic>
+#include <bitset>
 #include <deque>
 #include <iostream>
 #include <memory>
@@ -28,10 +29,15 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/indexed_by.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
 
 using std::max; using std::min;
 
