@@ -160,10 +160,12 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
+    <ClInclude Include="Archive.h" />
     <ClInclude Include="SudaGureum.h" />
     <ClInclude Include="WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Archive.cpp" />
     <ClCompile Include="Common.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
