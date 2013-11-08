@@ -42,7 +42,42 @@ namespace SudaGureum
         };
 
     public:
-        typedef std::set<std::string, LessCaseInsensitive> ChannelParticipantSet;
+        struct Participant
+        {
+            enum Modes
+            {
+                Voice = 0,
+                HalfOp,
+                Op,
+                Admin,
+                Owner
+            };
+
+            std::bitset<5> modes_;
+            std::string nickname_;
+            bool away_;
+
+            Participant()
+                : away_(false)
+            {
+            }
+
+            explicit Participant(const std::string &nickname)
+                : nickname_(nickname)
+                , away_(false)
+            {
+            }
+        };
+
+        typedef boost::multi_index_container<
+            Participant,
+            boost::multi_index::indexed_by<
+                boost::multi_index::ordered_unique<
+                    boost::multi_index::member<Participant, std::string, &Participant::nickname_>,
+                    LessCaseInsensitive
+                >
+            >
+        > ChannelParticipantSet;
 
         struct Channel
         {
@@ -54,14 +89,40 @@ namespace SudaGureum
             };
             char accessivity_;
             std::string topic_;
+            std::string topicSetter_;
+            boost::posix_time::ptime topicSetTime_;
             ChannelParticipantSet participants_;
+            std::string key_;
+            size_t limit_;
+
+            Channel()
+                : accessivity_(0)
+            {
+            }
         };
 
         typedef std::unordered_map<std::string, Channel,
             HashCaseInsensitive, EqualToCaseInsensitive> ChannelMap;
 
+        typedef std::pair<char, char> CcPair;
+        typedef boost::multi_index_container<
+            CcPair,
+            boost::multi_index::indexed_by<
+                boost::multi_index::ordered_unique<
+                    boost::multi_index::member<CcPair, char, &CcPair::first>
+                >,
+                boost::multi_index::ordered_unique<
+                    boost::multi_index::member<CcPair, char, &CcPair::second>
+                >
+            >
+        > NicknamePrefixMap;
+
     private:
         static std::string getNicknameFromPrefix(const std::string &prefix);
+        static NicknamePrefixMap makeDefaultNicknamePrefixMap(); // TODO: remove when VS2013 introduced
+
+    private:
+        static const NicknamePrefixMap DefaultNicknamePrefixMap;
 
     private:
         IrcClient(boost::asio::io_service &ios, IrcClientPool &pool);
@@ -75,13 +136,15 @@ namespace SudaGureum
         void privmsg(const std::string &channel, const std::string &message);
 
     private:
-        void connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames);
+        void connect(const std::string &addr, uint16_t port, const std::string &encoding,
+            const std::vector<std::string> &nicknames);
         void tryNextNickname();
         void read();
         void sendMessage(const IrcMessage &message);
         void write(bool force = false);
         void close(bool clearMe = true);
         bool isMyPrefix(const std::string &prefix);
+        Participant parseParticipant(const std::string &nicknameWithPrefix);
 
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
@@ -93,6 +156,8 @@ namespace SudaGureum
         boost::asio::io_service &ios_;
         boost::asio::ip::tcp::socket socket_;
 
+        std::string encoding_;
+
         IrcParser parser_;
         std::array<char, 65536> bufferToRead_;
 
@@ -100,9 +165,13 @@ namespace SudaGureum
         std::deque<std::string> bufferToWrite_;
         std::atomic<bool> inWrite_;
 
+        std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> channelOptions_;
+        NicknamePrefixMap nicknamePrefixMap_;
+
         bool connectBeginning_;
         std::vector<std::string> nicknameCandidates_;
         size_t currentNicknameIndex_;
+
         std::string nickname_;
 
         ChannelMap channels_;
@@ -121,7 +190,8 @@ namespace SudaGureum
     public:
         void run(int numThreads);
         void join();
-        std::weak_ptr<IrcClient> connect(const std::string &addr, uint16_t port, const std::vector<std::string> &nicknames);
+        std::weak_ptr<IrcClient> connect(const std::string &addr, uint16_t port, const std::string &encoding,
+            const std::vector<std::string> &nicknames);
         void closeAll();
 
     private:
