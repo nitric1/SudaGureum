@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
@@ -172,6 +173,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="MtIoService.cpp" />
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
     <ClCompile Include="SudaGureum.cpp" />
