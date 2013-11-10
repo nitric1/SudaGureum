@@ -87,10 +87,10 @@ namespace SudaGureum
         return boost::assign::map_list_of('~', 'q')('&', 'a')('@', 'o')('%', 'h')('+', 'v');
     }
 
-    IrcClient::IrcClient(boost::asio::io_service &ios, IrcClientPool &pool)
+    IrcClient::IrcClient(IrcClientPool &pool)
         : pool_(pool)
-        , ios_(ios)
-        , socket_(ios)
+        , ios_(pool.ios_)
+        , socket_(ios_)
         , inWrite_(false)
         , nicknamePrefixMap_(DefaultNicknamePrefixMap)
         , connectBeginning_(false)
@@ -242,12 +242,12 @@ namespace SudaGureum
         sendMessage(IrcMessage("QUIT", boost::assign::list_of("Bye!"))); // TODO: timeout required
     }
 
-    bool IrcClient::isMyPrefix(const std::string &prefix)
+    bool IrcClient::isMyPrefix(const std::string &prefix) const
     {
         return nickname_ == getNicknameFromPrefix(prefix);
     }
 
-    IrcClient::Participant IrcClient::parseParticipant(const std::string &nicknameWithPrefix)
+    IrcClient::Participant IrcClient::parseParticipant(const std::string &nicknameWithPrefix) const
     {
         Participant participant;
         if(nicknameWithPrefix.empty())
@@ -344,73 +344,92 @@ namespace SudaGureum
         }
         else if(message.command_ == "MODE")
         {
-            const std::string &channel = message.params_.at(0);
-            auto it = channels_.find(channel);
-            if(it != channels_.end())
+            const std::string &to = message.params_.at(0);
+            if(to == nickname_)
             {
-                const std::string &modifier = message.params_.at(1);
-
-                size_t nextParamIdx = 2;
-                auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
-
-                boost::logic::tribool operation = boost::logic::indeterminate;
-                for(char ch: modifier)
+            }
+            else
+            {
+                auto it = channels_.find(to);
+                if(it != channels_.end())
                 {
-                    switch(ch)
+                    const std::string &modifier = message.params_.at(1);
+
+                    size_t nextParamIdx = 2;
+                    auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
+
+                    boost::logic::tribool operation = boost::logic::indeterminate;
+                    // XXX: need to follow CHANMODES and PREFIX?
+                    for(char ch: modifier)
                     {
-                    case '+':
-                        operation = true;
-                        break;
-
-                    case '-':
-                        operation = false;
-                        break;
-
-                    case 'O': // channel creator
-                        break;
-
-                    case 'q': // owner
-                    case 'a': // admin
-                    case 'o': // op
-                    case 'h': // half-op
-                    case 'v': // voice
-                        if(!boost::logic::indeterminate(operation))
+                        switch(ch)
                         {
-                            auto partIt = it->second.participants_.find(nextParam());
-                            if(partIt != it->second.participants_.end())
-                            {
-                                it->second.participants_.modify(partIt, [operation, ch](Participant &p)
-                                {
-                                    if(operation)
-                                    {
-                                        p.modes_.set(participantModeFromPermission(ch));
-                                    }
-                                    else
-                                    {
-                                        p.modes_.reset(participantModeFromPermission(ch));
-                                    }
-                                });
-                            }
+                        case '+':
+                            operation = true;
+                            continue;
+
+                        case '-':
+                            operation = false;
+                            continue;
                         }
-                        break;
 
-                    case 'l': // limit
-                        break;
+                        if(boost::logic::indeterminate(operation)) // +- required for server response
+                            continue;
 
-                    case 'k': // key
-                        break;
+                        switch(ch)
+                        {
+                        case 'O': // channel creator
+                            break;
 
-                    case 'b': // ban
-                        break;
+                        case 'q': // owner
+                        case 'a': // admin
+                        case 'o': // op
+                        case 'h': // half-op
+                        case 'v': // voice
+                            if(!boost::logic::indeterminate(operation))
+                            {
+                                auto partIt = it->second.participants_.find(nextParam());
+                                if(partIt != it->second.participants_.end())
+                                {
+                                    it->second.participants_.modify(partIt, [operation, ch](Participant &p)
+                                    {
+                                        if(operation)
+                                        {
+                                            p.modes_.set(participantModeFromPermission(ch));
+                                        }
+                                        else
+                                        {
+                                            p.modes_.reset(participantModeFromPermission(ch));
+                                        }
+                                    });
+                                }
+                            }
+                            break;
 
-                    case 'e': // ban exception
-                        break;
+                        case 'l': // limit
+                            break;
 
-                    case 'I': // invitation mask
-                        break;
+                        case 'k': // key
+                            break;
 
-                    default:
-                        break;
+                        case 'b': // ban
+                            break;
+
+                        case 'e': // ban exception
+                            break;
+
+                        case 'I': // invitation mask
+                            break;
+
+                        default: // consume params
+                            if(std::binary_search(channelModes_[0].begin(), channelModes_[0].end(), ch)) // mode A
+                                nextParam();
+                            else if(std::binary_search(channelModes_[1].begin(), channelModes_[1].end(), ch)) // mode B
+                                nextParam();
+                            else if(operation && std::binary_search(channelModes_[2].begin(), channelModes_[2].end(), ch)) // mode C
+                                nextParam();
+                            break;
+                        }
                     }
                 }
             }
@@ -444,6 +463,7 @@ namespace SudaGureum
         else if(message.command_ == "001") // RPL_WELCOME
         {
             connectBeginning_ = false;
+            sendMessage(IrcMessage("MODE", boost::assign::list_of(nickname_)("+x")));
             sendMessage(IrcMessage("JOIN", boost::assign::list_of("#HNO3")));
         }
         else if(message.command_ == "005") // RPL_ISUPPORT
@@ -456,19 +476,33 @@ namespace SudaGureum
                 {
                     name = it->substr(0, equalPos);
                     value = it->substr(equalPos + 1);
-                    channelOptions_.emplace(name, value);
+                    serverOptions_.emplace(name, value);
                 }
                 else
                 {
                     value.clear();
-                    channelOptions_.emplace(name, value);
+                    serverOptions_.emplace(name, value);
                 }
 
-                if(name == "CHANMODES")
+                if(name == "CHANTYPES")
+                {
+                    channelTypes_ = std::move(value);
+                    std::sort(channelTypes_.begin(), channelTypes_.end());
+                }
+                else if(name == "CHANMODES")
                 {
                     std::vector<std::string> supportedModes;
+                    boost::algorithm::split(supportedModes, value, [](char ch) { return ch == ','; });
+                    if(supportedModes.size() == 4)
+                    {
+                        for(size_t i = 0; i < 4; ++ i)
+                        {
+                            channelModes_[i] = std::move(supportedModes[i]);
+                            std::sort(channelModes_[i].begin(), channelModes_[i].end());
+                        }
+                    }
                 }
-                if(name == "PREFIX")
+                else if(name == "PREFIX")
                 {
                     static const boost::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)", boost::regex::extended);
                     boost::smatch matched;
@@ -592,29 +626,10 @@ namespace SudaGureum
         });
     }
 
-    void IrcClientPool::run(int numThreads)
-    {
-        for(int i = 0; i < numThreads; ++ i)
-        {
-            std::shared_ptr<std::thread> thread(
-                new std::thread(std::bind(
-                    static_cast<size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ios_)));
-            threads_.push_back(thread);
-        }
-    }
-
-    void IrcClientPool::join()
-    {
-        for(auto &thread: threads_)
-        {
-            thread->join();
-        }
-    }
-
     std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::string &encoding,
         const std::vector<std::string> &nicknames)
     {
-        std::shared_ptr<IrcClient> client(new IrcClient(ios_, *this));
+        std::shared_ptr<IrcClient> client(new IrcClient(*this));
         client->connect(addr, port, encoding, nicknames);
         {
             std::lock_guard<std::mutex> lock(clientsLock_);
@@ -641,10 +656,5 @@ namespace SudaGureum
         {
             clients_.erase(it);
         }
-    }
-
-    void IrcClientPool::stop()
-    {
-        ios_.stop();
     }
 }

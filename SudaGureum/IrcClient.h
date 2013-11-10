@@ -1,12 +1,13 @@
 #pragma once
 
 #include "IrcParser.h"
+#include "MtIoService.h"
 
 namespace SudaGureum
 {
     class IrcClientPool;
 
-    class IrcClient : public std::enable_shared_from_this<IrcClient>
+    class IrcClient : public boost::noncopyable, public std::enable_shared_from_this<IrcClient>
     {
     private:
         struct LessCaseInsensitive : public std::binary_function<std::string, std::string, bool>
@@ -125,7 +126,7 @@ namespace SudaGureum
         static const NicknamePrefixMap DefaultNicknamePrefixMap;
 
     private:
-        IrcClient(boost::asio::io_service &ios, IrcClientPool &pool);
+        IrcClient(IrcClientPool &pool);
 
     public:
         void nickname(const std::string &nickname);
@@ -143,8 +144,8 @@ namespace SudaGureum
         void sendMessage(const IrcMessage &message);
         void write(bool force = false);
         void close(bool clearMe = true);
-        bool isMyPrefix(const std::string &prefix);
-        Participant parseParticipant(const std::string &nicknameWithPrefix);
+        bool isMyPrefix(const std::string &prefix) const;
+        Participant parseParticipant(const std::string &nicknameWithPrefix) const;
 
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
@@ -165,7 +166,9 @@ namespace SudaGureum
         std::deque<std::string> bufferToWrite_;
         std::atomic<bool> inWrite_;
 
-        std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> channelOptions_;
+        std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> serverOptions_;
+        std::array<std::string, 4> channelModes_;
+        std::string channelTypes_;
         NicknamePrefixMap nicknamePrefixMap_;
 
         bool connectBeginning_;
@@ -182,26 +185,21 @@ namespace SudaGureum
         friend class IrcClientPool;
     };
 
-    class IrcClientPool
+    class IrcClientPool : public boost::noncopyable, public MtIoService
     {
     public:
         IrcClientPool();
 
     public:
-        void run(int numThreads);
-        void join();
         std::weak_ptr<IrcClient> connect(const std::string &addr, uint16_t port, const std::string &encoding,
             const std::vector<std::string> &nicknames);
         void closeAll();
 
     private:
         void closed(const std::shared_ptr<IrcClient> &client);
-        void stop();
 
     private:
-        boost::asio::io_service ios_;
         boost::asio::signal_set signals_; // TODO: temporary
-        std::vector<std::shared_ptr<std::thread>> threads_;
         std::mutex clientsLock_;
         std::unordered_set<std::shared_ptr<IrcClient>> clients_;
 
