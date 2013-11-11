@@ -163,6 +163,7 @@
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
     <ClInclude Include="SudaGureum.h" />
+    <ClInclude Include="WebSocketParser.h" />
     <ClInclude Include="WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +178,7 @@
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
     <ClCompile Include="SudaGureum.cpp" />
+    <ClCompile Include="WebSocketParser.cpp" />
     <ClCompile Include="WebSocketServer.cpp" />
   </ItemGroup>
   <ItemGroup>
