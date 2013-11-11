@@ -39,6 +39,6 @@ namespace SudaGureum
 
     private:
         State state_;
-        std::stringstream buffer_;
+        std::string buffer_;
     };
 }
