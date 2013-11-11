@@ -426,6 +426,8 @@ namespace SudaGureum
                                 nextParam();
                             else if(std::binary_search(channelModes_[1].begin(), channelModes_[1].end(), ch)) // mode B
                                 nextParam();
+                            else if(nicknamePrefixMap_.get<1>().find(ch) != nicknamePrefixMap_.get<1>().end()) // prefix; considered as mode B
+                                nextParam();
                             else if(operation && std::binary_search(channelModes_[2].begin(), channelModes_[2].end(), ch)) // mode C
                                 nextParam();
                             break;

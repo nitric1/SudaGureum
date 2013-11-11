@@ -55,7 +55,7 @@ namespace SudaGureum
                 }
                 else
                 {
-                    buffer_ << ch;
+                    buffer_ += ch;
                     state_ = InLine;
                 }
                 break;
@@ -67,17 +67,16 @@ namespace SudaGureum
                     {
                         state_ = WaitLf;
                     }
-                    if(!parseMessage(buffer_.str(), cb))
+                    if(!parseMessage(buffer_, cb))
                     {
                         state_ = Error;
                         return false;
                     }
-                    buffer_.str("");
-                    break;
+                    buffer_.clear();
                 }
                 else
                 {
-                    buffer_ << ch;
+                    buffer_ += ch;
                 }
                 break;
 
