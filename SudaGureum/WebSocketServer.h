@@ -18,7 +18,7 @@ namespace SudaGureum
     private:
         void read();
         void write();
-        void close();
+        void close(bool clearMe = true);
 
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
@@ -35,7 +35,11 @@ namespace SudaGureum
 
         std::mutex bufferWriteLock_;
         std::deque<std::vector<uint8_t>> bufferToWrite_;
+        std::mutex writeLock_;
         std::atomic<bool> inWrite_;
+
+        bool closeReady_;
+        bool clearMe_;
 
         friend class WebSocketServer;
     };

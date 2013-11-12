@@ -196,9 +196,11 @@ namespace SudaGureum
         write();
     }
 
-    void IrcClient::write(bool force)
+    void IrcClient::write()
     {
-        if(inWrite_.exchange(true) && !force)
+        std::lock_guard<std::mutex> lock(writeLock_);
+
+        if(inWrite_.exchange(true))
         {
             return;
         }
@@ -208,14 +210,14 @@ namespace SudaGureum
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
             if(!bufferToWrite_.empty())
             {
-                message = bufferToWrite_.front();
+                message = std::move(bufferToWrite_.front());
                 bufferToWrite_.pop_front();
             }
         }
 
         if(!message.empty())
         {
-            std::shared_ptr<std::string> messagePtr(new std::string(message));
+            std::shared_ptr<std::string> messagePtr(new std::string(std::move(message)));
 
             boost::asio::async_write(
                 socket_,
@@ -280,7 +282,7 @@ namespace SudaGureum
         parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
             std::bind(&IrcClient::procMessage, this, std::placeholders::_1));
 
-        if(!quitReady_)
+        // if(!quitReady_)
         {
             read();
         }
@@ -289,10 +291,10 @@ namespace SudaGureum
     void IrcClient::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred,
         const std::shared_ptr<std::string> &messagePtr)
     {
+        inWrite_ = false;
+
         if(ec || quitReady_)
         {
-            inWrite_ = false;
-
             if(ec)
             {
                 // TODO: error log
@@ -301,8 +303,7 @@ namespace SudaGureum
             }
         }
 
-        write(true);
-        inWrite_ = false;
+        write();
     }
 
     void IrcClient::procMessage(const IrcMessage &message)
