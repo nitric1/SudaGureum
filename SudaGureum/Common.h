@@ -16,9 +16,11 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
+// FIXME: g++ does not support <codecvt>. Use <codecvt> instead of <boost/locale.hpp> AFTER g++ supports it.
+
 #include <atomic>
 #include <bitset>
-#include <codecvt>
+// #include <codecvt>
 #include <deque>
 #include <iostream>
 #include <locale>
@@ -38,6 +40,7 @@
 #include <boost/detail/endian.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/locale.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/indexed_by.hpp>

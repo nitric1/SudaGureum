@@ -10,10 +10,14 @@ namespace SudaGureum
     {
         void print(const std::wstring &wstr)
         {
+#ifdef _WIN32
             size_t len = static_cast<size_t>(WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr));
             std::vector<char> buf(len);
             WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buf.data(), static_cast<int>(len), nullptr, nullptr);
             std::cout << buf.data();
+#else
+            std::cout << boost::locale::conv::from_utf(wstr, std::locale(""));
+#endif
         }
 
         std::string encodeMessage(const IrcMessage &message)
