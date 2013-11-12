@@ -38,7 +38,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Bin)
 set(CMAKE_C_FLAGS "${FLAG}")
 set(CMAKE_CXX_FLAGS "${FLAG}")
 
-file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp" "Batang/*.cpp")
+file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.51.0 COMPONENTS thread filesystem date_time)
