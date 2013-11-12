@@ -1,8 +1,8 @@
 #include "Common.h"
 
-#include "Batang/Utility.h"
-
 #include "IrcClient.h"
+
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -191,7 +191,7 @@ namespace SudaGureum
         {
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
             bufferToWrite_.push_back(encodeMessage(message) + "\r\n");
-            print(Batang::decodeUTF8(nickname_ + ">>> " + bufferToWrite_.back()));
+            print(decodeUtf8(nickname_ + ">>> " + bufferToWrite_.back()));
         }
         write();
     }
@@ -310,7 +310,7 @@ namespace SudaGureum
     {
         // TODO: asserts(error and close) or fail-safe process
 
-        print(Batang::decodeUTF8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
+        print(decodeUtf8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
 
         // Dictionary order; letters first.
 

@@ -15,8 +15,10 @@
 
 #include <atomic>
 #include <bitset>
+#include <codecvt>
 #include <deque>
 #include <iostream>
+#include <locale>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -45,4 +47,4 @@ using std::max; using std::min;
 
 // Other common inclusion
 
-#include "Batang/Types.h"
+#include "Types.h"

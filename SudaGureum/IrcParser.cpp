@@ -1,8 +1,8 @@
 #include "Common.h"
 
-#include "Batang/Utility.h"
-
 #include "IrcParser.h"
+
+#include "Utility.h"
 
 namespace SudaGureum
 {

@@ -1,10 +1,9 @@
 #include "Common.h"
 
-#include "Batang/Utility.h"
-
 #include "SudaGureum.h"
 
 #include "IrcClient.h"
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -39,7 +38,7 @@ namespace SudaGureum
             std::vector<wchar_t> wbuf(wlen);
             MultiByteToWideChar(CP_ACP, 0, line.c_str(), -1, wbuf.data(), static_cast<int>(wlen));
 
-            client1.lock()->privmsg("#HNO3", Batang::encodeUTF8(wbuf.data()));
+            client1.lock()->privmsg("#HNO3", encodeUtf8(wbuf.data()));
         }
 
         pool.closeAll();
