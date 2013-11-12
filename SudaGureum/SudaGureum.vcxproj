@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Comparator.h" />
     <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
