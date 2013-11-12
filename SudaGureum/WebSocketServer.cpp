@@ -8,6 +8,8 @@ namespace SudaGureum
         : server_(server)
         , ios_(server.ios_)
         , socket_(ios_)
+        , closeReady_(false)
+        , clearMe_(false)
     {
     }
 
@@ -30,10 +32,50 @@ namespace SudaGureum
 
     void WebSocketConnection::write()
     {
+        std::lock_guard<std::mutex> lock(writeLock_);
+
+        if(inWrite_.exchange(true))
+        {
+            return;
+        }
+
+        std::vector<uint8_t> frame;
+        {
+            std::lock_guard<std::mutex> lock(bufferWriteLock_);
+            if(!bufferToWrite_.empty())
+            {
+                frame = std::move(bufferToWrite_.front());
+                bufferToWrite_.pop_front();
+            }
+        }
+
+        if(!frame.empty())
+        {
+            std::shared_ptr<std::vector<uint8_t>> framePtr(new std::vector<uint8_t>(std::move(frame)));
+
+            boost::asio::async_write(
+                socket_,
+                boost::asio::buffer(*framePtr, framePtr->size()),
+                boost::bind(
+                    std::mem_fn(&WebSocketConnection::handleWrite),
+                    shared_from_this(),
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred,
+                    framePtr
+                )
+            );
+        }
+        else
+        {
+            inWrite_ = false;
+        }
     }
 
-    void WebSocketConnection::close()
+    void WebSocketConnection::close(bool clearMe)
     {
+        closeReady_ = true;
+        clearMe_ = clearMe;
+        // TODO: send frame & timeout
     }
 
     void WebSocketConnection::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
@@ -56,6 +98,19 @@ namespace SudaGureum
 
     void WebSocketConnection::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::vector<uint8_t>> &messagePtr)
     {
+        inWrite_ = false;
+
+        if(ec || closeReady_)
+        {
+            if(ec)
+            {
+                // TODO: error log
+                close();
+                return;
+            }
+        }
+
+        write();
     }
 
     void WebSocketConnection::procMessage(const WebSocketMessage &message)

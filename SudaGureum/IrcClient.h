@@ -142,7 +142,7 @@ namespace SudaGureum
         void tryNextNickname();
         void read();
         void sendMessage(const IrcMessage &message);
-        void write(bool force = false);
+        void write();
         void close(bool clearMe = true);
         bool isMyPrefix(const std::string &prefix) const;
         Participant parseParticipant(const std::string &nicknameWithPrefix) const;
@@ -164,6 +164,7 @@ namespace SudaGureum
 
         std::mutex bufferWriteLock_;
         std::deque<std::string> bufferToWrite_;
+        std::mutex writeLock_;
         std::atomic<bool> inWrite_;
 
         std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> serverOptions_;
