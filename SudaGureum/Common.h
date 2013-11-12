@@ -1,5 +1,8 @@
 #pragma once
 
+// Definition for windows
+
+#define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #define _VARIADIC_MAX 10
 #define _SCL_SECURE_NO_WARNINGS
