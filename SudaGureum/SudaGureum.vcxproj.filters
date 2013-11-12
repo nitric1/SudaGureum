@@ -39,6 +39,9 @@
     <ClInclude Include="MtIoService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Comparator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
