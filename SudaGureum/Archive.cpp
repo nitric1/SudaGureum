@@ -4,4 +4,7 @@
 
 namespace SudaGureum
 {
+    Archive::Archive(const std::string &userIdentity, const std::string &serverName)
+    {
+    }
 }
