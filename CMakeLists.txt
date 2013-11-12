@@ -40,9 +40,8 @@ set(CMAKE_CXX_FLAGS "${FLAG}")
 
 file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
-find_package(Boost 1.51.0 COMPONENTS thread filesystem date_time locale
-	REQUIRED)
-include_directories(${Boost_INCLUDE_DIR} ".")
+find_package(Boost 1.51.0 COMPONENTS locale system regex REQUIRED)
+include_directories(${Boost_INCLUDE_DIR} "." "External/Include")
 link_directories(${Boost_LIBRARY_DIR})
 
 add_executable(SudaGureum ${SOURCES})
