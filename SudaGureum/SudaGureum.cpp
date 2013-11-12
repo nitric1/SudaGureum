@@ -9,6 +9,12 @@ namespace SudaGureum
 {
     void run()
     {
+#ifndef _WIN32
+        boost::locale::generator gen;
+        std::locale loc = gen("");
+        std::locale::global(loc);
+#endif
+
         IrcClientPool pool;
 
         auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8",
@@ -41,7 +47,7 @@ namespace SudaGureum
 
             client1.lock()->privmsg("#HNO3", encodeUtf8(wbuf.data()));
 #else
-            client1.lock()->privmsg("#HNO3", boost::locale::conv::to_utf<char>(line, std::locale("")));
+            client1.lock()->privmsg("#HNO3", boost::locale::conv::to_utf<char>(line, std::locale()));
 #endif
         }
 

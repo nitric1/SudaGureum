@@ -16,7 +16,7 @@ namespace SudaGureum
             WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buf.data(), static_cast<int>(len), nullptr, nullptr);
             std::cout << buf.data();
 #else
-            std::cout << boost::locale::conv::from_utf(wstr, std::locale(""));
+            std::cout << boost::locale::conv::from_utf(wstr, std::locale());
 #endif
         }
 
