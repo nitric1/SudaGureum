@@ -163,6 +163,8 @@
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
     <ClInclude Include="SudaGureum.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="WebSocketParser.h" />
     <ClInclude Include="WebSocketServer.h" />
   </ItemGroup>
@@ -178,13 +180,9 @@
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
     <ClCompile Include="SudaGureum.cpp" />
+    <ClCompile Include="Utility.cpp" />
     <ClCompile Include="WebSocketParser.cpp" />
     <ClCompile Include="WebSocketServer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Batang\Batang.vcxproj">
-      <Project>{bca16472-2ead-4a5f-99ed-c4e98a17999d}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
