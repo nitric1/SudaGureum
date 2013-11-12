@@ -40,8 +40,8 @@ set(CMAKE_CXX_FLAGS "${FLAG}")
 
 file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.51.0 COMPONENTS thread filesystem date_time)
+find_package(Boost 1.51.0 COMPONENTS thread filesystem date_time locale
+	REQUIRED)
 include_directories(${Boost_INCLUDE_DIR} ".")
 link_directories(${Boost_LIBRARY_DIR})
 

@@ -34,11 +34,15 @@ namespace SudaGureum
                 break;
             }
 
+#ifdef _WIN32
             size_t wlen = static_cast<size_t>(MultiByteToWideChar(CP_ACP, 0, line.c_str(), -1, nullptr, 0));
             std::vector<wchar_t> wbuf(wlen);
             MultiByteToWideChar(CP_ACP, 0, line.c_str(), -1, wbuf.data(), static_cast<int>(wlen));
 
             client1.lock()->privmsg("#HNO3", encodeUtf8(wbuf.data()));
+#else
+            client1.lock()->privmsg("#HNO3", boost::locale::conv::to_utf<char>(line, std::locale("")));
+#endif
         }
 
         pool.closeAll();
