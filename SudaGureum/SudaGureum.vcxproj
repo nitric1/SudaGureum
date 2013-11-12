@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\External\Include\EREndian.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Comparator.h" />
     <ClInclude Include="MtIoService.h" />
