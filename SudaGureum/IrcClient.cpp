@@ -279,7 +279,10 @@ namespace SudaGureum
         if(ec)
         {
             // TODO: error log
-            close();
+            if(!quitReady_)
+            {
+                close();
+            }
             return;
         }
 
@@ -299,15 +302,17 @@ namespace SudaGureum
 
         if(ec || quitReady_)
         {
-            if(ec)
+            if(ec && !quitReady_)
             {
                 // TODO: error log
                 close();
                 return;
             }
         }
-
-        write();
+        else
+        {
+            write();
+        }
     }
 
     void IrcClient::procMessage(const IrcMessage &message)
