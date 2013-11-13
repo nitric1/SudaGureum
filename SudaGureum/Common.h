@@ -18,6 +18,7 @@
 
 // FIXME: g++ does not support <codecvt>. Use <codecvt> instead of <boost/locale.hpp> AFTER g++ supports it.
 
+#include <algorithm>
 #include <atomic>
 #include <bitset>
 // #include <codecvt>
@@ -28,11 +29,15 @@
 #include <mutex>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -47,6 +52,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/regex.hpp>
+#include <boost/uuid/sha1.hpp>
 
 using std::max; using std::min;
 
