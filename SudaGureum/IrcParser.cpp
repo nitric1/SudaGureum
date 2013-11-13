@@ -108,7 +108,7 @@ namespace SudaGureum
         } state = None;
 
         std::vector<std::string> words;
-        boost::algorithm::split(words, line, [](char ch) { return ch == ' '; });
+        boost::algorithm::split(words, line, boost::algorithm::is_any_of(" "));
 
         IrcMessage message;
         for(const std::string &word: words)

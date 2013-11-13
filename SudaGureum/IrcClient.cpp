@@ -499,7 +499,7 @@ namespace SudaGureum
                 else if(name == "CHANMODES")
                 {
                     std::vector<std::string> supportedModes;
-                    boost::algorithm::split(supportedModes, value, [](char ch) { return ch == ','; });
+                    boost::algorithm::split(supportedModes, value, boost::algorithm::is_any_of(","));
                     if(supportedModes.size() == 4)
                     {
                         for(size_t i = 0; i < 4; ++ i)
