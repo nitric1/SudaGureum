@@ -47,7 +47,7 @@ namespace SudaGureum
         }
         else if(encoded.size() < 4)
         {
-            throw(std::bad_cast("base64 string is too short"));
+            throw(std::invalid_argument("base64 string is too short"));
         }
 
         size_t padLen = std::count(encoded.end() - 2, encoded.end(), '=');
