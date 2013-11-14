@@ -112,6 +112,7 @@ namespace SudaGureum
         void write();
         void close(bool clearMe = true);
         bool isMyPrefix(const std::string &prefix) const;
+        bool isChannel(const std::string &str) const;
         Participant parseParticipant(const std::string &nicknameWithPrefix) const;
 
     private:

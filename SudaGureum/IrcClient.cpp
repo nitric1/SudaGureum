@@ -251,6 +251,13 @@ namespace SudaGureum
         return nickname_ == getNicknameFromPrefix(prefix);
     }
 
+    bool IrcClient::isChannel(const std::string &str) const
+    {
+        if(str.empty())
+            return false;
+        return std::find(channelTypes_.begin(), channelTypes_.end(), str[0]) != channelTypes_.end();
+    }
+
     IrcClient::Participant IrcClient::parseParticipant(const std::string &nicknameWithPrefix) const
     {
         Participant participant;
