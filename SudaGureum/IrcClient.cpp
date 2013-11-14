@@ -67,7 +67,10 @@ namespace SudaGureum
         }
     }
 
-    const IrcClient::NicknamePrefixMap IrcClient::DefaultNicknamePrefixMap = IrcClient::makeDefaultNicknamePrefixMap();
+    const IrcClient::NicknamePrefixMap IrcClient::DefaultNicknamePrefixMap =
+    {
+        {'~', 'q'}, {'&', 'a'}, {'@', 'o'}, {'%', 'h'}, {'+', 'v'}
+    };
 
     std::string IrcClient::getNicknameFromPrefix(const std::string &prefix)
     {
@@ -84,11 +87,6 @@ namespace SudaGureum
         }
 
         return prefix;
-    }
-
-    IrcClient::NicknamePrefixMap IrcClient::makeDefaultNicknamePrefixMap()
-    {
-        return boost::assign::map_list_of('~', 'q')('&', 'a')('@', 'o')('%', 'h')('+', 'v');
     }
 
     IrcClient::IrcClient(IrcClientPool &pool)
@@ -108,27 +106,27 @@ namespace SudaGureum
     {
         nickname_ = nickname;
 
-        sendMessage(IrcMessage("NICK", boost::assign::list_of(nickname)));
+        sendMessage(IrcMessage("NICK", {nickname}));
     }
 
     void IrcClient::join(const std::string &channel)
     {
-        sendMessage(IrcMessage("JOIN", boost::assign::list_of(channel)));
+        sendMessage(IrcMessage("JOIN", {channel}));
     }
 
     void IrcClient::join(const std::string &channel, const std::string &key)
     {
-        sendMessage(IrcMessage("JOIN", boost::assign::list_of(channel)(key)));
+        sendMessage(IrcMessage("JOIN", {channel, key}));
     }
 
     void IrcClient::part(const std::string &channel, const std::string &message)
     {
-        sendMessage(IrcMessage("PART", boost::assign::list_of(channel)(message)));
+        sendMessage(IrcMessage("PART", {channel, message}));
     }
 
     void IrcClient::privmsg(const std::string &channel, const std::string &message)
     {
-        sendMessage(IrcMessage("PRIVMSG", boost::assign::list_of(channel)(message)));
+        sendMessage(IrcMessage("PRIVMSG", {channel, message}));
     }
 
     void IrcClient::connect(const std::string &addr, uint16_t port, const std::string &encoding,
@@ -153,7 +151,7 @@ namespace SudaGureum
                 if(!ec)
                 {
                     connectBeginning_ = true;
-                    sendMessage(IrcMessage("USER", boost::assign::list_of(nicknameCandidates_[0])("0")("*")(nicknameCandidates_[0])));
+                    sendMessage(IrcMessage("USER", {nicknameCandidates_[0], "0", "*", nicknameCandidates_[0]}));
                     nickname(nicknameCandidates_[0]);
                     read();
                 }
@@ -245,7 +243,7 @@ namespace SudaGureum
     {
         quitReady_ = true;
         clearMe_ = clearMe;
-        sendMessage(IrcMessage("QUIT", boost::assign::list_of("Bye!"))); // TODO: timeout required
+        sendMessage(IrcMessage("QUIT", {"Bye!"})); // TODO: timeout required
     }
 
     bool IrcClient::isMyPrefix(const std::string &prefix) const
@@ -475,8 +473,8 @@ namespace SudaGureum
         else if(message.command_ == "001") // RPL_WELCOME
         {
             connectBeginning_ = false;
-            sendMessage(IrcMessage("MODE", boost::assign::list_of(nickname_)("+x")));
-            sendMessage(IrcMessage("JOIN", boost::assign::list_of("#HNO3")));
+            sendMessage(IrcMessage("MODE", {nickname_, "+x"}));
+            sendMessage(IrcMessage("JOIN", {"#HNO3"}));
         }
         else if(message.command_ == "005") // RPL_ISUPPORT
         {
