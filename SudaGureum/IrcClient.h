@@ -88,7 +88,6 @@ namespace SudaGureum
 
     private:
         static std::string getNicknameFromPrefix(const std::string &prefix);
-        static NicknamePrefixMap makeDefaultNicknamePrefixMap(); // TODO: remove when VS2013 introduced
 
     private:
         static const NicknamePrefixMap DefaultNicknamePrefixMap;

@@ -17,8 +17,7 @@ namespace SudaGureum
 
         IrcClientPool pool;
 
-        auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8",
-            boost::assign::list_of("SudaGureum1")("SudaGureum2"));
+        auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
 
         pool.run(4);
 
