@@ -23,7 +23,9 @@ namespace SudaGureum
 
     WebSocketParser::WebSocketParser()
         : state_(WaitHandshakeHttpStatus)
+        , connectionUpgrade_(false)
         , upgraded_(false)
+        , versionValid_(false)
         , finalFragment_(false)
         , masked_(false)
         , payloadLen1_(0)
@@ -87,7 +89,7 @@ namespace SudaGureum
                 }
                 else if(ch == '\n')
                 {
-                    state_ = WaitWebSocketFrameHeader;
+                    state_ = InWebSocketFrameHeader;
                 }
                 else
                 {
@@ -109,6 +111,7 @@ namespace SudaGureum
                     }
                     if(!parseHttpHeader(std::string(buffer_.begin(), buffer_.end())))
                     {
+                        cb(WebSocketMessage("BadRequest"));
                         state_ = Error;
                         return false;
                     }
@@ -127,6 +130,7 @@ namespace SudaGureum
                 }
                 else
                 {
+                    cb(WebSocketMessage("BadRequest"));
                     state_ = Error;
                     return false;
                 }
@@ -135,14 +139,18 @@ namespace SudaGureum
             case WaitHandshakeEndLf:
                 if(ch == '\n')
                 {
-                    if(host_.empty() || origin_.empty() || key_.empty() || !upgraded_)
+                    if(host_.empty() || origin_.empty() || key_.empty() ||
+                        !connectionUpgrade_ || !upgraded_ || !versionValid_)
                     {
+                        cb(WebSocketMessage("BadRequest"));
                         state_ = Error;
                         return false;
                     }
 
-                    cb(WebSocketMessage("Connected"));
-                    state_ = WaitWebSocketFrameHeader;
+                    // TODO: Message standard is not set; may be changed.
+                    cb(WebSocketMessage("HandshakeRequest",
+                        {{"Path", path_}, {"Host", host_}, {"Origin", origin_}, {"Key", key_}}));
+                    state_ = InWebSocketFrameHeader;
                 }
                 else
                 {
@@ -151,12 +159,12 @@ namespace SudaGureum
                 }
                 break;
 
-            case WaitWebSocketFrameHeader:
+            case InWebSocketFrameHeader:
                 buffer_.push_back(ch);
                 if(buffer_.size() == 2)
                 {
                     finalFragment_ = (buffer_[0] & 0x80) != 0;
-                    opcode_ = (buffer_[0] & 0x0F);
+                    opcode_ = static_cast<WebSocketFrameOpcode>(buffer_[0] & 0x0F);
                     masked_ = (buffer_[1] & 0x80) != 0;
                     payloadLen1_ = (buffer_[1] & 0x7F);
 
@@ -165,7 +173,7 @@ namespace SudaGureum
                         payloadLen_ = payloadLen1_;
                         if(payloadLen_ == 0)
                         {
-                            // TODO: frame process
+                            parseEmptyFrame();
                         }
                         else
                         {
@@ -217,7 +225,8 @@ namespace SudaGureum
 
                         if(payloadLen_ == 0)
                         {
-                            // TODO: frame process
+                            state_ = Error; // Bad frame
+                            return false;
                         }
                         else
                         {
@@ -229,6 +238,13 @@ namespace SudaGureum
                 break;
 
             case InPayload:
+                buffer_.push_back(ch);
+                if(buffer_.size() == payloadLen_)
+                {
+                    parseFrame(std::move(buffer_));
+                    state_ = InWebSocketFrameHeader;
+                    buffer_.clear();
+                }
                 break;
             }
         }
@@ -236,7 +252,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::confirmHttpStatus(const std::string &line)
+    bool WebSocketParser::confirmHttpStatus(std::string &&line)
     {
         static const boost::regex HttpStatusRegex("GET ([^ ]+) HTTP\\/1\\.1", boost::regex::extended);
         boost::smatch match;
@@ -249,7 +265,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseHttpHeader(const std::string &line)
+    bool WebSocketParser::parseHttpHeader(std::string &&line)
     {
         size_t colonPos = line.find(":");
         if(colonPos == std::string::npos)
@@ -274,8 +290,55 @@ namespace SudaGureum
             origin_ = std::move(value);
         else if(boost::iequals(key, "Sec-WebSocket-Key"))
             key_ = std::move(value);
+        else if(boost::iequals(key, "Sec-WebSocket-Version"))
+        {
+            std::vector<std::string> versions;
+            boost::algorithm::split(versions, value, boost::algorithm::is_any_of(","));
+            versionValid_ = std::find_if(versions.begin(), versions.end(),
+                [](std::string &version)
+                {
+                    boost::algorithm::trim(version);
+                    return version == "13";
+                }) != versions.end();
+        }
+        else if(boost::iequals(key, "Connection"))
+            connectionUpgrade_ = boost::iequals(value, "Upgrade");
         else if(boost::iequals(key, "Upgrade"))
             upgraded_ = boost::iequals(value, "websocket");
+
+        return true;
+    }
+
+    bool WebSocketParser::parseEmptyFrame()
+    {
+        if(finalFragment_)
+        {
+        }
+
+        return true;
+    }
+
+    bool WebSocketParser::parseFrame(std::vector<uint8_t> &&data)
+    {
+        // TODO: consider opcode
+
+        if(masked_)
+        {
+            size_t i = 0;
+            for(uint8_t &ch : data)
+            {
+                ch ^= maskingKey_[(i ++) % 4];
+            }
+        }
+
+        totalPayload_.insert(totalPayload_.end(), data.begin(), data.end());
+
+        if(finalFragment_)
+        {
+            // TODO: play with totalPayload_
+
+            totalPayload_.clear();
+        }
 
         return true;
     }

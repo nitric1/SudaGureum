@@ -67,7 +67,7 @@ namespace SudaGureum
                     {
                         state_ = WaitLf;
                     }
-                    if(!parseMessage(buffer_, cb))
+                    if(!parseMessage(std::move(buffer_), cb))
                     {
                         state_ = Error;
                         return false;
@@ -97,7 +97,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool IrcParser::parseMessage(const std::string &line, const std::function<void (const IrcMessage &)> &cb)
+    bool IrcParser::parseMessage(std::string &&line, const std::function<void (const IrcMessage &)> &cb)
     {
         enum
         {

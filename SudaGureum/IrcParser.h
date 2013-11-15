@@ -35,7 +35,7 @@ namespace SudaGureum
         operator bool() const;
 
     private:
-        bool parseMessage(const std::string &line, const std::function<void (const IrcMessage &)> &cb);
+        bool parseMessage(std::string &&line, const std::function<void (const IrcMessage &)> &cb);
 
     private:
         State state_;
