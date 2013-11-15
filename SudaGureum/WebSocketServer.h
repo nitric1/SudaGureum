@@ -10,6 +10,9 @@ namespace SudaGureum
     class WebSocketConnection : public boost::noncopyable, public std::enable_shared_from_this<WebSocketConnection>
     {
     private:
+        static const std::string KeyConcatMagic;
+
+    private:
         WebSocketConnection(WebSocketServer &server);
 
     public:
@@ -17,6 +20,7 @@ namespace SudaGureum
 
     private:
         void read();
+        void sendRaw(const std::vector<uint8_t> &data);
         void write();
         void close(bool clearMe = true);
 

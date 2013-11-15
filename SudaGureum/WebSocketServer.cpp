@@ -2,8 +2,26 @@
 
 #include "WebSocketServer.h"
 
+#include "Utility.h"
+
 namespace SudaGureum
 {
+    namespace
+    {
+        std::vector<uint8_t> encodeFrame(WebSocketFrameOpcode opcode, const std::vector<uint8_t> &data)
+        {
+            // Don't use fragmented frame
+            return std::vector<uint8_t>();
+        }
+
+        std::vector<uint8_t> encodeMessage(const WebSocketMessage &message)
+        {
+            return std::vector<uint8_t>();
+        }
+    }
+
+    const std::string WebSocketConnection::KeyConcatMagic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
     WebSocketConnection::WebSocketConnection(WebSocketServer &server)
         : server_(server)
         , ios_(server.ios_)
@@ -11,6 +29,11 @@ namespace SudaGureum
         , closeReady_(false)
         , clearMe_(false)
     {
+    }
+
+    void WebSocketConnection::sendRaw(const std::vector<uint8_t> &data)
+    {
+
     }
 
     void WebSocketConnection::sendMessage(const WebSocketMessage &message)
@@ -115,6 +138,33 @@ namespace SudaGureum
 
     void WebSocketConnection::procMessage(const WebSocketMessage &message)
     {
+        if(message.command_ == "BadRequest")
+        {
+            static const std::string response =
+                "HTTP/1.1 400 Bad Request\r\n"
+                "Connection: close\r\n"
+                "Content-Type: text/plain; charset=UTF-8\r\n"
+                "\r\n"
+                "The request is bad.";
+            sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
+        }
+        else if(message.command_ == "HandshakeRequest")
+        {
+            boost::format responseFormat(
+                "HTTP/1.1 101 Switching Protocols\r\n"
+                "Connection: Upgrade\r\n"
+                "Upgrade: websocket\r\n"
+                "Sec-WebSocket-Accept: %1%\r\n"
+                "Sec-WebSocket-Version: 13\r\n"
+                "\r\n");
+
+            std::string accept = message.params_.find("Key")->second + KeyConcatMagic;
+            auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
+            std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
+
+            std::string response = (responseFormat % acceptHashed).str();
+            sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
+        }
     }
 
     WebSocketServer::WebSocketServer(uint16_t port)
