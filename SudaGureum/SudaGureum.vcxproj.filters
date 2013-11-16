@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="External Files">
-      <UniqueIdentifier>{8a907b84-bb2c-4323-a1c9-3191f9c9f72e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -45,13 +42,13 @@
     <ClInclude Include="Comparator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\External\Include\EREndian.h">
-      <Filter>External Files</Filter>
-    </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EREndian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,5 +80,10 @@
     <ClCompile Include="Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SudaGureum.props" />
+    <None Include="SudaGureum.Win32.props" />
+    <None Include="SudaGureum.x64.props" />
   </ItemGroup>
 </Project>
