@@ -16,7 +16,7 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
-// FIXME: g++ does not support <codecvt>. Use <codecvt> instead of <boost/locale.hpp> AFTER g++ supports it.
+// FIXME: g++ does not support <codecvt>. Use <codecvt> and remove <boost/locale.hpp> AFTER g++ supports it.
 
 #include <algorithm>
 #include <atomic>

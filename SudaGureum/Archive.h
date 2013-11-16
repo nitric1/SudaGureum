@@ -1,10 +1,12 @@
 #pragma once
 
+#include "User.h"
+
 namespace SudaGureum
 {
     class Archive
     {
     public:
-        Archive(const std::string &userIdentity, const std::string &serverName);
+        Archive(const User &user, const std::string &serverName);
     };
 }
