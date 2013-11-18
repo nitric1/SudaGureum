@@ -23,10 +23,12 @@ namespace SudaGureum
 
         std::string command_;
         ParamsMap params_;
+        std::vector<uint8_t> rawData_;
 
         WebSocketMessage();
         WebSocketMessage(const std::string &command);
         WebSocketMessage(const std::string &command, const ParamsMap &params);
+        WebSocketMessage(const std::string &command, std::vector<uint8_t> &&rawData);
     };
 
     class WebSocketParser
@@ -45,6 +47,9 @@ namespace SudaGureum
             Error
         };
 
+    private:
+        static bool IsControlFrameOpcode(WebSocketFrameOpcode opcode);
+
     public:
         WebSocketParser();
 
@@ -52,13 +57,13 @@ namespace SudaGureum
         bool parse(const std::vector<uint8_t> &data, const std::function<void (const WebSocketMessage &)> &cb);
 
     public:
-        operator bool() const;
+        explicit operator bool() const;
 
     private:
         bool confirmHttpStatus(std::string &&line);
         bool parseHttpHeader(std::string &&line);
-        bool parseEmptyFrame();
-        bool parseFrame(std::vector<uint8_t> &&payload);
+        bool parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb);
+        bool parseFrame(std::vector<uint8_t> &&payload, const std::function<void(const WebSocketMessage &)> &cb);
 
     private:
         State state_;
