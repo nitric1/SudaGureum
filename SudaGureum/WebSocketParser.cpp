@@ -21,6 +21,17 @@ namespace SudaGureum
     {
     }
 
+    WebSocketMessage::WebSocketMessage(const std::string &command, std::vector<uint8_t> &&rawData)
+        : command_(command)
+        , rawData_(std::move(rawData))
+    {
+    }
+
+    bool WebSocketParser::IsControlFrameOpcode(WebSocketFrameOpcode opcode)
+    {
+        return (static_cast<uint8_t>(opcode) & 0x08) != 0;
+    }
+
     WebSocketParser::WebSocketParser()
         : state_(WaitHandshakeHttpStatus)
         , connectionUpgrade_(false)
@@ -173,7 +184,7 @@ namespace SudaGureum
                         payloadLen_ = payloadLen1_;
                         if(payloadLen_ == 0)
                         {
-                            parseEmptyFrame();
+                            parseEmptyFrame(cb);
                         }
                         else
                         {
@@ -241,7 +252,7 @@ namespace SudaGureum
                 buffer_.push_back(ch);
                 if(buffer_.size() == payloadLen_)
                 {
-                    parseFrame(std::move(buffer_));
+                    parseFrame(std::move(buffer_), cb);
                     state_ = InWebSocketFrameHeader;
                     buffer_.clear();
                 }
@@ -309,7 +320,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseEmptyFrame()
+    bool WebSocketParser::parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb)
     {
         if(finalFragment_)
         {
@@ -318,10 +329,8 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseFrame(std::vector<uint8_t> &&data)
+    bool WebSocketParser::parseFrame(std::vector<uint8_t> &&data, const std::function<void(const WebSocketMessage &)> &cb)
     {
-        // TODO: consider opcode
-
         if(masked_)
         {
             size_t i = 0;
@@ -330,6 +339,35 @@ namespace SudaGureum
                 ch ^= maskingKey_[(i ++) % 4];
             }
         }
+
+        if(IsControlFrameOpcode(opcode_)) // control opcode
+        {
+            if(!finalFragment_) // cannot be fragmented
+            {
+                return false;
+            }
+
+            switch(opcode_)
+            {
+            case Close: // close
+                return false; // cannot have payload
+
+            case Ping: // ping
+                if(!masked_)
+                {
+                    return false;
+                }
+                cb(WebSocketMessage("Ping", std::move(data)));
+                break;
+
+            case Pong: // pong
+                break;
+            }
+
+            return true;
+        }
+
+        // do not consider non-control opcode
 
         totalPayload_.insert(totalPayload_.end(), data.begin(), data.end());
 
