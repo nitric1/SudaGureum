@@ -2,6 +2,7 @@
 
 #include "WebSocketServer.h"
 
+#include "EREndian.h"
 #include "Utility.h"
 
 namespace SudaGureum
@@ -11,7 +12,34 @@ namespace SudaGureum
         std::vector<uint8_t> encodeFrame(WebSocketFrameOpcode opcode, const std::vector<uint8_t> &data)
         {
             // Don't use fragmented frame
-            return std::vector<uint8_t>();
+
+            std::vector<uint8_t> frame;
+            frame.push_back(0x80 | static_cast<uint8_t>(opcode)); // final segment (1), reserved * 3 (000), opcode (XXXX)
+
+            if(data.size() >= 0x10000)
+            {
+                frame.push_back(0x7F); // non-masked (0), 7-bit fragment size for 64 bits extended (1111111)
+                uint64_t len = data.size();
+                len = EREndian::N2B(len);
+                uint8_t *lenByBytes = reinterpret_cast<uint8_t *>(len);
+                frame.insert(frame.end(), lenByBytes, lenByBytes + sizeof(len));
+            }
+            else if(data.size() >= 0x7E)
+            {
+                frame.push_back(0x7E); // non-masked (0), 7-bit fragment size for 16 bits extended (1111110)
+                uint16_t len = static_cast<uint16_t>(data.size());
+                len = EREndian::N2B(len);
+                uint8_t *lenByBytes = reinterpret_cast<uint8_t *>(len);
+                frame.insert(frame.end(), lenByBytes, lenByBytes + sizeof(len));
+            }
+            else
+            {
+                frame.push_back(static_cast<uint8_t>(data.size())); // non-masked (0), 7-bit fragment size for < 0x7E (XXXXXXX)
+            }
+
+            frame.insert(frame.end(), data.begin(), data.end());
+
+            return frame;
         }
 
         std::vector<uint8_t> encodeMessage(const WebSocketMessage &message)
@@ -164,6 +192,10 @@ namespace SudaGureum
 
             std::string response = (responseFormat % acceptHashed).str();
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
+        }
+        else if(message.command_ == "Ping")
+        {
+            sendRaw(encodeFrame(Pong, message.rawData_));
         }
     }
 
