@@ -23,6 +23,7 @@
 #include <bitset>
 // #include <codecvt>
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <locale>
 #include <memory>
@@ -43,6 +44,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/detail/endian.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/path.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -60,7 +63,9 @@
 #include <boost/multi_index/indexed_by.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include <boost/program_options.hpp>
 #include <boost/regex.hpp>
+#include <boost/thread/once.hpp>
 #include <boost/uuid/sha1.hpp>
 
 using std::max; using std::min;
@@ -68,6 +73,12 @@ using std::max; using std::min;
 // External library inclusion
 
 #include <openssl/tls1.h>
+
+#if defined(_MSC_VER)
+#include <intrin.h>
+#elif defined(__GNUC__)
+#include <byteswap.h>
+#endif
 
 // Other common inclusion
 

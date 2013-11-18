@@ -2,18 +2,58 @@
 
 #include "SudaGureum.h"
 
+#include "Configure.h"
 #include "IrcClient.h"
 #include "Utility.h"
 
 namespace SudaGureum
 {
-    void run()
+#ifdef _WIN32
+    void run(int argc, wchar_t **argv)
+#else
+    void run(int argc, char **argv)
+#endif
     {
+        namespace boostpo = boost::program_options;
+
 #ifndef _WIN32
         boost::locale::generator gen;
         std::locale loc = gen("");
         std::locale::global(loc);
 #endif
+
+        boostpo::options_description desc("Generic options");
+        desc.add_options()
+            ("help,h", "show help message")
+            ("version,V", "show version info")
+            ("config", boostpo::wvalue<std::wstring>(), "specify configure file");
+
+        boostpo::variables_map vm;
+        try
+        {
+            boostpo::store(boostpo::parse_command_line(argc, argv, desc), vm);
+            boostpo::notify(vm);
+        }
+        catch(boostpo::error &ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            return;
+        }
+
+        if(vm.find("help") != vm.end())
+        {
+            std::cout << desc << std::endl;
+            return;
+        }
+
+        if(vm.find("config") != vm.end())
+        {
+            if(!Configure::instance().load(boost::filesystem::wpath(vm["config"].as<std::wstring>())))
+            {
+                std::cerr << "Failed to load the configure file." << std::endl;
+                return;
+            }
+        }
 
         IrcClientPool pool;
 
@@ -55,9 +95,13 @@ namespace SudaGureum
     }
 }
 
-int main()
+#ifdef _WIN32
+int wmain(int argc, wchar_t **argv)
+#else
+int main(int argc, char **argv)
+#endif
 {
-    SudaGureum::run();
+    SudaGureum::run(argc, argv);
 
     return 0;
 }

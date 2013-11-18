@@ -171,11 +171,13 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="Comparator.h" />
+    <ClInclude Include="Configure.h" />
     <ClInclude Include="EREndian.h" />
     <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="SudaGureum.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="User.h" />
@@ -191,6 +193,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Configure.cpp" />
     <ClCompile Include="MtIoService.cpp" />
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
