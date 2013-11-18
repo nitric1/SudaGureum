@@ -19,14 +19,30 @@ public:
     /// @param v The value to swap.
     /// @return Swapped value.
     static uint16_t swap(uint16_t v)
-    { return (v << 8) | (v >> 8); }
+    {
+#if defined(_MSC_VER)
+        return _byteswap_ushort(v);
+#elif defined(__GNUC__)
+        return bswap_16(v);
+#else
+        return (v << 8) | (v >> 8); // should be optimized
+#endif
+    }
 
     /// Swaps a 32-bit integer's lowest 8-bit and highest 8-bit and each of middle 8-bit's.
     /// @author Wondong LEE
     /// @param v The value to swap.
     /// @return Swapped value.
     static uint32_t swap(uint32_t v)
-    { return (v << 24) | ((v & 0xFF00u) << 8) | ((v & 0xFF0000u) >> 8) | (v >> 24); }
+    {
+#if defined(_MSC_VER)
+        return _byteswap_ulong(v);
+#elif defined(__GNUC__)
+        return bswap_32(v);
+#else
+        return (v << 24) | ((v & 0xFF00u) << 8) | ((v & 0xFF0000u) >> 8) | (v >> 24);
+#endif
+    }
 
     /// Swaps a 64-bit integer's each low and high 8-bit's.
     /// @author Wondong LEE
@@ -34,10 +50,16 @@ public:
     /// @return Swapped value.
     static uint64_t swap(uint64_t v)
     {
+#if defined(_MSC_VER)
+        return _byteswap_uint64(v);
+#elif defined(__GNUC__)
+        return bswap_64(v);
+#else
         return (v << 56) | ((v & 0xFF00ull) << 40) | ((v & 0xFF0000ull) << 24) |
-               ((v & 0xFF000000ull) << 8) | ((v & 0xFF00000000ull) >> 8) |
-               ((v & 0xFF0000000000ull) >> 24) | ((v & 0xFF000000000000ull) >> 40) |
-               (v >> 56);
+            ((v & 0xFF000000ull) << 8) | ((v & 0xFF00000000ull) >> 8) |
+            ((v & 0xFF0000000000ull) >> 24) | ((v & 0xFF000000000000ull) >> 40) |
+            (v >> 56);
+#endif
     }
 
 #ifdef BOOST_BIG_ENDIAN
