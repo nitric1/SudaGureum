@@ -91,4 +91,19 @@ namespace SudaGureum
 
         return str.str();
     }
+
+    std::vector<uint8_t> readFile(const boost::filesystem::path &path)
+    {
+        typedef boost::filesystem::basic_ifstream<uint8_t> bifstream;
+
+        bifstream ifp(path, bifstream::binary);
+        std::vector<uint8_t> data;
+        std::array<uint8_t, 65536> buffer;
+        while(ifp.read(buffer.data(), buffer.size()))
+        {
+            data.insert(data.end(), buffer.begin(), buffer.begin() + ifp.gcount());
+        }
+
+        return data;
+    }
 }

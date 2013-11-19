@@ -85,7 +85,6 @@ namespace SudaGureum
                         return false;
                     }
                     buffer_.clear();
-                    state_ = WaitLf;
                 }
                 else
                 {
@@ -179,21 +178,25 @@ namespace SudaGureum
                     masked_ = (buffer_[1] & 0x80) != 0;
                     payloadLen1_ = (buffer_[1] & 0x7F);
 
-                    if(!masked_ && payloadLen1_ < 126)
+                    if(payloadLen1_ < 126)
                     {
                         payloadLen_ = payloadLen1_;
-                        if(payloadLen_ == 0)
+                        if(!masked_)
                         {
-                            parseEmptyFrame(cb);
-                        }
-                        else
-                        {
-                            state_ = InPayload;
-                            buffer_.clear();
+                            if(payloadLen_ == 0)
+                            {
+                                parseEmptyFrame(cb);
+                                buffer_.clear();
+                            }
+                            else
+                            {
+                                state_ = InPayload;
+                                buffer_.clear();
+                            }
                         }
                     }
                 }
-                else
+                else if(buffer_.size() > 2)
                 {
                     size_t waitFor = 2;
                     if(payloadLen1_ == 126)
@@ -204,7 +207,7 @@ namespace SudaGureum
                     {
                         waitFor += 8;
                     }
-                    else
+                    else if(!masked_)
                     {
                         state_ = Error; // must not be occured; assert?
                         return false;
@@ -236,8 +239,9 @@ namespace SudaGureum
 
                         if(payloadLen_ == 0)
                         {
-                            state_ = Error; // Bad frame
-                            return false;
+                            parseEmptyFrame(cb);
+                            state_ = InWebSocketFrameHeader;
+                            buffer_.clear();
                         }
                         else
                         {
@@ -322,8 +326,34 @@ namespace SudaGureum
 
     bool WebSocketParser::parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb)
     {
+        if(IsControlFrameOpcode(opcode_)) // control opcode
+        {
+            if(!finalFragment_) // cannot be fragmented
+            {
+                return false;
+            }
+
+            switch(opcode_)
+            {
+            case Close: // close
+                cb(WebSocketMessage("Close"));
+                break;
+
+            case Ping: // ping
+                return false; // cannot have payload
+
+            case Pong: // pong
+                return false; // cannot have payload
+            }
+
+            return true;
+        }
+
         if(finalFragment_)
         {
+            // TODO: play with totalPayload_
+
+            totalPayload_.clear();
         }
 
         return true;
@@ -350,12 +380,13 @@ namespace SudaGureum
             switch(opcode_)
             {
             case Close: // close
-                return false; // cannot have payload
+                cb(WebSocketMessage("Close", std::move(data)));
+                break;
 
             case Ping: // ping
                 if(!masked_)
                 {
-                    return false;
+                    return false; // ping payload must be masked
                 }
                 cb(WebSocketMessage("Ping", std::move(data)));
                 break;
