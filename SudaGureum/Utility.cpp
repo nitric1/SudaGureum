@@ -26,10 +26,10 @@ namespace SudaGureum
 
     // Base64 from http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception
 
+    typedef boost::archive::iterators::base64_from_binary<
+        boost::archive::iterators::transform_width<std::vector<uint8_t>::const_iterator, 6, 8>> ToBase64Iterator;
     typedef boost::archive::iterators::transform_width<
-        boost::archive::iterators::base64_from_binary<std::vector<uint8_t>::const_iterator>, 8, 6> ToBase64Iterator;
-    typedef boost::archive::iterators::binary_from_base64<
-            boost::archive::iterators::transform_width<std::string::const_iterator, 6, 8>> FromBase64Iterator;
+        boost::archive::iterators::binary_from_base64<std::string::const_iterator>, 8, 6> FromBase64Iterator;
 
     std::string encodeBase64(const std::vector<uint8_t> &data)
     {
