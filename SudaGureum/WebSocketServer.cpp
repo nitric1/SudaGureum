@@ -133,8 +133,8 @@ namespace SudaGureum
     {
         if(ec)
         {
-            // TODO: error log
-            close();
+            std::cerr << ec.message() << std::endl;
+            socket_->close();
             return;
         }
 
@@ -155,8 +155,8 @@ namespace SudaGureum
         {
             if(ec)
             {
-                // TODO: error log
-                close();
+                std::cerr << ec.message() << std::endl;
+                socket_->close();
                 return;
             }
         }

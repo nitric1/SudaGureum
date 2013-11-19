@@ -7,7 +7,7 @@ namespace SudaGureum
 {
     class WebSocketServer;
 
-    class WebSocketConnection : public boost::noncopyable, public std::enable_shared_from_this<WebSocketConnection>
+    class WebSocketConnection : private boost::noncopyable, public std::enable_shared_from_this<WebSocketConnection>
     {
     private:
         static const std::string KeyConcatMagic;
@@ -48,7 +48,7 @@ namespace SudaGureum
         friend class WebSocketServer;
     };
 
-    class WebSocketServer : public boost::noncopyable, public MtIoService
+    class WebSocketServer : private boost::noncopyable, public MtIoService
     {
     public:
         WebSocketServer(uint16_t port);
