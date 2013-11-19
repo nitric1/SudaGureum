@@ -10,3 +10,12 @@ Debug
 Release
 x64
 ipch
+
+!External/Bin32/Debug
+!External/Bin32/Release
+!External/Bin64/Debug
+!External/Bin64/Release
+!External/Lib32/Debug
+!External/Lib32/Release
+!External/Lib64/Debug
+!External/Lib64/Release
