@@ -286,7 +286,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            // TODO: error log
+            std::cerr << ec.message() << std::endl;
             if(!quitReady_)
             {
                 close();
@@ -312,7 +312,7 @@ namespace SudaGureum
         {
             if(ec && !quitReady_)
             {
-                // TODO: error log
+                std::cerr << ec.message() << std::endl;
                 close();
                 return;
             }

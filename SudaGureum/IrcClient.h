@@ -9,7 +9,7 @@ namespace SudaGureum
     class IrcClientPool;
     class SocketBase;
 
-    class IrcClient : public boost::noncopyable, public std::enable_shared_from_this<IrcClient>
+    class IrcClient : private boost::noncopyable, public std::enable_shared_from_this<IrcClient>
     {
     public:
         struct Participant
@@ -155,7 +155,7 @@ namespace SudaGureum
         friend class IrcClientPool;
     };
 
-    class IrcClientPool : public boost::noncopyable, public MtIoService
+    class IrcClientPool : private boost::noncopyable, public MtIoService
     {
     public:
         IrcClientPool();
