@@ -7,6 +7,7 @@
 namespace SudaGureum
 {
     class IrcClientPool;
+    class SocketBase;
 
     class IrcClient : public boost::noncopyable, public std::enable_shared_from_this<IrcClient>
     {
@@ -105,7 +106,7 @@ namespace SudaGureum
 
     private:
         void connect(const std::string &addr, uint16_t port, const std::string &encoding,
-            const std::vector<std::string> &nicknames);
+            const std::vector<std::string> &nicknames, bool ssl);
         void tryNextNickname();
         void read();
         void sendMessage(const IrcMessage &message);
@@ -123,7 +124,7 @@ namespace SudaGureum
     private:
         IrcClientPool &pool_;
         boost::asio::io_service &ios_;
-        boost::asio::ip::tcp::socket socket_;
+        std::shared_ptr<SocketBase> socket_;
 
         std::string encoding_;
 
@@ -161,7 +162,7 @@ namespace SudaGureum
 
     public:
         std::weak_ptr<IrcClient> connect(const std::string &addr, uint16_t port, const std::string &encoding,
-            const std::vector<std::string> &nicknames);
+            const std::vector<std::string> &nicknames, bool ssl = false);
         void closeAll();
 
     private:
