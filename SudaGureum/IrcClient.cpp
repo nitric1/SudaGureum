@@ -2,6 +2,7 @@
 
 #include "IrcClient.h"
 
+#include "Socket.h"
 #include "Utility.h"
 
 namespace SudaGureum
@@ -92,7 +93,6 @@ namespace SudaGureum
     IrcClient::IrcClient(IrcClientPool &pool)
         : pool_(pool)
         , ios_(pool.ios_)
-        , socket_(ios_)
         , inWrite_(false)
         , nicknamePrefixMap_(DefaultNicknamePrefixMap)
         , connectBeginning_(false)
@@ -130,7 +130,7 @@ namespace SudaGureum
     }
 
     void IrcClient::connect(const std::string &addr, uint16_t port, const std::string &encoding,
-        const std::vector<std::string> &nicknames)
+        const std::vector<std::string> &nicknames, bool ssl)
     {
         if(nicknames.empty() || nicknames[0].empty())
         {
@@ -145,8 +145,12 @@ namespace SudaGureum
         boost::asio::ip::tcp::resolver::query query(addr, boost::lexical_cast<std::string>(port));
         auto endpointIt = resolver.resolve(query);
 
-        boost::asio::async_connect(socket_, endpointIt,
-            [this](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)
+        if(ssl)
+            socket_ = std::make_shared<TcpSslSocket>(ios_);
+        else
+            socket_ = std::make_shared<TcpSocket>(ios_);
+        socket_->asyncConnect(endpointIt,
+            [&](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)
             {
                 if(!ec)
                 {
@@ -177,7 +181,7 @@ namespace SudaGureum
 
     void IrcClient::read()
     {
-        socket_.async_read_some(
+        socket_->asyncReadSome(
             boost::asio::buffer(bufferToRead_),
             boost::bind(
                 std::mem_fn(&IrcClient::handleRead),
@@ -221,8 +225,7 @@ namespace SudaGureum
         {
             std::shared_ptr<std::string> messagePtr(new std::string(std::move(message)));
 
-            boost::asio::async_write(
-                socket_,
+            socket_->asyncWrite(
                 boost::asio::buffer(*messagePtr, messagePtr->size()),
                 boost::bind(
                     std::mem_fn(&IrcClient::handleWrite),
@@ -332,7 +335,7 @@ namespace SudaGureum
         {
             if(quitReady_) // graceful quit
             {
-                socket_.close();
+                socket_->close();
                 if(clearMe_)
                 {
                     pool_.closed(shared_from_this());
@@ -644,10 +647,10 @@ namespace SudaGureum
     }
 
     std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::string &encoding,
-        const std::vector<std::string> &nicknames)
+        const std::vector<std::string> &nicknames, bool ssl)
     {
         std::shared_ptr<IrcClient> client(new IrcClient(*this));
-        client->connect(addr, port, encoding, nicknames);
+        client->connect(addr, port, encoding, nicknames, ssl);
         {
             std::lock_guard<std::mutex> lock(clientsLock_);
             clients_.insert(client);

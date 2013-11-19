@@ -178,6 +178,7 @@
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Socket.h" />
     <ClInclude Include="SudaGureum.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="User.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="MtIoService.cpp" />
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />
+    <ClCompile Include="Socket.cpp" />
     <ClCompile Include="SudaGureum.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="Utility.cpp" />
