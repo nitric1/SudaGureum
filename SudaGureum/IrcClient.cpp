@@ -223,7 +223,7 @@ namespace SudaGureum
 
         if(!message.empty())
         {
-            std::shared_ptr<std::string> messagePtr(new std::string(std::move(message)));
+            auto messagePtr = std::make_shared<std::string>(std::move(message));
 
             socket_->asyncWrite(
                 boost::asio::buffer(*messagePtr, messagePtr->size()),

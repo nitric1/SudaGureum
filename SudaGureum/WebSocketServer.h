@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MtIoService.h"
+#include "Socket.h"
 #include "WebSocketParser.h"
 
 namespace SudaGureum
@@ -13,7 +14,10 @@ namespace SudaGureum
         static const std::string KeyConcatMagic;
 
     private:
-        WebSocketConnection(WebSocketServer &server);
+        WebSocketConnection(WebSocketServer &server, bool ssl);
+
+    public:
+        ~WebSocketConnection();
 
     public:
         void sendMessage(const WebSocketMessage &message);
@@ -22,7 +26,7 @@ namespace SudaGureum
         void read();
         void sendRaw(const std::vector<uint8_t> &data);
         void write();
-        void close(bool clearMe = true);
+        void close();
 
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
@@ -32,7 +36,7 @@ namespace SudaGureum
     private:
         WebSocketServer &server_;
         boost::asio::io_service &ios_;
-        boost::asio::ip::tcp::socket socket_;
+        std::shared_ptr<SocketBase> socket_;
 
         WebSocketParser parser_;
         std::array<uint8_t, 65536> bufferToRead_;
@@ -43,26 +47,31 @@ namespace SudaGureum
         std::atomic<bool> inWrite_;
 
         bool closeReady_;
-        bool clearMe_;
+        bool closeReceived_;
 
         friend class WebSocketServer;
     };
 
     class WebSocketServer : private boost::noncopyable, public MtIoService
     {
-    public:
-        WebSocketServer(uint16_t port);
+    private:
+        static std::string handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose);
 
     public:
+        WebSocketServer(uint16_t port, bool ssl);
 
     private:
         void acceptNext();
+        void acceptNextSsl();
 
     private:
         void handleAccept(const boost::system::error_code &ec);
+        void handleAcceptSsl(const boost::system::error_code &ec);
 
     private:
+        bool ssl_;
         boost::asio::ip::tcp::acceptor acceptor_;
+        std::shared_ptr<boost::asio::ssl::context> ctx_;
         std::shared_ptr<WebSocketConnection> nextConn_;
 
         friend class WebSocketConnection;

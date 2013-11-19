@@ -21,6 +21,12 @@ namespace SudaGureum
         boost::asio::async_write(socket_, buffer, handler);
     }
 
+    void TcpSocket::asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
+        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+    {
+        boost::asio::async_write(socket_, buffer, handler);
+    }
+
     void TcpSocket::asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
         const std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler)
     {
@@ -32,9 +38,19 @@ namespace SudaGureum
         socket_.close();
     }
 
+    boost::asio::ip::tcp::socket &TcpSocket::socket()
+    {
+        return socket_;
+    }
+
     TcpSslSocket::TcpSslSocket(boost::asio::io_service &ios)
-        : ctx_(boost::asio::ssl::context::sslv23) // Generic SSL/TLS
-        , stream_(ios, ctx_)
+        : TcpSslSocket(ios, std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23)) // Generic SSL/TLS
+    {
+    }
+
+    TcpSslSocket::TcpSslSocket(boost::asio::io_service &ios, const std::shared_ptr<boost::asio::ssl::context> &context)
+        : ctx_(context)
+        , stream_(ios, *ctx_)
     {
     }
 
@@ -45,6 +61,12 @@ namespace SudaGureum
     }
 
     void TcpSslSocket::asyncWrite(const boost::asio::const_buffers_1 &buffer,
+        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+    {
+        boost::asio::async_write(stream_, buffer, handler);
+    }
+
+    void TcpSslSocket::asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
         const std::function<void (const boost::system::error_code &, size_t)> &handler)
     {
         boost::asio::async_write(stream_, buffer, handler);
@@ -65,6 +87,11 @@ namespace SudaGureum
                 }
             }
         );
+    }
+
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket>::lowest_layer_type &TcpSslSocket::socket()
+    {
+        return stream_.lowest_layer();
     }
 
     void TcpSslSocket::close()
