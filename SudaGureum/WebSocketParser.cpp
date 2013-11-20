@@ -238,7 +238,7 @@ namespace SudaGureum
                         }
                         else
                         {
-                            if(masked_)
+                            if(!masked_)
                             {
                                 std::copy(buffer_.begin() + 2, buffer_.end(), maskingKey_.begin());
                             }
@@ -347,10 +347,10 @@ namespace SudaGureum
                 break;
 
             case Ping: // ping
-                return false; // cannot have payload
+                return false; // must have payload
 
             case Pong: // pong
-                return false; // cannot have payload
+                return false; // must have payload
             }
 
             return true;
