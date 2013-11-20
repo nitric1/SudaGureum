@@ -236,6 +236,13 @@ namespace SudaGureum
                                 std::copy(buffer_.begin() + 10, buffer_.end(), maskingKey_.begin());
                             }
                         }
+                        else
+                        {
+                            if(masked_)
+                            {
+                                std::copy(buffer_.begin() + 2, buffer_.end(), maskingKey_.begin());
+                            }
+                        }
 
                         if(payloadLen_ == 0)
                         {

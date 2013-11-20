@@ -249,6 +249,12 @@ namespace SudaGureum
         sendMessage(IrcMessage("QUIT", {"Bye!"})); // TODO: timeout required
     }
 
+    void IrcClient::forceClose()
+    {
+        socket_->close();
+        pool_.closed(shared_from_this());
+    }
+
     bool IrcClient::isMyPrefix(const std::string &prefix) const
     {
         return nickname_ == getNicknameFromPrefix(prefix);
@@ -289,13 +295,18 @@ namespace SudaGureum
             std::cerr << ec.message() << std::endl;
             if(!quitReady_)
             {
-                close();
+                forceClose();
             }
             return;
         }
 
-        parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
-            std::bind(&IrcClient::procMessage, this, std::placeholders::_1));
+        if(!parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
+            std::bind(&IrcClient::procMessage, this, std::placeholders::_1)))
+        {
+            std::cerr << "Invalid message received." << std::endl;
+            forceClose();
+            return;
+        }
 
         // if(!quitReady_)
         {
@@ -313,7 +324,7 @@ namespace SudaGureum
             if(ec && !quitReady_)
             {
                 std::cerr << ec.message() << std::endl;
-                close();
+                forceClose();
                 return;
             }
         }

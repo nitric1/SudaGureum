@@ -112,6 +112,7 @@ namespace SudaGureum
         void sendMessage(const IrcMessage &message);
         void write();
         void close(bool clearMe = true);
+        void forceClose();
         bool isMyPrefix(const std::string &prefix) const;
         bool isChannel(const std::string &str) const;
         Participant parseParticipant(const std::string &nicknameWithPrefix) const;
