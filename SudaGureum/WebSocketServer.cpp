@@ -157,6 +157,7 @@ namespace SudaGureum
         if(ec)
         {
             std::cerr << ec.message() << std::endl;
+            // socket automatically closed
             return;
         }
 
@@ -168,6 +169,7 @@ namespace SudaGureum
         if(ec)
         {
             std::cerr << ec.message() << std::endl;
+            socket_->close(); // implies forcely canceling write
             return;
         }
 
@@ -189,6 +191,7 @@ namespace SudaGureum
             if(ec)
             {
                 std::cerr << ec.message() << std::endl;
+                socket_->close(); // implies forcely canceling read
                 return;
             }
         }

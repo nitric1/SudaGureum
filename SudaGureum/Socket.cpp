@@ -38,9 +38,11 @@ namespace SudaGureum
         boost::asio::async_connect(socket_, endPointIt, handler);
     }
 
-    void TcpSocket::close()
+    boost::system::error_code TcpSocket::close()
     {
-        socket_.close();
+        boost::system::error_code ec;
+        socket_.close(ec);
+        return ec;
     }
 
     boost::asio::ip::tcp::socket &TcpSocket::socket()
@@ -104,8 +106,10 @@ namespace SudaGureum
         return stream_.lowest_layer();
     }
 
-    void TcpSslSocket::close()
+    boost::system::error_code TcpSslSocket::close()
     {
-        stream_.shutdown();
+        boost::system::error_code ec;
+        stream_.shutdown(ec);
+        return ec;
     }
 }
