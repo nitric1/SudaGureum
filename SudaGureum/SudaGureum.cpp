@@ -53,8 +53,7 @@ namespace SudaGureum
             {
                 if(!Configure::instance().load(boost::filesystem::wpath(vm["config"].as<std::wstring>())))
                 {
-                    std::cerr << "Failed to load the configure file." << std::endl;
-                    return;
+                    std::cerr << "Failed to load the configure file; ignore." << std::endl;
                 }
             }
 
