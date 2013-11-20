@@ -82,6 +82,17 @@ namespace SudaGureum
         // TODO: implement
     }
 
+    void WebSocketConnection::startSsl()
+    {
+        socket_->asyncHandshakeAsServer(
+            boost::bind(
+                std::mem_fn(&WebSocketConnection::handleHandshake),
+                shared_from_this(),
+                boost::asio::placeholders::error
+            )
+        );
+    }
+
     void WebSocketConnection::read()
     {
         socket_->asyncReadSome(
@@ -141,12 +152,22 @@ namespace SudaGureum
         sendRaw(encodeFrame(Close, std::vector<uint8_t>())); // TODO: timeout
     }
 
+    void WebSocketConnection::handleHandshake(const boost::system::error_code &ec)
+    {
+        if(ec)
+        {
+            std::cerr << ec.message() << std::endl;
+            return;
+        }
+
+        read();
+    }
+
     void WebSocketConnection::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
     {
         if(ec)
         {
             std::cerr << ec.message() << std::endl;
-            socket_->close();
             return;
         }
 
@@ -168,7 +189,6 @@ namespace SudaGureum
             if(ec)
             {
                 std::cerr << ec.message() << std::endl;
-                socket_->close();
                 return;
             }
         }
@@ -290,13 +310,19 @@ namespace SudaGureum
 
     void WebSocketServer::handleAccept(const boost::system::error_code &ec)
     {
-        nextConn_->read();
+        if(!ec)
+        {
+            nextConn_->read();
+        }
         acceptNext();
     }
 
     void WebSocketServer::handleAcceptSsl(const boost::system::error_code &ec)
     {
-        nextConn_->read();
+        if(!ec)
+        {
+            nextConn_->startSsl();
+        }
         acceptNextSsl();
     }
 }

@@ -97,13 +97,15 @@ namespace SudaGureum
         typedef boost::filesystem::basic_ifstream<uint8_t> bifstream;
 
         bifstream ifp(path, bifstream::binary);
-        std::vector<uint8_t> data;
-        std::array<uint8_t, 65536> buffer;
-        while(ifp.read(buffer.data(), buffer.size()))
-        {
-            data.insert(data.end(), buffer.begin(), buffer.begin() + ifp.gcount());
-        }
+        auto fileBeginPos = ifp.tellg();
+        ifp.seekg(0, bifstream::end);
+        size_t fileSize = ifp.tellg() - fileBeginPos;
+        ifp.seekg(0, bifstream::beg);
 
-        return data;
+        std::vector<uint8_t> buffer(fileSize);
+        if(!ifp.read(buffer.data(), fileSize))
+            return std::vector<uint8_t>();
+
+        return buffer;
     }
 }

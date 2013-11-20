@@ -23,12 +23,14 @@ namespace SudaGureum
         void sendMessage(const WebSocketMessage &message);
 
     private:
+        void startSsl();
         void read();
         void sendRaw(const std::vector<uint8_t> &data);
         void write();
         void close();
 
     private:
+        void handleHandshake(const boost::system::error_code &ec);
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
         void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::vector<uint8_t>> &messagePtr);
         void procMessage(const WebSocketMessage &message);
