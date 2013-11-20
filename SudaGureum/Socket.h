@@ -16,7 +16,7 @@ namespace SudaGureum
             const std::function<void (const boost::system::error_code &, size_t)> &handler) = 0;
         virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
             const std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler) = 0;
-        virtual void close() = 0;
+        virtual boost::system::error_code close() = 0;
     };
 
     class TcpSocket : public SocketBase
@@ -34,7 +34,7 @@ namespace SudaGureum
             const std::function<void (const boost::system::error_code &, size_t)> &handler);
         virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
             const std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler);
-        virtual void close();
+        virtual boost::system::error_code close();
 
     public:
         boost::asio::ip::tcp::socket &socket();
@@ -59,7 +59,7 @@ namespace SudaGureum
             const std::function<void (const boost::system::error_code &, size_t)> &handler);
         virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
             const std::function<void(const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler);
-        virtual void close();
+        virtual boost::system::error_code close();
 
     public:
         boost::asio::ssl::stream<boost::asio::ip::tcp::socket>::lowest_layer_type &socket();
