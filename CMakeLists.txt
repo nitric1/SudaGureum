@@ -40,9 +40,10 @@ set(CMAKE_CXX_FLAGS "${FLAG}")
 
 file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
-find_package(Boost 1.51.0 COMPONENTS locale system regex REQUIRED)
-include_directories(${Boost_INCLUDE_DIR} "." "External/Include")
-link_directories(${Boost_LIBRARY_DIR})
+find_package(Boost 1.51.0 COMPONENTS date_time filesystem locale program_options regex system thread REQUIRED)
+find_package(OpenSSL)
+include_directories(${Boost_INCLUDE_DIR} ${OpenSSL_INCLUDE_DIR} ".")
+link_directories(${Boost_LIBRARY_DIR} ${OpenSSL_LIBRARY_DIR})
 
 add_executable(SudaGureum ${SOURCES})
-target_link_libraries(SudaGureum ${Boost_LIBRARIES})
+target_link_libraries(SudaGureum ${Boost_LIBRARIES} ${OpenSSL_LIBRARIES})
