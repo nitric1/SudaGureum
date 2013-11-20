@@ -173,8 +173,13 @@ namespace SudaGureum
             return;
         }
 
-        parser_.parse(std::vector<uint8_t>(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
-            std::bind(&WebSocketConnection::procMessage, this, std::placeholders::_1));
+        if(!parser_.parse(std::vector<uint8_t>(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
+            std::bind(&WebSocketConnection::procMessage, this, std::placeholders::_1)))
+        {
+            std::cerr << "Invalid data received." << std::endl;
+            socket_->close();
+            return;
+        }
 
         if(!closeReceived_)
         {
