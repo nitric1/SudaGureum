@@ -9,6 +9,11 @@ namespace SudaGureum
     {
     }
 
+    void TcpSocket::asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler)
+    {
+        throw(std::logic_error("asyncHandshakeAsServer is not implemented in TcpSocket"));
+    }
+
     void TcpSocket::asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
         const std::function<void (const boost::system::error_code &, size_t)> &handler)
     {
@@ -52,6 +57,11 @@ namespace SudaGureum
         : ctx_(context)
         , stream_(ios, *ctx_)
     {
+    }
+
+    void TcpSslSocket::asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler)
+    {
+        stream_.async_handshake(boost::asio::ssl::stream_base::server, handler);
     }
 
     void TcpSslSocket::asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,

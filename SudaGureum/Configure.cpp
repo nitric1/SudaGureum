@@ -19,6 +19,7 @@ namespace SudaGureum
         auto fileBeginPos = ifp.tellg();
         ifp.seekg(0, boost::filesystem::ifstream::end);
         size_t fileSize = ifp.tellg() - fileBeginPos;
+        ifp.seekg(0, boost::filesystem::ifstream::beg);
 
         std::vector<char> buffer(fileSize);
         if(!ifp.read(buffer.data(), fileSize))
@@ -49,6 +50,11 @@ namespace SudaGureum
 
             boost::algorithm::trim(name);
             boost::algorithm::trim(value);
+
+            if(name.empty())
+                continue;
+            else if(name[0] == '#') // comment
+                continue;
 
             confMap_.emplace(std::move(name), std::move(value));
         }

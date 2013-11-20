@@ -7,6 +7,7 @@ namespace SudaGureum
     class SocketBase
     {
     public:
+        virtual void asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler) = 0;
         virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
             const std::function<void (const boost::system::error_code &, size_t)> &handler) = 0;
         virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
@@ -24,6 +25,7 @@ namespace SudaGureum
         TcpSocket(boost::asio::io_service &ios);
 
     public:
+        virtual void asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler);
         virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
             const std::function<void (const boost::system::error_code &, size_t)> &handler);
         virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
@@ -48,6 +50,7 @@ namespace SudaGureum
         TcpSslSocket(boost::asio::io_service &ios, const std::shared_ptr<boost::asio::ssl::context> &context);
 
     public:
+        virtual void asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler);
         virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
             const std::function<void (const boost::system::error_code &, size_t)> &handler);
         virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,

@@ -4,6 +4,30 @@
 
 namespace SudaGureum
 {
+    void MtIoService::runImpl(boost::asio::io_service &ios)
+    {
+        try
+        {
+            ios.run();
+        }
+        catch(boost::system::system_error &e)
+        {
+            std::cerr << "System error: " << e.what() << std::endl;
+        }
+        catch(std::runtime_error &e)
+        {
+            std::cerr << "Runtime error: " << e.what() << std::endl;
+        }
+        catch(std::exception &e)
+        {
+            std::cerr << "Exception: " << e.what() << std::endl;
+        }
+        catch(...)
+        {
+            std::cerr << "Unexpected exception caught." << std::endl;
+        }
+    }
+
     MtIoService::~MtIoService()
     {
     }
@@ -13,11 +37,7 @@ namespace SudaGureum
         for(uint16_t i = 0; i < numThreads; ++ i)
         {
             std::shared_ptr<std::thread> thread(
-                new std::thread(std::bind(
-                    [](boost::asio::io_service &ios)
-                    {
-                        ios.run();
-                    }, std::ref(ios_))));
+                new std::thread(std::bind(&MtIoService::runImpl, std::ref(ios_))));
             threads_.push_back(thread);
         }
     }
