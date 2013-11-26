@@ -74,6 +74,7 @@ using std::max; using std::min;
 // External library inclusion
 
 #include <openssl/tls1.h>
+#include <rapidjson/document.h>
 
 #if defined(_MSC_VER)
 #include <intrin.h>

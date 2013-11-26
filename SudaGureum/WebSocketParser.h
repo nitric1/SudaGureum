@@ -64,6 +64,7 @@ namespace SudaGureum
         bool parseHttpHeader(std::string &&line);
         bool parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb);
         bool parseFrame(std::vector<uint8_t> &&payload, const std::function<void(const WebSocketMessage &)> &cb);
+        bool parsePayload();
 
     private:
         State state_;
