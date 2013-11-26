@@ -358,7 +358,10 @@ namespace SudaGureum
 
         if(finalFragment_)
         {
-            // TODO: play with totalPayload_
+            if(!parsePayload())
+            {
+                return false;
+            }
 
             totalPayload_.clear();
         }
@@ -411,10 +414,28 @@ namespace SudaGureum
 
         if(finalFragment_)
         {
-            // TODO: play with totalPayload_
+            if(!parsePayload())
+            {
+                return false;
+            }
 
             totalPayload_.clear();
         }
+
+        return true;
+    }
+
+    bool WebSocketParser::parsePayload()
+    {
+        rapidjson::Document doc;
+
+        if(doc.ParseInsitu<0>(reinterpret_cast<char *>(totalPayload_.data())).HasParseError())
+            // XXX: totalPayload_ can really be cleared after this?
+        {
+            return false;
+        }
+
+        // TODO: implement
 
         return true;
     }
