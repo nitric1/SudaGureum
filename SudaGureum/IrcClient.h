@@ -94,9 +94,10 @@ namespace SudaGureum
         static const NicknamePrefixMap DefaultNicknamePrefixMap;
 
     private:
-        IrcClient(IrcClientPool &pool);
+        IrcClient(IrcClientPool &pool, size_t connectionId);
 
     public:
+        size_t connectionId() const;
         void nickname(const std::string &nickname);
         // please include #'s or &'s
         void join(const std::string &channel);
@@ -124,6 +125,7 @@ namespace SudaGureum
 
     private:
         IrcClientPool &pool_;
+        size_t connectionId_;
         boost::asio::io_service &ios_;
         std::shared_ptr<SocketBase> socket_;
 
@@ -172,7 +174,8 @@ namespace SudaGureum
     private:
         boost::asio::signal_set signals_; // TODO: temporary
         std::mutex clientsLock_;
-        std::unordered_set<std::shared_ptr<IrcClient>> clients_;
+        std::unordered_map<size_t, std::shared_ptr<IrcClient>> clients_;
+        std::atomic<size_t> nextConnectionId_;
 
         friend class IrcClient;
     };

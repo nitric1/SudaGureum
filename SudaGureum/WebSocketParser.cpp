@@ -429,8 +429,9 @@ namespace SudaGureum
     {
         rapidjson::Document doc;
 
+        totalPayload_.push_back('\0');
+
         if(doc.ParseInsitu<0>(reinterpret_cast<char *>(totalPayload_.data())).HasParseError())
-            // XXX: totalPayload_ can really be cleared after this?
         {
             return false;
         }
