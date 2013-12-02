@@ -90,8 +90,9 @@ namespace SudaGureum
         return prefix;
     }
 
-    IrcClient::IrcClient(IrcClientPool &pool)
+    IrcClient::IrcClient(IrcClientPool &pool, size_t connectionId)
         : pool_(pool)
+        , connectionId_(connectionId)
         , ios_(pool.ios_)
         , inWrite_(false)
         , nicknamePrefixMap_(DefaultNicknamePrefixMap)
@@ -100,6 +101,11 @@ namespace SudaGureum
         , quitReady_(false)
         , clearMe_(false)
     {
+    }
+
+    size_t IrcClient::connectionId() const
+    {
+        return connectionId_;
     }
 
     void IrcClient::nickname(const std::string &nickname)
@@ -644,6 +650,7 @@ namespace SudaGureum
 
     IrcClientPool::IrcClientPool()
         : signals_(ios_)
+        , nextConnectionId_(1)
     {
         signals_.add(SIGINT);
         signals_.add(SIGTERM);
@@ -660,11 +667,11 @@ namespace SudaGureum
     std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::string &encoding,
         const std::vector<std::string> &nicknames, bool ssl)
     {
-        std::shared_ptr<IrcClient> client(new IrcClient(*this));
+        std::shared_ptr<IrcClient> client(new IrcClient(*this, nextConnectionId_ ++));
         client->connect(addr, port, encoding, nicknames, ssl);
         {
             std::lock_guard<std::mutex> lock(clientsLock_);
-            clients_.insert(client);
+            clients_.emplace(client->connectionId_, client);
         }
         return client;
     }
@@ -672,9 +679,9 @@ namespace SudaGureum
     void IrcClientPool::closeAll()
     {
         std::lock_guard<std::mutex> lock(clientsLock_);
-        for(auto client: clients_)
+        for(auto &p: clients_)
         {
-            client->close(false);
+            p.second->close(false);
         }
         clients_.clear();
     }
@@ -682,7 +689,7 @@ namespace SudaGureum
     void IrcClientPool::closed(const std::shared_ptr<IrcClient> &client)
     {
         std::lock_guard<std::mutex> lock(clientsLock_);
-        auto it = clients_.find(client);
+        auto it = clients_.find(client->connectionId_);
         if(it != clients_.end())
         {
             clients_.erase(it);
