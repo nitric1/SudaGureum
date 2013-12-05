@@ -33,6 +33,7 @@ namespace SudaGureum
         void handleHandshake(const boost::system::error_code &ec);
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
         void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::vector<uint8_t>> &messagePtr);
+        void handleCloseTimeout(const boost::system::error_code &ec);
         void procMessage(const WebSocketMessage &message);
 
     private:
@@ -49,6 +50,7 @@ namespace SudaGureum
         std::atomic<bool> inWrite_;
 
         bool closeReady_;
+        boost::asio::deadline_timer closeTimer_;
         bool closeReceived_;
 
         friend class WebSocketServer;
