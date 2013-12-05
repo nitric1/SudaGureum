@@ -55,6 +55,7 @@ namespace SudaGureum
         : server_(server)
         , ios_(server.ios_)
         , closeReady_(false)
+        , closeTimer_(ios_)
         , closeReceived_(false)
     {
         if(ssl)
@@ -149,7 +150,15 @@ namespace SudaGureum
     void WebSocketConnection::close()
     {
         closeReady_ = true;
-        sendRaw(encodeFrame(Close, std::vector<uint8_t>())); // TODO: timeout
+        sendRaw(encodeFrame(Close, std::vector<uint8_t>()));
+        closeTimer_.expires_from_now(boost::posix_time::seconds(
+            boost::lexical_cast<long>(Configure::instance().get("websocket_server_close_timeout_sec", "5"))
+        ));
+        closeTimer_.async_wait(boost::bind(
+            std::mem_fn(&WebSocketConnection::handleCloseTimeout),
+            shared_from_this(),
+            boost::asio::placeholders::error
+        ));
     }
 
     void WebSocketConnection::handleHandshake(const boost::system::error_code &ec)
@@ -168,8 +177,11 @@ namespace SudaGureum
     {
         if(ec)
         {
-            std::cerr << ec.message() << std::endl;
-            socket_->close(); // implies forcely canceling write
+            if(!closeReady_)
+            {
+                std::cerr << ec.message() << std::endl;
+                socket_->close(); // implies forcely canceling write
+            }
             return;
         }
 
@@ -191,17 +203,26 @@ namespace SudaGureum
     {
         inWrite_ = false;
 
-        if(ec || closeReady_)
+        if(ec)
         {
-            if(ec)
+            if(!closeReady_)
             {
                 std::cerr << ec.message() << std::endl;
                 socket_->close(); // implies forcely canceling read
-                return;
             }
+            return;
         }
 
         write();
+    }
+
+    void WebSocketConnection::handleCloseTimeout(const boost::system::error_code &ec)
+    {
+        if(!ec)
+        {
+            // TODO: error message (close timeout)
+            socket_->close();
+        }
     }
 
     void WebSocketConnection::procMessage(const WebSocketMessage &message)
@@ -242,6 +263,7 @@ namespace SudaGureum
             closeReceived_ = true;
             if(closeReady_) // already sent close frame
             {
+                closeTimer_.cancel();
                 socket_->close();
             }
             else

@@ -121,6 +121,7 @@ namespace SudaGureum
     private:
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
         void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::string> &messagePtr);
+        void handleCloseTimeout(const boost::system::error_code &ec);
         void procMessage(const IrcMessage &message);
 
     private:
@@ -153,6 +154,7 @@ namespace SudaGureum
         ChannelMap channels_;
 
         bool quitReady_;
+        boost::asio::deadline_timer closeTimer_;
         bool clearMe_;
 
         friend class IrcClientPool;

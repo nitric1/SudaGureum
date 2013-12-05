@@ -2,6 +2,7 @@
 
 #include "IrcClient.h"
 
+#include "Configure.h"
 #include "Socket.h"
 #include "Utility.h"
 
@@ -99,6 +100,7 @@ namespace SudaGureum
         , connectBeginning_(false)
         , currentNicknameIndex_(0)
         , quitReady_(false)
+        , closeTimer_(ios_)
         , clearMe_(false)
     {
     }
@@ -252,7 +254,15 @@ namespace SudaGureum
     {
         quitReady_ = true;
         clearMe_ = clearMe;
-        sendMessage(IrcMessage("QUIT", {"Bye!"})); // TODO: timeout required
+        sendMessage(IrcMessage("QUIT", {"Bye!"}));
+        closeTimer_.expires_from_now(boost::posix_time::seconds(
+            boost::lexical_cast<long>(Configure::instance().get("irc_client_close_timeout_sec", "5"))
+        ));
+        closeTimer_.async_wait(boost::bind(
+            std::mem_fn(&IrcClient::handleCloseTimeout),
+            shared_from_this(),
+            boost::asio::placeholders::error
+        ));
     }
 
     void IrcClient::forceClose()
@@ -298,9 +308,9 @@ namespace SudaGureum
     {
         if(ec)
         {
-            std::cerr << ec.message() << std::endl;
             if(!quitReady_)
             {
+                std::cerr << ec.message() << std::endl;
                 forceClose();
             }
             return;
@@ -325,18 +335,25 @@ namespace SudaGureum
     {
         inWrite_ = false;
 
-        if(ec || quitReady_)
+        if(ec)
         {
-            if(ec && !quitReady_)
+            if(!quitReady_)
             {
                 std::cerr << ec.message() << std::endl;
                 forceClose();
-                return;
             }
+            return;
         }
-        else
+
+        write();
+    }
+
+    void IrcClient::handleCloseTimeout(const boost::system::error_code &ec)
+    {
+        if(!ec)
         {
-            write();
+            // TODO: error message (close timeout)
+            forceClose();
         }
     }
 
