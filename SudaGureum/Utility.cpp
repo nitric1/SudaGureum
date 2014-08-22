@@ -26,15 +26,27 @@ namespace SudaGureum
 
     // Base64 from http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception
 
-    typedef boost::archive::iterators::base64_from_binary<
-        boost::archive::iterators::transform_width<std::vector<uint8_t>::const_iterator, 6, 8>> ToBase64Iterator;
-    typedef boost::archive::iterators::transform_width<
-        boost::archive::iterators::binary_from_base64<std::string::const_iterator>, 8, 6> FromBase64Iterator;
+    template<typename IterT>
+    using ToBase64Iterator = boost::archive::iterators::base64_from_binary<
+        boost::archive::iterators::transform_width<IterT, 6, 8>>;
+    template<typename IterT>
+    using FromBase64Iterator = boost::archive::iterators::transform_width<
+        boost::archive::iterators::binary_from_base64<IterT>, 8, 6>;
 
     std::string encodeBase64(const std::vector<uint8_t> &data)
     {
         size_t padLen = (3 - data.size() % 3) % 3;
-        std::string encoded(ToBase64Iterator(data.begin()), ToBase64Iterator(data.end()));
+        std::string encoded(ToBase64Iterator<std::vector<uint8_t>::const_iterator>(data.begin()), ToBase64Iterator<std::vector<uint8_t>::const_iterator>(data.end()));
+        encoded.append(padLen, '=');
+        return encoded;
+    }
+
+    std::string encodeBase64(boost::any_range<uint8_t, boost::single_pass_traversal_tag> data)
+    {
+        typedef decltype(data) RangeT;
+
+        std::string encoded(ToBase64Iterator<RangeT::const_iterator>(data.begin()), ToBase64Iterator<RangeT::const_iterator>(data.end()));
+        size_t padLen = (4 - encoded.size() % 4) % 4;
         encoded.append(padLen, '=');
         return encoded;
     }
@@ -52,7 +64,7 @@ namespace SudaGureum
 
         size_t padLen = std::count(encoded.end() - 2, encoded.end(), '=');
         std::replace(encoded.end() - padLen, encoded.end(), '=', 'A'); // '\0'
-        std::vector<uint8_t> decoded(FromBase64Iterator(encoded.begin()), FromBase64Iterator(encoded.end()));
+        std::vector<uint8_t> decoded(FromBase64Iterator<std::string::const_iterator>(encoded.begin()), FromBase64Iterator<std::string::const_iterator>(encoded.end()));
         decoded.erase(decoded.end() - padLen, decoded.end());
         return decoded;
     }
