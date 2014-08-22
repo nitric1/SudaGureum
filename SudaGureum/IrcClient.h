@@ -32,8 +32,8 @@ namespace SudaGureum
             {
             }
 
-            explicit Participant(const std::string &nickname)
-                : nickname_(nickname)
+            explicit Participant(std::string nickname)
+                : nickname_(std::move(nickname))
                 , away_(false)
             {
             }
@@ -106,8 +106,8 @@ namespace SudaGureum
         void privmsg(const std::string &channel, const std::string &message);
 
     private:
-        void connect(const std::string &addr, uint16_t port, const std::string &encoding,
-            const std::vector<std::string> &nicknames, bool ssl);
+        void connect(const std::string &addr, uint16_t port, std::string encoding,
+            std::vector<std::string> nicknames, bool ssl);
         void tryNextNickname();
         void read();
         void sendMessage(const IrcMessage &message);

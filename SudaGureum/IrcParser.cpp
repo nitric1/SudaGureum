@@ -10,18 +10,18 @@ namespace SudaGureum
     {
     }
 
-    IrcMessage::IrcMessage(const std::string &command)
+    IrcMessage::IrcMessage(std::string command)
         : command_(command)
     {
     }
 
-    IrcMessage::IrcMessage(const std::string &command, const std::vector<std::string> &params)
+    IrcMessage::IrcMessage(std::string command, std::vector<std::string> params)
         : command_(command)
         , params_(params)
     {
     }
 
-    IrcMessage::IrcMessage(const std::string &prefix, const std::string &command, const std::vector<std::string> &params)
+    IrcMessage::IrcMessage(std::string prefix, std::string command, std::vector<std::string> params)
         : prefix_(prefix)
         , command_(command)
         , params_(params)
@@ -33,7 +33,7 @@ namespace SudaGureum
     {
     }
 
-    bool IrcParser::parse(const std::string &str, const std::function<void (const IrcMessage &)> &cb)
+    bool IrcParser::parse(const std::string &str, std::function<void (const IrcMessage &)> cb)
     {
         // TODO: cut if buffer is too large
 
@@ -97,7 +97,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool IrcParser::parseMessage(std::string &&line, const std::function<void (const IrcMessage &)> &cb)
+    bool IrcParser::parseMessage(const std::string &line, std::function<void (const IrcMessage &)> cb)
     {
         enum
         {

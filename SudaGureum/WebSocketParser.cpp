@@ -10,19 +10,19 @@ namespace SudaGureum
     {
     }
 
-    WebSocketMessage::WebSocketMessage(const std::string &command)
-        : command_(command)
+    WebSocketMessage::WebSocketMessage(std::string command)
+        : command_(std::move(command))
     {
     }
 
-    WebSocketMessage::WebSocketMessage(const std::string &command, const ParamsMap &params)
-        : command_(command)
-        , params_(params)
+    WebSocketMessage::WebSocketMessage(std::string command, ParamsMap params)
+        : command_(std::move(command))
+        , params_(std::move(params))
     {
     }
 
-    WebSocketMessage::WebSocketMessage(const std::string &command, std::vector<uint8_t> &&rawData)
-        : command_(command)
+    WebSocketMessage::WebSocketMessage(std::string command, std::vector<uint8_t> rawData)
+        : command_(std::move(command))
         , rawData_(std::move(rawData))
     {
     }
@@ -44,7 +44,7 @@ namespace SudaGureum
     {
     }
 
-    bool WebSocketParser::parse(const std::vector<uint8_t> &data, const std::function<void (const WebSocketMessage &)> &cb)
+    bool WebSocketParser::parse(const std::vector<uint8_t> &data, std::function<void (const WebSocketMessage &)> cb)
     {
         if(state_ == Error)
         {
@@ -274,7 +274,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::confirmHttpStatus(std::string &&line)
+    bool WebSocketParser::confirmHttpStatus(const std::string &line)
     {
         static const boost::regex HttpStatusRegex("GET ([^ ]+) HTTP\\/1\\.1", boost::regex::extended);
         boost::smatch match;
@@ -287,7 +287,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseHttpHeader(std::string &&line)
+    bool WebSocketParser::parseHttpHeader(const std::string &line)
     {
         size_t colonPos = line.find(":");
         if(colonPos == std::string::npos)
@@ -331,7 +331,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb)
+    bool WebSocketParser::parseEmptyFrame(std::function<void(const WebSocketMessage &)> cb)
     {
         if(IsControlFrameOpcode(opcode_)) // control opcode
         {
@@ -369,7 +369,7 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseFrame(std::vector<uint8_t> &&data, const std::function<void(const WebSocketMessage &)> &cb)
+    bool WebSocketParser::parseFrame(std::vector<uint8_t> data, std::function<void(const WebSocketMessage &)> cb)
     {
         if(masked_)
         {

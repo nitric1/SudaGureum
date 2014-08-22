@@ -9,33 +9,33 @@ namespace SudaGureum
     {
     }
 
-    void TcpSocket::asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler)
+    void TcpSocket::asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler)
     {
         throw(std::logic_error("asyncHandshakeAsServer is not implemented in TcpSocket"));
     }
 
     void TcpSocket::asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        socket_.async_read_some(buffer, handler);
+        socket_.async_read_some(buffer, std::move(handler));
     }
 
     void TcpSocket::asyncWrite(const boost::asio::const_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        boost::asio::async_write(socket_, buffer, handler);
+        boost::asio::async_write(socket_, buffer, std::move(handler));
     }
 
     void TcpSocket::asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        boost::asio::async_write(socket_, buffer, handler);
+        boost::asio::async_write(socket_, buffer, std::move(handler));
     }
 
     void TcpSocket::asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
-        const std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler)
+        std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler)
     {
-        boost::asio::async_connect(socket_, endPointIt, handler);
+        boost::asio::async_connect(socket_, endPointIt, std::move(handler));
     }
 
     boost::system::error_code TcpSocket::close()
@@ -55,37 +55,37 @@ namespace SudaGureum
     {
     }
 
-    TcpSslSocket::TcpSslSocket(boost::asio::io_service &ios, const std::shared_ptr<boost::asio::ssl::context> &context)
-        : ctx_(context)
+    TcpSslSocket::TcpSslSocket(boost::asio::io_service &ios, std::shared_ptr<boost::asio::ssl::context> context)
+        : ctx_(std::move(context))
         , stream_(ios, *ctx_)
     {
     }
 
-    void TcpSslSocket::asyncHandshakeAsServer(const std::function<void (const boost::system::error_code &)> &handler)
+    void TcpSslSocket::asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler)
     {
         stream_.async_handshake(boost::asio::ssl::stream_base::server, handler);
     }
 
     void TcpSslSocket::asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        stream_.async_read_some(buffer, handler);
+        stream_.async_read_some(buffer, std::move(handler));
     }
 
     void TcpSslSocket::asyncWrite(const boost::asio::const_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        boost::asio::async_write(stream_, buffer, handler);
+        boost::asio::async_write(stream_, buffer, std::move(handler));
     }
 
     void TcpSslSocket::asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-        const std::function<void (const boost::system::error_code &, size_t)> &handler)
+        std::function<void (const boost::system::error_code &, size_t)> handler)
     {
-        boost::asio::async_write(stream_, buffer, handler);
+        boost::asio::async_write(stream_, buffer, std::move(handler));
     }
 
     void TcpSslSocket::asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
-        const std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> &handler)
+        std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler)
     {
         boost::asio::async_connect(stream_.lowest_layer(), endPointIt,
             [this, handler](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)

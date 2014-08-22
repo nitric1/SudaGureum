@@ -69,11 +69,11 @@ namespace SudaGureum
         std::cerr << "Connection closed" << std::endl;
     }
 
-    void WebSocketConnection::sendRaw(const std::vector<uint8_t> &data)
+    void WebSocketConnection::sendRaw(std::vector<uint8_t> data)
     {
         {
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
-            bufferToWrite_.push_back(data);
+            bufferToWrite_.push_back(std::move(data));
         }
         write();
     }

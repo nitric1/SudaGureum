@@ -34,7 +34,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>CTP_Nov2013</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>

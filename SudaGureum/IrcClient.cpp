@@ -137,16 +137,16 @@ namespace SudaGureum
         sendMessage(IrcMessage("PRIVMSG", {channel, message}));
     }
 
-    void IrcClient::connect(const std::string &addr, uint16_t port, const std::string &encoding,
-        const std::vector<std::string> &nicknames, bool ssl)
+    void IrcClient::connect(const std::string &addr, uint16_t port, std::string encoding,
+        std::vector<std::string> nicknames, bool ssl)
     {
         if(nicknames.empty() || nicknames[0].empty())
         {
             return;
         }
 
-        encoding_ = encoding;
-        nicknameCandidates_ = nicknames;
+        encoding_ = std::move(encoding);
+        nicknameCandidates_ = std::move(nicknames);
         currentNicknameIndex_ = 0;
 
         boost::asio::ip::tcp::resolver resolver(ios_);
