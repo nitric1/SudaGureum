@@ -77,6 +77,7 @@ using std::max; using std::min;
 
 #include <openssl/tls1.h>
 #include <rapidjson/document.h>
+#include <scrypt/lib/crypto/crypto_scrypt.h>
 
 #if defined(_MSC_VER)
 #include <intrin.h>
