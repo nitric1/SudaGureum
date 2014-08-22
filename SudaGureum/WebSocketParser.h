@@ -26,9 +26,9 @@ namespace SudaGureum
         std::vector<uint8_t> rawData_;
 
         WebSocketMessage();
-        WebSocketMessage(const std::string &command);
-        WebSocketMessage(const std::string &command, const ParamsMap &params);
-        WebSocketMessage(const std::string &command, std::vector<uint8_t> &&rawData);
+        WebSocketMessage(std::string command);
+        WebSocketMessage(std::string command, ParamsMap params);
+        WebSocketMessage(std::string command, std::vector<uint8_t> rawData);
     };
 
     class WebSocketParser
@@ -54,16 +54,16 @@ namespace SudaGureum
         WebSocketParser();
 
     public:
-        bool parse(const std::vector<uint8_t> &data, const std::function<void (const WebSocketMessage &)> &cb);
+        bool parse(const std::vector<uint8_t> &data, std::function<void (const WebSocketMessage &)> cb);
 
     public:
         explicit operator bool() const;
 
     private:
-        bool confirmHttpStatus(std::string &&line);
-        bool parseHttpHeader(std::string &&line);
-        bool parseEmptyFrame(const std::function<void(const WebSocketMessage &)> &cb);
-        bool parseFrame(std::vector<uint8_t> &&payload, const std::function<void(const WebSocketMessage &)> &cb);
+        bool confirmHttpStatus(const std::string &line);
+        bool parseHttpHeader(const std::string &line);
+        bool parseEmptyFrame(std::function<void(const WebSocketMessage &)> cb);
+        bool parseFrame(std::vector<uint8_t> data, std::function<void(const WebSocketMessage &)> cb);
         bool parsePayload();
 
     private:

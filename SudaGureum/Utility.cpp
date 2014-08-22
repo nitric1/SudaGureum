@@ -80,16 +80,22 @@ namespace SudaGureum
 
     std::string hashSha1ToHexString(const std::vector<uint8_t> &data)
     {
+        static const char HexDigits[] =
+        {
+            '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+        };
+
         auto digest = hashSha1(data);
 
-        std::ostringstream str;
+        std::string str;
         for(uint8_t b: digest)
         {
-            str << std::hex << ((b & 0xF0) >> 4);
-            str << std::hex << (b & 0x0F);
+            str += HexDigits[(b & 0xF0) >> 4];
+            str += HexDigits[b & 0x0F];
         }
 
-        return str.str();
+        return str;
     }
 
     std::vector<uint8_t> readFile(const boost::filesystem::path &path)

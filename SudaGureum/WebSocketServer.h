@@ -25,7 +25,7 @@ namespace SudaGureum
     private:
         void startSsl();
         void read();
-        void sendRaw(const std::vector<uint8_t> &data);
+        void sendRaw(std::vector<uint8_t> data);
         void write();
         void close();
 

@@ -9,9 +9,9 @@ namespace SudaGureum
         std::vector<std::string> params_;
 
         IrcMessage();
-        IrcMessage(const std::string &command);
-        IrcMessage(const std::string &command, const std::vector<std::string> &params);
-        IrcMessage(const std::string &prefix, const std::string &command, const std::vector<std::string> &params);
+        IrcMessage(std::string command);
+        IrcMessage(std::string command, std::vector<std::string> params);
+        IrcMessage(std::string prefix, std::string command, std::vector<std::string> params);
     };
 
     class IrcParser
@@ -29,13 +29,13 @@ namespace SudaGureum
         IrcParser();
 
     public:
-        bool parse(const std::string &str, const std::function<void (const IrcMessage &)> &cb);
+        bool parse(const std::string &str, std::function<void (const IrcMessage &)> cb);
 
     public:
         explicit operator bool() const;
 
     private:
-        bool parseMessage(std::string &&line, const std::function<void (const IrcMessage &)> &cb);
+        bool parseMessage(const std::string &line, std::function<void(const IrcMessage &)> cb);
 
     private:
         State state_;
