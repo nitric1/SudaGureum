@@ -66,6 +66,8 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/signals2.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/uuid/sha1.hpp>
 

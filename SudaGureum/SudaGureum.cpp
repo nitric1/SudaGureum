@@ -4,6 +4,7 @@
 
 #include "Configure.h"
 #include "IrcClient.h"
+#include "User.h"
 #include "Utility.h"
 #include "WebSocketServer.h"
 
@@ -57,18 +58,24 @@ namespace SudaGureum
                 }
             }
 
-#if 0
             IrcClientPool pool;
+            WebSocketServer server(44444, true);
 
-            auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
+            // auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
+            Users::instance().load(pool);
 
             pool.run(4);
+            server.run(4);
 
             // Sleep(100);
 
             // auto client2 = pool.connect("irc.ozinger.org", 6667, boost::assign::list_of("SudaGureum1")("SudaGureum2"));
 
             // pool.join();
+
+            auto user = Users::instance().user("SudaGureum");
+            auto servers = user->servers();
+            auto client1 = servers.find("Ozinger")->second.ircClient_;
 
             while(std::cin)
             {
@@ -95,11 +102,9 @@ namespace SudaGureum
 
             pool.closeAll();
             pool.join();
-#else
-            WebSocketServer server(443, true);
-            server.run(4);
+
+            server.stop();
             server.join();
-#endif
         }
         catch(boost::system::system_error &e)
         {
