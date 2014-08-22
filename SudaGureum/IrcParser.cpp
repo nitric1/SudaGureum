@@ -146,10 +146,6 @@ namespace SudaGureum
                 if(word[0] == ':')
                 {
                     message.params_.push_back(word.substr(1));
-                    if(message.params_.back().empty())
-                    {
-                        return false;
-                    }
                     state = InTrailing;
                 }
                 else
