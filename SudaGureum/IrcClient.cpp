@@ -110,6 +110,7 @@ namespace SudaGureum
         return connectionId_;
     }
 
+    // self
     void IrcClient::nickname(const std::string &nickname)
     {
         nickname_ = nickname;
@@ -117,6 +118,12 @@ namespace SudaGureum
         sendMessage(IrcMessage("NICK", {nickname}));
     }
 
+    void IrcClient::mode(const std::string &modifier)
+    {
+        sendMessage(IrcMessage("MODE", {nickname_, modifier}));
+    }
+
+    // channel-specific
     void IrcClient::join(const std::string &channel)
     {
         sendMessage(IrcMessage("JOIN", {channel}));
@@ -132,12 +139,17 @@ namespace SudaGureum
         sendMessage(IrcMessage("PART", {channel, message}));
     }
 
-    void IrcClient::privmsg(const std::string &channel, const std::string &message)
+    void IrcClient::mode(const std::string &channel, const std::string &nickname, const std::string &modifier)
     {
-        sendMessage(IrcMessage("PRIVMSG", {channel, message}));
+        sendMessage(IrcMessage("MODE", {channel, nickname, modifier}));
     }
 
-    void IrcClient::connect(const std::string &addr, uint16_t port, std::string encoding,
+    void IrcClient::privmsg(const std::string &target, const std::string &message)
+    {
+        sendMessage(IrcMessage("PRIVMSG", {target, message}));
+    }
+
+    void IrcClient::connect(const std::string &host, uint16_t port, std::string encoding,
         std::vector<std::string> nicknames, bool ssl)
     {
         if(nicknames.empty() || nicknames[0].empty())
@@ -150,7 +162,7 @@ namespace SudaGureum
         currentNicknameIndex_ = 0;
 
         boost::asio::ip::tcp::resolver resolver(ios_);
-        boost::asio::ip::tcp::resolver::query query(addr, boost::lexical_cast<std::string>(port));
+        boost::asio::ip::tcp::resolver::query query(host, boost::lexical_cast<std::string>(port));
         auto endpointIt = resolver.resolve(query);
 
         if(ssl)
@@ -517,8 +529,12 @@ namespace SudaGureum
         else if(message.command_ == "001") // RPL_WELCOME
         {
             connectBeginning_ = false;
-            sendMessage(IrcMessage("MODE", {nickname_, "+x"}));
-            sendMessage(IrcMessage("JOIN", {"#HNO3"}));
+
+            onConnect(*this);
+
+            // TODO: remove comment
+            /*sendMessage(IrcMessage("MODE", {nickname_, "+x"}));
+            sendMessage(IrcMessage("JOIN", {"#HNO3"}));*/
         }
         else if(message.command_ == "005") // RPL_ISUPPORT
         {
@@ -681,11 +697,16 @@ namespace SudaGureum
         });
     }
 
-    std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &addr, uint16_t port, const std::string &encoding,
-        const std::vector<std::string> &nicknames, bool ssl)
+    std::weak_ptr<IrcClient> IrcClientPool::connect(const std::string &host, uint16_t port, std::string encoding,
+        std::vector<std::string> nicknames, bool ssl, std::function<void (IrcClient &)> constructCb)
     {
         std::shared_ptr<IrcClient> client(new IrcClient(*this, nextConnectionId_ ++));
-        client->connect(addr, port, encoding, nicknames, ssl);
+        if(constructCb)
+        {
+            constructCb(*client);
+        }
+
+        client->connect(host, port, std::move(encoding), std::move(nicknames), ssl);
         {
             std::lock_guard<std::mutex> lock(clientsLock_);
             clients_.emplace(client->connectionId_, client);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Comparator.h"
+#include "Event.h"
 #include "IrcParser.h"
 #include "MtIoService.h"
 
@@ -98,15 +99,25 @@ namespace SudaGureum
 
     public:
         size_t connectionId() const;
+
+        // self
         void nickname(const std::string &nickname);
-        // please include #'s or &'s
+        void mode(const std::string &modifier);
+
+        // channel-specific; please include #'s or &'s
         void join(const std::string &channel);
         void join(const std::string &channel, const std::string &key);
         void part(const std::string &channel, const std::string &message);
-        void privmsg(const std::string &channel, const std::string &message);
+        void mode(const std::string &channel, const std::string &nickname, const std::string &modifier);
+
+        // not channel-specific
+        void privmsg(const std::string &target, const std::string &message);
+
+    public:
+        Event<IrcClient &> onConnect;
 
     private:
-        void connect(const std::string &addr, uint16_t port, std::string encoding,
+        void connect(const std::string &host, uint16_t port, std::string encoding,
             std::vector<std::string> nicknames, bool ssl);
         void tryNextNickname();
         void read();
@@ -166,8 +177,8 @@ namespace SudaGureum
         IrcClientPool();
 
     public:
-        std::weak_ptr<IrcClient> connect(const std::string &addr, uint16_t port, const std::string &encoding,
-            const std::vector<std::string> &nicknames, bool ssl = false);
+        std::weak_ptr<IrcClient> connect(const std::string &host, uint16_t port, std::string encoding,
+            std::vector<std::string> nicknames, bool ssl, std::function<void (IrcClient &)> constructCb);
         void closeAll();
 
     private:
