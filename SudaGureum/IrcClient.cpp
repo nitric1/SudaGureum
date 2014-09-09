@@ -402,7 +402,9 @@ namespace SudaGureum
                 auto it = channels_.find(channel);
                 if(it != channels_.end())
                 {
-                    it->second.participants_.insert(Participant(getNicknameFromPrefix(message.prefix_)));
+                    std::string nickname = getNicknameFromPrefix(message.prefix_);
+                    it->second.participants_.insert(Participant(nickname));
+                    onJoinChannel(JoinChannelArgs{shared_from_this(), channel, nickname});
                 }
             }
         }
@@ -530,11 +532,8 @@ namespace SudaGureum
         {
             connectBeginning_ = false;
 
-            onConnect(*this);
-
-            // TODO: remove comment
-            /*sendMessage(IrcMessage("MODE", {nickname_, "+x"}));
-            sendMessage(IrcMessage("JOIN", {"#HNO3"}));*/
+            onConnect(shared_from_this());
+            onServerMessage(ServerMessageArgs{shared_from_this(), message.command_, message.params_[0]});
         }
         else if(message.command_ == "005") // RPL_ISUPPORT
         {
