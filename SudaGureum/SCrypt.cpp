@@ -64,6 +64,7 @@ namespace SudaGureum
         boost::split(parts, hash, boost::is_any_of("$"));
         if(parts.size() != 5 || parts[1] != "s0")
         {
+            throw(std::invalid_argument("hash format is not valid"));
             return false;
         }
 
@@ -72,6 +73,7 @@ namespace SudaGureum
         std::vector<uint8_t> derived0 = decodeBase64(std::move(parts[4]));
         if(derived0.size() != BufferLen)
         {
+            throw(std::invalid_argument("hash length is not valid"));
             return false;
         }
 
@@ -83,6 +85,7 @@ namespace SudaGureum
         if(crypto_scrypt(reinterpret_cast<const uint8_t *>(password.data()), password.size(),
             salt.data(), salt.size(), N, r, p, derived1, sizeof(derived1) / sizeof(*derived1)) != 0)
         {
+            throw(std::runtime_error("crypto_scrypt failed"));
             return false;
         }
 
