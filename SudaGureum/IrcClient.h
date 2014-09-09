@@ -88,6 +88,36 @@ namespace SudaGureum
             >
         > NicknamePrefixMap;
 
+    public:
+        struct ServerMessageArgs
+        {
+            std::weak_ptr<IrcClient> ircClient_;
+            std::string command_;
+            std::string text_;
+        };
+
+        struct JoinChannelArgs
+        {
+            std::weak_ptr<IrcClient> ircClient_;
+            std::string channel_;
+            std::string nickname_; // empty if self
+        };
+
+        struct PartChannelArgs
+        {
+            std::weak_ptr<IrcClient> ircClient_;
+            std::string channel_;
+            std::string nickname_; // empty if self
+        };
+
+        struct MessageArgs
+        {
+            std::weak_ptr<IrcClient> ircClient_;
+            std::string channel_;
+            std::string nickname_;
+            std::string message_;
+        };
+
     private:
         static std::string getNicknameFromPrefix(std::string prefix);
 
@@ -114,7 +144,12 @@ namespace SudaGureum
         void privmsg(const std::string &target, const std::string &message);
 
     public:
-        Event<IrcClient &> onConnect;
+        Event<std::weak_ptr<IrcClient>> onConnect;
+        Event<const ServerMessageArgs &> onServerMessage;
+        Event<const JoinChannelArgs &> onJoinChannel;
+        Event<const PartChannelArgs &> onPartChannel;
+        Event<const MessageArgs &> onChannelMessage;
+        Event<const MessageArgs &> onPersonalMessage;
 
     private:
         void connect(const std::string &host, uint16_t port, std::string encoding,
