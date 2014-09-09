@@ -74,18 +74,18 @@ namespace SudaGureum
         {'~', 'q'}, {'&', 'a'}, {'@', 'o'}, {'%', 'h'}, {'+', 'v'}
     };
 
-    std::string IrcClient::getNicknameFromPrefix(const std::string &prefix)
+    std::string IrcClient::getNicknameFromPrefix(std::string prefix)
     {
         size_t userPrefixPos = prefix.find("!");
         if(userPrefixPos != std::string::npos)
         {
-            return prefix.substr(0, userPrefixPos);
+            return std::move(prefix.erase(userPrefixPos, std::string::npos));
         }
 
         size_t hostPrefixPos = prefix.find("@");
         if(hostPrefixPos != std::string::npos)
         {
-            return prefix.substr(0, hostPrefixPos);
+            return std::move(prefix.erase(hostPrefixPos, std::string::npos));
         }
 
         return prefix;
@@ -651,7 +651,7 @@ namespace SudaGureum
         else if(message.command_ == "366") // RPL_ENDOFNAMES
         {
         }
-        else if(message.command_ == "432") // ERR_ERRONEUSNICKNAME
+        else if(message.command_ == "432") // ERR_ERRONEOUSNICKNAME
         {
             if(connectBeginning_)
             {

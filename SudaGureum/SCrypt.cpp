@@ -11,8 +11,8 @@ namespace SudaGureum
     namespace
     {
         static const uint8_t Log2N = 14;
-        static const uint32_t R = 8;
-        static const uint32_t P = 1;
+        static const uint8_t R = 8;
+        static const uint8_t P = 1;
         static const uint32_t Param = (Log2N << 16) | (R << 8) | P;
         static const size_t SaltLen = 16;
         static const size_t BufferLen = 32;
