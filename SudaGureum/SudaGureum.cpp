@@ -4,6 +4,7 @@
 
 #include "Configure.h"
 #include "IrcClient.h"
+#include "SCrypt.h"
 #include "User.h"
 #include "Utility.h"
 #include "WebSocketServer.h"

@@ -89,7 +89,7 @@ namespace SudaGureum
         > NicknamePrefixMap;
 
     private:
-        static std::string getNicknameFromPrefix(const std::string &prefix);
+        static std::string getNicknameFromPrefix(std::string prefix);
 
     private:
         static const NicknamePrefixMap DefaultNicknamePrefixMap;
