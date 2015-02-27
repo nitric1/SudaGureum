@@ -93,6 +93,9 @@
     <ClInclude Include="AsioHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Backlog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">

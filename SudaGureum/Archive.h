@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Backlog.h"
 #include "Singleton.h"
+#include "User.h"
 
 namespace SudaGureum
 {

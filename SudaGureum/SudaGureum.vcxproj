@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AsioHelper.h" />
+    <ClInclude Include="Backlog.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Comparator.h" />
     <ClInclude Include="Configure.h" />
