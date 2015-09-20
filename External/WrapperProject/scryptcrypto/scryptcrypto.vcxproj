@@ -19,211 +19,167 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B16607EA-BBEA-4E25-853B-ECD733ADA18D}</ProjectGuid>
+    <ProjectGuid>{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>SudaGureum</RootNamespace>
+    <RootNamespace>scryptcrypto</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="SudaGureum.props" />
-    <Import Project="SudaGureum.Win32.props" />
-    <Import Project="SudaGureum.Win32.Debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="SudaGureum.props" />
-    <Import Project="SudaGureum.x64.props" />
-    <Import Project="SudaGureum.x64.Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="SudaGureum.props" />
-    <Import Project="SudaGureum.Win32.props" />
-    <Import Project="SudaGureum.Win32.Release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="SudaGureum.props" />
-    <Import Project="SudaGureum.x64.props" />
-    <Import Project="SudaGureum.x64.Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/scrypt;$(ProjectDir)/../../SubmoduleLib/scrypt/lib/util;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/alg;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/cpusupport;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/scrypt;$(ProjectDir)/../../SubmoduleLib/scrypt/lib/util;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/alg;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/cpusupport;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/scrypt;$(ProjectDir)/../../SubmoduleLib/scrypt/lib/util;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/alg;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/cpusupport;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/scrypt;$(ProjectDir)/../../SubmoduleLib/scrypt/lib/util;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/alg;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/cpusupport;$(ProjectDir)/../../SubmoduleLib/scrypt/libcperciva/util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;HAVE_CONFIG_H;CPUSUPPORT_CONFIG_FILE="cpuconfig.h";_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
-      <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;scryptcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>scryptcrypto.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;CPUSUPPORT_CONFIG_FILE="cpuconfig.h";_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
-      <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;scryptcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>scryptcrypto.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;HAVE_CONFIG_H;CPUSUPPORT_CONFIG_FILE="cpuconfig.h";_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;scryptcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>scryptcrypto.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;CPUSUPPORT_CONFIG_FILE="cpuconfig.h";_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;scryptcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>scryptcrypto.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="Comparator.h" />
-    <ClInclude Include="Configure.h" />
-    <ClInclude Include="EREndian.h" />
-    <ClInclude Include="Event.h" />
-    <ClInclude Include="MtIoService.h" />
-    <ClInclude Include="IrcClient.h" />
-    <ClInclude Include="IrcParser.h" />
-    <ClInclude Include="Archive.h" />
-    <ClInclude Include="SCrypt.h" />
-    <ClInclude Include="Singleton.h" />
-    <ClInclude Include="Socket.h" />
-    <ClInclude Include="SudaGureum.h" />
-    <ClInclude Include="Types.h" />
-    <ClInclude Include="User.h" />
-    <ClInclude Include="Utility.h" />
-    <ClInclude Include="WebSocketParser.h" />
-    <ClInclude Include="WebSocketServer.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="cpuconfig.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\sysendian.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\scrypt_platform.h" />
+    <ClInclude Include="cpuid.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Archive.cpp" />
-    <ClCompile Include="Common.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Configure.cpp" />
-    <ClCompile Include="MtIoService.cpp" />
-    <ClCompile Include="IrcClient.cpp" />
-    <ClCompile Include="IrcParser.cpp" />
-    <ClCompile Include="SCrypt.cpp" />
-    <ClCompile Include="Socket.cpp" />
-    <ClCompile Include="SudaGureum.cpp" />
-    <ClCompile Include="User.cpp" />
-    <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="WebSocketParser.cpp" />
-    <ClCompile Include="WebSocketServer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SudaGureum.props" />
-    <None Include="SudaGureum.Win32.Debug.props" />
-    <None Include="SudaGureum.Win32.props" />
-    <None Include="SudaGureum.Win32.Release.props" />
-    <None Include="SudaGureum.x64.Debug.props" />
-    <None Include="SudaGureum.x64.props" />
-    <None Include="SudaGureum.x64.Release.props" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_aesni.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_sse2.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c" />
+    <ClCompile Include="cpuid.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

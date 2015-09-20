@@ -31,6 +31,11 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /**
  * crypto_scrypt(passwd, passwdlen, salt, saltlen, N, r, p, buf, buflen):
  * Compute scrypt(passwd[0 .. passwdlen - 1], salt[0 .. saltlen - 1], N, r,
@@ -40,18 +45,11 @@
  *
  * Return 0 on success; or -1 on error.
  */
-
-#ifdef __cplusplus
-extern "C"
-#endif
-#ifdef WIN32
-#ifdef SCRYPTCRYPTO_EXPORTS
-__declspec(dllexport)
-#else
-__declspec(dllimport)
-#endif
-#endif
 int crypto_scrypt(const uint8_t *, size_t, const uint8_t *, size_t, uint64_t,
     uint32_t, uint32_t, uint8_t *, size_t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !_CRYPTO_SCRYPT_H_ */

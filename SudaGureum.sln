@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudaGureum", "SudaGureum\SudaGureum.vcxproj", "{B16607EA-BBEA-4E25-853B-ECD733ADA18D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE} = {56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9} = {3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EADE70B2-04E9-4527-A872-FCFBCB6C7285}"
 	ProjectSection(SolutionItems) = preProject
@@ -12,6 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CMakeLists.txt = CMakeLists.txt
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External Wrapper Projects", "External Wrapper Projects", "{85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scryptcrypto", "External\WrapperProject\scryptcrypto\scryptcrypto.vcxproj", "{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cppformat", "External\WrapperProject\cppformat\cppformat.vcxproj", "{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,8 +39,28 @@ Global
 		{B16607EA-BBEA-4E25-853B-ECD733ADA18D}.Release|Win32.Build.0 = Release|Win32
 		{B16607EA-BBEA-4E25-853B-ECD733ADA18D}.Release|x64.ActiveCfg = Release|x64
 		{B16607EA-BBEA-4E25-853B-ECD733ADA18D}.Release|x64.Build.0 = Release|x64
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Debug|Win32.Build.0 = Debug|Win32
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Debug|x64.ActiveCfg = Debug|x64
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Debug|x64.Build.0 = Debug|x64
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Release|Win32.ActiveCfg = Release|Win32
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Release|Win32.Build.0 = Release|Win32
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Release|x64.ActiveCfg = Release|x64
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}.Release|x64.Build.0 = Release|x64
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Debug|Win32.Build.0 = Debug|Win32
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Debug|x64.ActiveCfg = Debug|x64
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Debug|x64.Build.0 = Debug|x64
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|Win32.ActiveCfg = Release|Win32
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|Win32.Build.0 = Release|Win32
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|x64.ActiveCfg = Release|x64
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
+		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 	EndGlobalSection
 EndGlobal

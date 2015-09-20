@@ -1,0 +1,9 @@
+[submodule "External/SubmoduleLib/rapidjson"]
+	path = External/SubmoduleLib/rapidjson
+	url = https://github.com/miloyip/rapidjson.git
+[submodule "External/SubmoduleLib/cppformat"]
+	path = External/SubmoduleLib/cppformat
+	url = https://github.com/cppformat/cppformat.git
+[submodule "External/SubmoduleLib/scrypt"]
+	path = External/SubmoduleLib/scrypt
+	url = https://github.com/Tarsnap/scrypt.git

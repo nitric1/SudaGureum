@@ -39,7 +39,7 @@ namespace SudaGureum
                 boostpo::store(boostpo::parse_command_line(argc, argv, desc), vm);
                 boostpo::notify(vm);
             }
-            catch(boostpo::error &ex)
+            catch(const boostpo::error &ex)
             {
                 std::cerr << ex.what() << std::endl;
                 return;
@@ -107,15 +107,15 @@ namespace SudaGureum
             server.stop();
             server.join();
         }
-        catch(boost::system::system_error &e)
+        catch(const boost::system::system_error &e)
         {
             std::cerr << "System error: " << e.what() << std::endl;
         }
-        catch(std::runtime_error &e)
+        catch(const std::runtime_error &e)
         {
             std::cerr << "Runtime error: " << e.what() << std::endl;
         }
-        catch(std::exception &e)
+        catch(const std::exception &e)
         {
             std::cerr << "Exception: " << e.what() << std::endl;
         }

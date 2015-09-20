@@ -11,6 +11,7 @@ namespace SudaGureum
 
     private:
         Configure();
+        Configure(const Configure &) = delete;
 
     private:
         ConfigureMap::const_iterator find(const std::string &name) const;
@@ -19,6 +20,9 @@ namespace SudaGureum
         bool load(const boost::filesystem::path &file);
         bool exists(const std::string &name) const;
         std::string get(const std::string &name, const std::string &defaultValue = std::string()) const;
+
+    private:
+        Configure &operator =(const Configure &) = delete;
 
     private:
         ConfigureMap confMap_;
