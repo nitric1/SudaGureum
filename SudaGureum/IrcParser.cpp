@@ -33,14 +33,31 @@ namespace SudaGureum
     {
     }
 
+    void IrcParser::clear()
+    {
+        state_ = None;
+        buffer_.clear();
+    }
+
     bool IrcParser::parse(const std::string &str, std::function<void (const IrcMessage &)> cb)
     {
-        // TODO: cut if buffer is too large
-
         if(state_ == Error)
         {
             return false;
         }
+
+        auto append = [this](char ch)
+        {
+            static const size_t BufferSizeThreshold = 4096;
+
+            buffer_ += ch;
+            if(buffer_.size() > BufferSizeThreshold)
+            {
+                return false;
+            }
+
+            return true;
+        };
 
         std::string line;
         for(char ch: str)
@@ -55,7 +72,11 @@ namespace SudaGureum
                 }
                 else
                 {
-                    buffer_ += ch;
+                    if(!append(ch))
+                    {
+                        state_ = Error;
+                        return false;
+                    }
                     state_ = InLine;
                 }
                 break;
@@ -76,7 +97,10 @@ namespace SudaGureum
                 }
                 else
                 {
-                    buffer_ += ch;
+                    if(!append(ch))
+                    {
+                        return false;
+                    }
                 }
                 break;
 
@@ -178,5 +202,10 @@ namespace SudaGureum
     IrcParser::operator bool() const
     {
         return (state_ != Error);
+    }
+
+    bool IrcParser::operator !() const
+    {
+        return (state_ == Error);
     }
 }

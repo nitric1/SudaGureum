@@ -162,7 +162,7 @@ namespace SudaGureum
         currentNicknameIndex_ = 0;
 
         boost::asio::ip::tcp::resolver resolver(ios_);
-        boost::asio::ip::tcp::resolver::query query(host, boost::lexical_cast<std::string>(port));
+        boost::asio::ip::tcp::resolver::query query(host, fmt::FormatInt(port).str());
         auto endpointIt = resolver.resolve(query);
 
         if(ssl)

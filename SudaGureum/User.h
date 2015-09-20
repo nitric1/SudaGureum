@@ -43,7 +43,7 @@ namespace SudaGureum
 
     private:
         void onIrcClientCreate(IrcClient &ircClient);
-        void onIrcClientConnect(IrcClient &ircClient);
+        void onIrcClientConnect(std::weak_ptr<IrcClient> ircClient);
     };
 
     class Users : public Singleton<Users>

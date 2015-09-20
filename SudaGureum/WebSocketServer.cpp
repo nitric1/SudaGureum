@@ -239,19 +239,19 @@ namespace SudaGureum
         }
         else if(message.command_ == "HandshakeRequest")
         {
-            boost::format responseFormat(
+            static const std::string responseFormat =
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Connection: Upgrade\r\n"
                 "Upgrade: websocket\r\n"
-                "Sec-WebSocket-Accept: %1%\r\n"
+                "Sec-WebSocket-Accept: {0}\r\n"
                 "Sec-WebSocket-Version: 13\r\n"
-                "\r\n");
+                "\r\n";
 
             std::string accept = message.params_.find("Key")->second + KeyConcatMagic;
             auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
             std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
 
-            std::string response = (responseFormat % acceptHashed).str();
+            std::string response = fmt::format(responseFormat, acceptHashed);
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
         }
         else if(message.command_ == "Ping")
@@ -281,16 +281,31 @@ namespace SudaGureum
     WebSocketServer::WebSocketServer(uint16_t port, bool ssl)
         : acceptor_(ios_)
     {
-        // TODO: IPv6
-
-        acceptor_.open(boost::asio::ip::tcp::v4());
-        acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-        acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-        acceptor_.listen();
+        try
+        {
+            acceptor_.open(boost::asio::ip::tcp::v6());
+            acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+            acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), port));
+            acceptor_.listen();
+        }
+        catch(const boost::system::system_error &e)
+        {
+            if(e.code() == make_error_code(boost::asio::error::address_family_not_supported)) // no ipv6 capability
+            {
+                acceptor_.open(boost::asio::ip::tcp::v4());
+                acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+                acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+                acceptor_.listen();
+            }
+            else
+            {
+                throw;
+            }
+        }
 
         if(ssl)
         {
-            auto conf = Configure::instance();
+            auto &conf = Configure::instance();
 
             ctx_ = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
             ctx_->set_password_callback(&WebSocketServer::handleGetPassword);

@@ -48,16 +48,6 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4819) // boost/format/alt_sstream_impl.hpp : warning C4819: The file contains a character that cannot be represented in the current code page
-#endif
-#include <boost/format.hpp>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 #include <boost/lexical_cast.hpp>
 #include <boost/locale.hpp>
 #include <boost/logic/tribool.hpp>
@@ -77,6 +67,7 @@ using std::max; using std::min;
 
 // External library inclusion
 
+#include <cppformat/format.h>
 #include <openssl/tls1.h>
 #include <rapidjson/document.h>
 #include <scrypt/lib/crypto/crypto_scrypt.h>

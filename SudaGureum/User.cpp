@@ -55,11 +55,17 @@ namespace SudaGureum
         ircClient.onConnect += std::bind(&User::onIrcClientConnect, shared_from_this(), std::placeholders::_1);
     }
 
-    void User::onIrcClientConnect(IrcClient &ircClient)
+    void User::onIrcClientConnect(std::weak_ptr<IrcClient> ircClient)
     {
-        ircClient.mode("+x");
+        auto ircClientLock = ircClient.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
 
-        auto info = serverInfo(&ircClient);
+        ircClientLock->mode("+x");
+
+        auto info = serverInfo(ircClientLock.get());
         if(info == nullptr)
         {
             return;
@@ -67,7 +73,7 @@ namespace SudaGureum
 
         for(auto &channel: info->channels_)
         {
-            ircClient.join(channel);
+            ircClientLock->join(channel);
         }
     }
 

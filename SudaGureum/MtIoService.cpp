@@ -10,15 +10,15 @@ namespace SudaGureum
         {
             ios.run();
         }
-        catch(boost::system::system_error &e)
+        catch(const boost::system::system_error &e)
         {
             std::cerr << "System error: " << e.what() << std::endl;
         }
-        catch(std::runtime_error &e)
+        catch(const std::runtime_error &e)
         {
             std::cerr << "Runtime error: " << e.what() << std::endl;
         }
-        catch(std::exception &e)
+        catch(const std::exception &e)
         {
             std::cerr << "Exception: " << e.what() << std::endl;
         }

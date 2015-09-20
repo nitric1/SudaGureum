@@ -1,3 +1,0 @@
-openssl=1.0.1i
-rapidjson=0.11
-scrypt=1.1.6
