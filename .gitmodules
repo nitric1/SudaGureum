@@ -7,3 +7,6 @@
 [submodule "External/SubmoduleLib/scrypt"]
 	path = External/SubmoduleLib/scrypt
 	url = https://github.com/Tarsnap/scrypt.git
+[submodule "External/SubmoduleLib/SQLiteCpp"]
+	path = External/SubmoduleLib/SQLiteCpp
+	url = https://github.com/SRombauts/SQLiteCpp.git

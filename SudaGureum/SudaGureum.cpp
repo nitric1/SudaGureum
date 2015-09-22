@@ -2,6 +2,7 @@
 
 #include "SudaGureum.h"
 
+#include "Archive.h"
 #include "Configure.h"
 #include "IrcClient.h"
 #include "SCrypt.h"
@@ -91,9 +92,11 @@ namespace SudaGureum
                 }
 
 #ifdef _WIN32
-                size_t wlen = static_cast<size_t>(MultiByteToWideChar(CP_ACP, 0, line.c_str(), -1, nullptr, 0));
+                size_t wlen = static_cast<size_t>(MultiByteToWideChar(CP_ACP, 0,
+                    line.c_str(), static_cast<int>(line.size() + 1), nullptr, 0));
                 std::vector<wchar_t> wbuf(wlen);
-                MultiByteToWideChar(CP_ACP, 0, line.c_str(), -1, wbuf.data(), static_cast<int>(wlen));
+                MultiByteToWideChar(CP_ACP, 0,
+                    line.c_str(), static_cast<int>(line.size() + 1), wbuf.data(), static_cast<int>(wlen));
 
                 client1.lock()->privmsg("#HNO3", encodeUtf8(wbuf.data()));
 #else

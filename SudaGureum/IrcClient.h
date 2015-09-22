@@ -10,6 +10,7 @@ namespace SudaGureum
     class IrcClientPool;
     class SocketBase;
 
+    // Connects to IRC server, and fires IRC events.
     class IrcClient : private boost::noncopyable, public std::enable_shared_from_this<IrcClient>
     {
     public:
@@ -61,7 +62,7 @@ namespace SudaGureum
             char accessivity_;
             std::string topic_;
             std::string topicSetter_;
-            boost::posix_time::ptime topicSetTime_;
+            std::chrono::system_clock::time_point topicSetTime_;
             ChannelParticipantSet participants_;
             std::string key_;
             size_t limit_;
@@ -110,10 +111,17 @@ namespace SudaGureum
             std::string nickname_; // empty if self
         };
 
-        struct MessageArgs
+        struct ChannelMessageArgs
         {
             std::weak_ptr<IrcClient> ircClient_;
             std::string channel_;
+            std::string nickname_;
+            std::string message_;
+        };
+
+        struct PersonalMessageArgs
+        {
+            std::weak_ptr<IrcClient> ircClient_;
             std::string nickname_;
             std::string message_;
         };
@@ -148,8 +156,9 @@ namespace SudaGureum
         Event<const ServerMessageArgs &> onServerMessage;
         Event<const JoinChannelArgs &> onJoinChannel;
         Event<const PartChannelArgs &> onPartChannel;
-        Event<const MessageArgs &> onChannelMessage;
-        Event<const MessageArgs &> onPersonalMessage;
+        Event<const ChannelMessageArgs &> onChannelMessage;
+        Event<const ChannelMessageArgs &> onChannelNotice;
+        Event<const PersonalMessageArgs &> onPersonalMessage;
 
     private:
         void connect(const std::string &host, uint16_t port, std::string encoding,

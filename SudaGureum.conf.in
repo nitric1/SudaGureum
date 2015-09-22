@@ -2,3 +2,5 @@
 # ssl_certificate_chain_file=
 ssl_certificate_file=
 ssl_private_key_file=
+data_path=
+log_path=

@@ -504,6 +504,9 @@ namespace SudaGureum
         }
         else if(message.command_ == "NOTICE")
         {
+            // TODO: can send notices personally?
+            onChannelNotice(ChannelMessageArgs{shared_from_this(),
+                message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1]});
         }
         else if(message.command_ == "PART")
         {
@@ -527,6 +530,17 @@ namespace SudaGureum
         }
         else if(message.command_ == "PRIVMSG")
         {
+            std::string channel = message.params_[0];
+            if(channel == nickname_)
+            {
+                onPersonalMessage(PersonalMessageArgs{shared_from_this(),
+                    getNicknameFromPrefix(message.prefix_), message.params_[1]});
+            }
+            else
+            {
+                onChannelMessage(ChannelMessageArgs{shared_from_this(),
+                    message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1]});
+            }
         }
         else if(message.command_ == "001") // RPL_WELCOME
         {
@@ -598,7 +612,7 @@ namespace SudaGureum
             {
                 it->second.topic_ = "";
                 it->second.topicSetter_ = "";
-                it->second.topicSetTime_ = boost::posix_time::ptime();
+                it->second.topicSetTime_ = std::chrono::system_clock::now();
             }
         }
         else if(message.command_ == "332") // RPL_TOPIC
@@ -615,7 +629,7 @@ namespace SudaGureum
             if(it != channels_.end())
             {
                 it->second.topicSetter_ = message.params_.at(2);
-                it->second.topicSetTime_ = boost::posix_time::from_time_t(
+                it->second.topicSetTime_ = std::chrono::system_clock::from_time_t(
                     boost::lexical_cast<time_t>(message.params_.at(3)));
             }
         }

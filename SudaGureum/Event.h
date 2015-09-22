@@ -5,9 +5,6 @@ namespace SudaGureum
     template<typename Arg>
     class Event final
     {
-    private:
-        boost::signals2::signal<void (Arg)> sig_;
-
     public:
         Event() {}
 
@@ -44,14 +41,14 @@ namespace SudaGureum
         {
             return sig_.disconnect(rhs);
         }
+
+    private:
+        boost::signals2::signal<void(Arg)> sig_;
     };
 
     template<>
     class Event<void> final
     {
-    private:
-        boost::signals2::signal<void ()> sig_;
-
     public:
         Event() {}
 
@@ -88,5 +85,8 @@ namespace SudaGureum
         {
             return sig_.disconnect(rhs);
         }
+
+    private:
+        boost::signals2::signal<void()> sig_;
     };
 }

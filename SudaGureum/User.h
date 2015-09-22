@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Archive.h"
 #include "Singleton.h"
 
 namespace SudaGureum
@@ -26,13 +27,9 @@ namespace SudaGureum
             std::weak_ptr<IrcClient> ircClient_;
         };
 
-    private:
-        std::string id_;
-        IrcClientPool &ircClientPool_;
-        std::unordered_map<std::string, Server> servers_;
-
     public:
-        User(std::string id, IrcClientPool &ircClientPool, const std::unordered_map<std::string, UserServerInfo> &servers);
+        User(std::string id, IrcClientPool &ircClientPool,
+            const std::unordered_map<std::string, UserServerInfo> &servers);
 
     public:
         const std::unordered_map<std::string, Server> &servers() const;
@@ -41,22 +38,32 @@ namespace SudaGureum
         void connectToServers();
         Server *serverInfo(IrcClient *ircClient);
 
+    public:
+        const std::string &id() const;
+        Archive &archive();
+
     private:
         void onIrcClientCreate(IrcClient &ircClient);
         void onIrcClientConnect(std::weak_ptr<IrcClient> ircClient);
+
+    private:
+        std::string id_;
+        IrcClientPool &ircClientPool_;
+        std::unordered_map<std::string, Server> servers_;
+        Archive archive_;
     };
 
     class Users : public Singleton<Users>
     {
-    private:
-        std::map<std::string, std::shared_ptr<User>> userMap_;
-
     private:
         ~Users() {}
 
     public:
         void load(IrcClientPool &ircClientPool);
         std::shared_ptr<User> user(const std::string &id) const;
+
+    private:
+        std::map<std::string, std::shared_ptr<User>> userMap_;
 
         friend class Singleton<Users>;
     };

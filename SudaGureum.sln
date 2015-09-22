@@ -5,6 +5,7 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudaGureum", "SudaGureum\SudaGureum.vcxproj", "{B16607EA-BBEA-4E25-853B-ECD733ADA18D}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370} = {C2BF3A1A-303A-45D9-8399-2E702CF36370}
 		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE} = {56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}
 		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9} = {3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}
 	EndProjectSection
@@ -22,6 +23,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scryptcrypto", "External\WrapperProject\scryptcrypto\scryptcrypto.vcxproj", "{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cppformat", "External\WrapperProject\cppformat\cppformat.vcxproj", "{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLiteCpp", "External\WrapperProject\SQLiteCpp\SQLiteCpp.vcxproj", "{C2BF3A1A-303A-45D9-8399-2E702CF36370}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +58,14 @@ Global
 		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|Win32.Build.0 = Release|Win32
 		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|x64.ActiveCfg = Release|x64
 		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE}.Release|x64.Build.0 = Release|x64
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Debug|Win32.Build.0 = Debug|Win32
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Debug|x64.ActiveCfg = Debug|x64
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Debug|x64.Build.0 = Debug|x64
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Release|Win32.ActiveCfg = Release|Win32
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Release|Win32.Build.0 = Release|Win32
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Release|x64.ActiveCfg = Release|x64
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,5 +73,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 		{56E1E1AA-3ED9-4A45-9FDA-63B4A8678FBE} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
+		{C2BF3A1A-303A-45D9-8399-2E702CF36370} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 	EndGlobalSection
 EndGlobal
