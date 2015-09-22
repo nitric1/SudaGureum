@@ -227,7 +227,7 @@ namespace SudaGureum
 
     void WebSocketConnection::procMessage(const WebSocketMessage &message)
     {
-        if(message.command_ == "BadRequest")
+        if(message.command_ == WebSocketMessage::BadRequest)
         {
             static const std::string response =
                 "HTTP/1.1 400 Bad Request\r\n"
@@ -237,7 +237,7 @@ namespace SudaGureum
                 "The request is bad.";
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
         }
-        else if(message.command_ == "HandshakeRequest")
+        else if(message.command_ == WebSocketMessage::HandshakeRequest)
         {
             static const std::string responseFormat =
                 "HTTP/1.1 101 Switching Protocols\r\n"
@@ -254,11 +254,11 @@ namespace SudaGureum
             std::string response = fmt::format(responseFormat, acceptHashed);
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
         }
-        else if(message.command_ == "Ping")
+        else if(message.command_ == WebSocketMessage::Ping)
         {
             sendRaw(encodeFrame(Pong, message.rawData_));
         }
-        else if(message.command_ == "Close")
+        else if(message.command_ == WebSocketMessage::Close)
         {
             closeReceived_ = true;
             if(closeReady_) // already sent close frame

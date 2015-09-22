@@ -32,10 +32,10 @@ namespace SudaGureum
         boost::asio::async_write(socket_, buffer, std::move(handler));
     }
 
-    void TcpSocket::asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
+    void TcpSocket::asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
         std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler)
     {
-        boost::asio::async_connect(socket_, endPointIt, std::move(handler));
+        boost::asio::async_connect(socket_, std::move(endPointIt), std::move(handler));
     }
 
     boost::system::error_code TcpSocket::close()
@@ -84,10 +84,10 @@ namespace SudaGureum
         boost::asio::async_write(stream_, buffer, std::move(handler));
     }
 
-    void TcpSslSocket::asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
+    void TcpSslSocket::asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
         std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler)
     {
-        boost::asio::async_connect(stream_.lowest_layer(), endPointIt,
+        boost::asio::async_connect(stream_.lowest_layer(), std::move(endPointIt),
             [this, handler](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)
             {
                 if(ec)

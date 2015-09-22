@@ -14,7 +14,7 @@ namespace SudaGureum
             std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
         virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
             std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
-        virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
+        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
             std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler) = 0;
         virtual boost::system::error_code close() = 0;
     };
@@ -32,7 +32,7 @@ namespace SudaGureum
             std::function<void (const boost::system::error_code &, size_t)> handler);
         virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
             std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
+        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
             std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler);
         virtual boost::system::error_code close();
 
@@ -57,7 +57,7 @@ namespace SudaGureum
             std::function<void (const boost::system::error_code &, size_t)> handler);
         virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
             std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncConnect(const boost::asio::ip::tcp::resolver::iterator &endPointIt,
+        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
             std::function<void(const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler);
         virtual boost::system::error_code close();
 
