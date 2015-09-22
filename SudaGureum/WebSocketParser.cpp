@@ -6,6 +6,11 @@
 
 namespace SudaGureum
 {
+    const std::string WebSocketMessage::BadRequest = "BadRequest";
+    const std::string WebSocketMessage::HandshakeRequest = "HandshakeRequest";
+    const std::string WebSocketMessage::Close = "Close";
+    const std::string WebSocketMessage::Ping = "Ping";
+
     WebSocketMessage::WebSocketMessage()
     {
     }
@@ -121,7 +126,7 @@ namespace SudaGureum
                     }
                     if(!parseHttpHeader(std::string(buffer_.begin(), buffer_.end())))
                     {
-                        cb(WebSocketMessage("BadRequest"));
+                        cb(WebSocketMessage(WebSocketMessage::BadRequest));
                         state_ = Error;
                         return false;
                     }
@@ -140,7 +145,7 @@ namespace SudaGureum
                 }
                 else
                 {
-                    cb(WebSocketMessage("BadRequest"));
+                    cb(WebSocketMessage(WebSocketMessage::BadRequest));
                     state_ = Error;
                     return false;
                 }
@@ -152,13 +157,13 @@ namespace SudaGureum
                     if(host_.empty() || origin_.empty() || key_.empty() ||
                         !connectionUpgrade_ || !upgraded_ || !versionValid_)
                     {
-                        cb(WebSocketMessage("BadRequest"));
+                        cb(WebSocketMessage(WebSocketMessage::BadRequest));
                         state_ = Error;
                         return false;
                     }
 
                     // TODO: Message standard is not set; may be changed.
-                    cb(WebSocketMessage("HandshakeRequest",
+                    cb(WebSocketMessage(WebSocketMessage::HandshakeRequest,
                         {{"Path", path_}, {"Host", host_}, {"Origin", origin_}, {"Key", key_}}));
                     state_ = InWebSocketFrameHeader;
                 }
@@ -390,7 +395,7 @@ namespace SudaGureum
             switch(opcode_)
             {
             case Close: // close
-                cb(WebSocketMessage("Close", std::move(data)));
+                cb(WebSocketMessage(WebSocketMessage::Close, std::move(data)));
                 break;
 
             case Ping: // ping
@@ -398,7 +403,7 @@ namespace SudaGureum
                 {
                     return false; // ping payload must be masked
                 }
-                cb(WebSocketMessage("Ping", std::move(data)));
+                cb(WebSocketMessage(WebSocketMessage::Ping, std::move(data)));
                 break;
 
             case Pong: // pong

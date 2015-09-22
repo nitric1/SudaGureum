@@ -21,6 +21,11 @@ namespace SudaGureum
     {
         typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
 
+        static const std::string BadRequest;
+        static const std::string HandshakeRequest;
+        static const std::string Close;
+        static const std::string Ping;
+
         std::string command_;
         ParamsMap params_;
         std::vector<uint8_t> rawData_;
