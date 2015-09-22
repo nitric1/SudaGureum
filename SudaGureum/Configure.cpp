@@ -25,6 +25,8 @@ namespace SudaGureum
         if(!ifp.read(buffer.data(), fileSize))
             return false;
 
+        ifp.close();
+
         buffer.push_back('\0');
         auto it = buffer.begin();
         if(buffer.size() >= 3) // skip bom
@@ -42,7 +44,7 @@ namespace SudaGureum
             std::getline(is, str);
 
             pos = str.find('=');
-            if(pos == std::wstring::npos)
+            if(pos == std::string::npos)
                 continue;
 
             name.assign(str.begin(), str.begin() + pos);

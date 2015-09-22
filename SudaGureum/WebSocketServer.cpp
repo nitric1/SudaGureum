@@ -242,7 +242,7 @@ namespace SudaGureum
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Connection: Upgrade\r\n"
                 "Upgrade: websocket\r\n"
-                "Sec-WebSocket-Accept: {0}\r\n"
+                "Sec-WebSocket-Accept: {}\r\n"
                 "Sec-WebSocket-Version: 13\r\n"
                 "\r\n";
 

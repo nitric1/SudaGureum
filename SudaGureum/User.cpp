@@ -9,6 +9,7 @@ namespace SudaGureum
     User::User(std::string id, IrcClientPool &ircClientPool, const std::unordered_map<std::string, UserServerInfo> &servers)
         : id_(std::move(id))
         , ircClientPool_(ircClientPool)
+        , archive_(id_)
     {
         for(auto &pair : servers)
         {
@@ -48,6 +49,16 @@ namespace SudaGureum
             }
         }
         return nullptr;
+    }
+
+    const std::string &User::id() const
+    {
+        return id_;
+    }
+
+    Archive &User::archive()
+    {
+        return archive_;
     }
 
     void User::onIrcClientCreate(IrcClient &ircClient)

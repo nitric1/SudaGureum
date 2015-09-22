@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <atomic>
 #include <bitset>
+#include <chrono>
 // #include <codecvt>
 #include <deque>
 #include <fstream>
@@ -43,10 +44,13 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
+#include <boost/date_time/c_time.hpp>
+#include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/locale.hpp>
@@ -70,6 +74,14 @@ using std::max; using std::min;
 #include <openssl/tls1.h>
 #include <rapidjson/document.h>
 #include <scrypt/lib/crypto/crypto_scrypt.h>
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4819) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss
+#endif
+#include <SQLiteCpp/SQLiteCpp.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #if defined(_MSC_VER)
 #include <intrin.h>
