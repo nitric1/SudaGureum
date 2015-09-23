@@ -3,7 +3,6 @@
 #include "WebSocketServer.h"
 
 #include "Configure.h"
-#include "EREndian.h"
 #include "Utility.h"
 
 namespace SudaGureum
@@ -21,7 +20,7 @@ namespace SudaGureum
             {
                 frame.push_back(0x7F); // non-masked (0), 7-bit fragment size for 64 bits extended (1111111)
                 uint64_t len = data.size();
-                len = EREndian::N2B(len);
+                len = boost::endian::native_to_big(len);
                 uint8_t *lenByBytes = reinterpret_cast<uint8_t *>(len);
                 frame.insert(frame.end(), lenByBytes, lenByBytes + sizeof(len));
             }
@@ -29,7 +28,7 @@ namespace SudaGureum
             {
                 frame.push_back(0x7E); // non-masked (0), 7-bit fragment size for 16 bits extended (1111110)
                 uint16_t len = static_cast<uint16_t>(data.size());
-                len = EREndian::N2B(len);
+                len = boost::endian::native_to_big(len);
                 uint8_t *lenByBytes = reinterpret_cast<uint8_t *>(len);
                 frame.insert(frame.end(), lenByBytes, lenByBytes + sizeof(len));
             }

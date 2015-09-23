@@ -1,7 +1,5 @@
 #include "Common.h"
 
-#include "EREndian.h"
-
 #include "WebSocketParser.h"
 
 namespace SudaGureum
@@ -227,7 +225,7 @@ namespace SudaGureum
                     {
                         if(payloadLen1_ == 126)
                         {
-                            payloadLen_ = EREndian::B2N(*reinterpret_cast<uint16_t *>(&buffer_[2]));
+                            payloadLen_ = boost::endian::big_to_native(*reinterpret_cast<uint16_t *>(&buffer_[2]));
                             if(masked_)
                             {
                                 std::copy(buffer_.begin() + 4, buffer_.end(), maskingKey_.begin());
@@ -235,7 +233,7 @@ namespace SudaGureum
                         }
                         else if(payloadLen1_ == 127)
                         {
-                            payloadLen_ = EREndian::B2N(*reinterpret_cast<uint64_t *>(&buffer_[2]));
+                            payloadLen_ = boost::endian::big_to_native(*reinterpret_cast<uint64_t *>(&buffer_[2]));
                             if(masked_)
                             {
                                 std::copy(buffer_.begin() + 10, buffer_.end(), maskingKey_.begin());
