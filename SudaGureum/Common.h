@@ -44,8 +44,8 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/detail/endian.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/endian/conversion.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
@@ -60,14 +60,13 @@
 #include <boost/regex.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/signals2.hpp>
-#include <boost/thread/once.hpp>
-#include <boost/uuid/sha1.hpp>
 
 using std::max; using std::min;
 
 // External library inclusion
 
 #include <cppformat/format.h>
+#include <openssl/sha.h>
 #include <openssl/tls1.h>
 #include <rapidjson/document.h>
 #include <scrypt/lib/crypto/crypto_scrypt.h>

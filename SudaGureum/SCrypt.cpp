@@ -46,15 +46,7 @@ namespace SudaGureum
         static_assert(1 <= SaltLen && SaltLen <= 16, "Salt length must be in the range of [1, 16]");
         static_assert(BufferLen == 64, "Buffer length must be 64");
 
-        static boost::once_flag paramStrOnceFlag = BOOST_ONCE_INIT;
-        static std::string paramStr;
-        boost::call_once(
-            []()
-            {
-                std::ostringstream os;
-                os << std::setw(6) << std::setfill('0') << std::hex << Param;
-                paramStr = os.str();
-            }, paramStrOnceFlag);
+        static std::string paramStr = fmt::format("{:06x}", Param);
 
         uint8_t salt[SaltLen];
 
@@ -94,7 +86,7 @@ namespace SudaGureum
             return false;
         }
 
-        uint32_t param = static_cast<uint32_t>(strtoul(parts[2].c_str(), nullptr, 16));
+        uint32_t param = static_cast<uint32_t>(std::stoul(parts[2], nullptr, 16));
         std::vector<uint8_t> salt = decodeBase64(std::move(parts[3]));
         std::vector<uint8_t> derived0 = decodeBase64(std::move(parts[4]));
         if(derived0.size() > BufferLen)

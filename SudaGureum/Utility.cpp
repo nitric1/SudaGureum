@@ -1,7 +1,5 @@
 #include "Common.h"
 
-#include "EREndian.h"
-
 #include "Utility.h"
 
 namespace SudaGureum
@@ -72,22 +70,8 @@ namespace SudaGureum
 
     std::array<uint8_t, 20> hashSha1(const std::vector<uint8_t> &data)
     {
-        boost::uuids::detail::sha1 sha1;
-        sha1.process_bytes(data.data(), data.size());
-
-        uint32_t digest[5];
-        sha1.get_digest(digest);
-
-        for(uint32_t &num: digest)
-        {
-            num = EREndian::N2B(num);
-        }
-
-        uint8_t *digestPtr = reinterpret_cast<uint8_t *>(digest);
         std::array<uint8_t, 20> result;
-
-        std::copy(digestPtr, digestPtr + 20, result.begin());
-
+        SHA1(data.data(), data.size(), result.data());
         return result;
     }
 

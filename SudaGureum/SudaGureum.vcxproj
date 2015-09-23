@@ -180,7 +180,6 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Comparator.h" />
     <ClInclude Include="Configure.h" />
-    <ClInclude Include="EREndian.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
