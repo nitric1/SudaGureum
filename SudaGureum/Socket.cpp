@@ -41,6 +41,7 @@ namespace SudaGureum
     boost::system::error_code TcpSocket::close()
     {
         boost::system::error_code ec;
+        socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
         socket_.close(ec);
         return ec;
     }
@@ -110,6 +111,8 @@ namespace SudaGureum
     {
         boost::system::error_code ec;
         stream_.shutdown(ec);
+        socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+        socket().close(ec);
         return ec;
     }
 }
