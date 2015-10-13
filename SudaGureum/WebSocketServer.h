@@ -8,10 +8,14 @@ namespace SudaGureum
 {
     class WebSocketServer;
 
-    class WebSocketConnection : private boost::noncopyable, public std::enable_shared_from_this<WebSocketConnection>
+    class WebSocketConnection : public std::enable_shared_from_this<WebSocketConnection>
     {
     private:
         static const std::string KeyConcatMagic;
+
+    private:
+        WebSocketConnection(const WebSocketConnection &) = delete;
+        WebSocketConnection &operator =(const WebSocketConnection &) = delete;
 
     private:
         WebSocketConnection(WebSocketServer &server, bool ssl);
@@ -56,10 +60,14 @@ namespace SudaGureum
         friend class WebSocketServer;
     };
 
-    class WebSocketServer : private boost::noncopyable, public MtIoService
+    class WebSocketServer : public MtIoService
     {
     private:
         static std::string handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose);
+
+    private:
+        WebSocketServer(const WebSocketServer &) = delete;
+        WebSocketServer &operator =(const WebSocketServer &) = delete;
 
     public:
         WebSocketServer(uint16_t port, bool ssl);
