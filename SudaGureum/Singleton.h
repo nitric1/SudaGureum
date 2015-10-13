@@ -11,7 +11,6 @@ namespace SudaGureum
             static T inst;
             return inst;
         }
-        static T &inst() { return instance(); }
 
     protected:
         ~Singleton() {}
@@ -34,7 +33,6 @@ namespace SudaGureum
                 ptr.reset(new T);
             return *ptr;
         }
-        static T &inst() { return instance(); }
 
     protected:
         ~SingletonLocal() {}
