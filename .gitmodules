@@ -1,6 +1,7 @@
 [submodule "External/SubmoduleLib/rapidjson"]
 	path = External/SubmoduleLib/rapidjson
-	url = https://github.com/miloyip/rapidjson.git
+	url = https://github.com/HNO3/rapidjson.git
+	branch = sg-rapidjson
 [submodule "External/SubmoduleLib/cppformat"]
 	path = External/SubmoduleLib/cppformat
 	url = https://github.com/cppformat/cppformat.git
