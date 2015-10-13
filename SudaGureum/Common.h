@@ -72,7 +72,10 @@ using std::max; using std::min;
 #include <cppformat/format.h>
 #include <openssl/sha.h>
 #include <openssl/tls1.h>
+
+#define RAPIDJSON_HAS_STDSTRING 1
 #include <rapidjson/document.h>
+
 #include <scrypt/lib/crypto/crypto_scrypt.h>
 #ifdef _MSC_VER
 #pragma warning(push)

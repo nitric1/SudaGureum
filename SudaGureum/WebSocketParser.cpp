@@ -439,7 +439,10 @@ namespace SudaGureum
             return false;
         }
 
-        // TODO: implement
+        if(doc.HasMember("_method")) // RPC message (client > server)
+        {
+            std::string method = doc["_method"].GetCppString();
+        }
 
         return true;
     }
