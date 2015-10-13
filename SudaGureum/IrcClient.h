@@ -11,7 +11,7 @@ namespace SudaGureum
     class SocketBase;
 
     // Connects to IRC server, and fires IRC events.
-    class IrcClient : private boost::noncopyable, public std::enable_shared_from_this<IrcClient>
+    class IrcClient : public std::enable_shared_from_this<IrcClient>
     {
     public:
         struct Participant
@@ -133,6 +133,10 @@ namespace SudaGureum
         static const NicknamePrefixMap DefaultNicknamePrefixMap;
 
     private:
+        IrcClient(const IrcClient &) = delete;
+        IrcClient &operator =(const IrcClient &) = delete;
+
+    private:
         IrcClient(IrcClientPool &pool, size_t connectionId);
 
     public:
@@ -215,8 +219,12 @@ namespace SudaGureum
         friend class IrcClientPool;
     };
 
-    class IrcClientPool : private boost::noncopyable, public MtIoService
+    class IrcClientPool : public MtIoService
     {
+    private:
+        IrcClientPool(const IrcClientPool &) = delete;
+        IrcClientPool &operator =(const IrcClientPool &) = delete;
+
     public:
         IrcClientPool();
 
