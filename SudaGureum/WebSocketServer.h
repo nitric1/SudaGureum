@@ -37,7 +37,8 @@ namespace SudaGureum
         ~WebSocketConnection();
 
     public:
-        void sendMessage(const WebSocketMessage &message);
+        void sendWebSocketMessage(const WebSocketResponse &message);
+        void sendSudaGureumMessage(SudaGureumResponse &&message);
 
     private:
         void startSsl();
@@ -51,7 +52,8 @@ namespace SudaGureum
         void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
         void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::vector<uint8_t>> &messagePtr);
         void handleCloseTimeout(const boost::system::error_code &ec);
-        void procMessage(const WebSocketMessage &message);
+        void procWebSocketMessage(const WebSocketRequest &message);
+        void procSudaGureumMessage(const SudaGureumRequest &message);
 
     private:
         WebSocketServer &server_;

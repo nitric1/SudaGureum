@@ -17,29 +17,65 @@ namespace SudaGureum
         Pong = 0xA
     };
 
-    struct WebSocketMessage // General WebSocket message
+    struct WebSocketRequest // General WebSocket message (client -> server)
     {
         typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
 
-        static const std::string BadRequest;
-        static const std::string HandshakeRequest;
-        static const std::string Close;
-        static const std::string Ping;
+        enum Command
+        {
+            BadRequest,
+            HandshakeRequest,
+            Close,
+            Ping,
+        };
 
-        std::string command_;
+        Command command_;
         ParamsMap params_;
         std::vector<uint8_t> rawData_;
 
-        WebSocketMessage();
-        WebSocketMessage(std::string command);
-        WebSocketMessage(std::string command, ParamsMap params);
-        WebSocketMessage(std::string command, std::vector<uint8_t> rawData);
+        WebSocketRequest();
+        explicit WebSocketRequest(Command command);
+        WebSocketRequest(Command command, ParamsMap params);
+        WebSocketRequest(Command command, std::vector<uint8_t> rawData);
     };
 
-    struct WebClientMessage // "SudaGureum" message
+    struct WebSocketResponse // General WebSocket message (server -> client)
     {
+        enum Command
+        {
+            Close,
+            Pong,
+            Text,
+        };
+
+        Command command_;
+        std::vector<uint8_t> rawData_;
+
+        WebSocketResponse();
+        explicit WebSocketResponse(Command command);
+        WebSocketResponse(Command command, std::vector<uint8_t> rawData);
+
+        WebSocketFrameOpcode opcode() const;
+    };
+
+    struct SudaGureumRequest // "SudaGureum" message (client -> server)
+    {
+        typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
+
         uint32_t id_;
         std::string method_;
+        ParamsMap params_;
+    };
+
+    struct SudaGureumResponse // "SudaGureum" message (server -> client)
+    {
+        uint32_t id_;
+        bool success_;
+        rapidjson::Document responseDoc_;
+
+        SudaGureumResponse();
+        explicit SudaGureumResponse(const SudaGureumRequest &request);
+        SudaGureumResponse(const SudaGureumRequest &request, bool success);
     };
 
     class WebSocketParser
@@ -65,7 +101,9 @@ namespace SudaGureum
         WebSocketParser();
 
     public:
-        bool parse(const std::vector<uint8_t> &data, std::function<void (const WebSocketMessage &)> cb);
+        bool parse(const std::vector<uint8_t> &data,
+            std::function<void (const WebSocketRequest &)> wscb,
+            std::function<void (const SudaGureumRequest &)> sgcb);
 
     public:
         explicit operator bool() const;
@@ -73,9 +111,12 @@ namespace SudaGureum
     private:
         bool confirmHttpStatus(const std::string &line);
         bool parseHttpHeader(const std::string &line);
-        bool parseEmptyFrame(std::function<void(const WebSocketMessage &)> cb);
-        bool parseFrame(std::vector<uint8_t> data, std::function<void(const WebSocketMessage &)> cb);
-        bool parsePayload();
+        bool parseEmptyFrame(std::function<void (const WebSocketRequest &)> wscb,
+            std::function<void (const SudaGureumRequest &)> sgcb);
+        bool parseFrame(std::vector<uint8_t> data,
+            std::function<void (const WebSocketRequest &)> wscb,
+            std::function<void (const SudaGureumRequest &)> sgcb);
+        bool parsePayload(std::function<void (const SudaGureumRequest &)> cb);
 
     private:
         State state_;
