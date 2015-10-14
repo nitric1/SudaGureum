@@ -3,6 +3,7 @@
 #include "WebSocketServer.h"
 
 #include "Configure.h"
+#include "Default.h"
 #include "Utility.h"
 
 namespace SudaGureum
@@ -151,7 +152,8 @@ namespace SudaGureum
         closeReady_ = true;
         sendRaw(encodeFrame(Close, std::vector<uint8_t>()));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
-            boost::lexical_cast<long>(Configure::instance().get("websocket_server_close_timeout_sec", "5"))
+            boost::lexical_cast<long>(Configure::instance().get("websocket_server_close_timeout_sec",
+                DefaultConfigureValue::WebSocketServerCloseTimeoutSec))
         ));
         closeTimer_.async_wait(boost::bind(
             std::mem_fn(&WebSocketConnection::handleCloseTimeout),
@@ -313,19 +315,19 @@ namespace SudaGureum
 
             if(conf.exists("ssl_certificate_chain_file"))
             {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(Configure::instance().get("ssl_certificate_chain_file"))));
+                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_chain_file configure"));
                 ctx_->use_certificate_chain(boost::asio::buffer(data));
             }
             else
             {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(Configure::instance().get("ssl_certificate_file"))));
+                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_file configure"));
                 ctx_->use_certificate(boost::asio::buffer(data), boost::asio::ssl::context::pem);
             }
-            data = readFile(boost::filesystem::wpath(decodeUtf8(Configure::instance().get("ssl_private_key_file"))));
+            data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_private_key_file"))));
             if(data.empty())
                 throw(std::runtime_error("invalid ssl_private_key_file configure"));
             ctx_->use_private_key(boost::asio::buffer(data), boost::asio::ssl::context::pem);

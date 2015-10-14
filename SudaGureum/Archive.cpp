@@ -3,6 +3,7 @@
 #include "Archive.h"
 
 #include "Configure.h"
+#include "Default.h"
 #include "User.h"
 
 namespace SQLite
@@ -23,7 +24,7 @@ namespace SudaGureum
 {
     std::string ArchiveDB::databaseFile()
     {
-        boost::filesystem::path dataPath = Configure::instance().get("data_path", "./Data");
+        boost::filesystem::path dataPath = Configure::instance().get("data_path", DefaultConfigureValue::DataPath);
         boost::system::error_code ec;
         if(!boost::filesystem::create_directories(dataPath, ec) && ec)
         {
