@@ -3,6 +3,7 @@
 #include "IrcClient.h"
 
 #include "Configure.h"
+#include "Default.h"
 #include "Socket.h"
 #include "Utility.h"
 
@@ -268,7 +269,8 @@ namespace SudaGureum
         clearMe_ = clearMe;
         sendMessage(IrcMessage("QUIT", {"Bye!"}));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
-            boost::lexical_cast<long>(Configure::instance().get("irc_client_close_timeout_sec", "5"))
+            boost::lexical_cast<long>(Configure::instance().get("irc_client_close_timeout_sec",
+                DefaultConfigureValue::IrcClientCloseTimeoutSec))
         ));
         closeTimer_.async_wait(boost::bind(
             std::mem_fn(&IrcClient::handleCloseTimeout),
