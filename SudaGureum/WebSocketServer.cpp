@@ -4,6 +4,7 @@
 
 #include "Configure.h"
 #include "Default.h"
+#include "Log.h"
 #include "Utility.h"
 
 namespace SudaGureum
@@ -25,7 +26,7 @@ namespace SudaGureum
                 uint8_t *lenByBytes = reinterpret_cast<uint8_t *>(len);
                 frame.insert(frame.end(), lenByBytes, lenByBytes + sizeof(len));
             }
-            else if(data.size() >= 0x7E)
+            else if(data.size() >= 0x7E) // && data.size() < 0x10000
             {
                 frame.push_back(0x7E); // non-masked (0), 7-bit fragment size for 16 bits extended (1111110)
                 uint16_t len = static_cast<uint16_t>(data.size());
@@ -43,7 +44,7 @@ namespace SudaGureum
             return frame;
         }
 
-        std::vector<uint8_t> encodeMessage(const WebSocketMessage &message)
+        std::vector<uint8_t> encodeMessage(const WebSocketRequest &message)
         {
             return std::vector<uint8_t>();
         }
@@ -66,7 +67,7 @@ namespace SudaGureum
 
     WebSocketConnection::~WebSocketConnection()
     {
-        std::cerr << "Connection closed" << std::endl;
+        Log::instance().trace("WebSocketConnection[{}]: connection closed", static_cast<void *>(this));
     }
 
     void WebSocketConnection::sendRaw(std::vector<uint8_t> data)
@@ -78,10 +79,26 @@ namespace SudaGureum
         write();
     }
 
-    void WebSocketConnection::sendMessage(const WebSocketMessage &message)
+    void WebSocketConnection::sendWebSocketMessage(const WebSocketResponse &message)
     {
-        rapidjson::Document doc;
-        // TODO: implement
+        WebSocketFrameOpcode opcode = message.opcode();
+        sendRaw(encodeFrame(opcode, message.rawData_));
+    }
+
+    void WebSocketConnection::sendSudaGureumMessage(SudaGureumResponse &&message)
+    {
+        message.responseDoc_.AddMember("_reqid", message.id_, message.responseDoc_.GetAllocator());
+        message.responseDoc_.AddMember("success", message.success_, message.responseDoc_.GetAllocator());
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        message.responseDoc_.Accept(writer);
+
+        const uint8_t *data = reinterpret_cast<const uint8_t *>(buffer.GetString());
+
+        WebSocketResponse response(WebSocketResponse::Text,
+            std::vector<uint8_t>(data, data + buffer.GetSize()));
+        sendWebSocketMessage(response);
     }
 
     void WebSocketConnection::startSsl()
@@ -151,10 +168,10 @@ namespace SudaGureum
     void WebSocketConnection::close()
     {
         closeReady_ = true;
-        sendRaw(encodeFrame(Close, std::vector<uint8_t>()));
+        sendWebSocketMessage(WebSocketResponse(WebSocketResponse::Close));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
-            boost::lexical_cast<long>(Configure::instance().get("websocket_server_close_timeout_sec",
-                DefaultConfigureValue::WebSocketServerCloseTimeoutSec))
+            Configure::instance().getAs("websocket_server_close_timeout_sec",
+                DefaultConfigureValue::WebSocketServerCloseTimeoutSec)
         ));
         closeTimer_.async_wait(boost::bind(
             std::mem_fn(&WebSocketConnection::handleCloseTimeout),
@@ -167,7 +184,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            std::cerr << ec.message() << std::endl;
+            Log::instance().alert("WebSocketConnection[{}]: handshake failed: {}", static_cast<void *>(this), ec.message());
             // socket automatically closed
             return;
         }
@@ -181,16 +198,17 @@ namespace SudaGureum
         {
             if(!closeReady_)
             {
-                std::cerr << ec.message() << std::endl;
+                Log::instance().alert("WebSocketConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
                 socket_->close(); // implies forcely canceling write
             }
             return;
         }
 
         if(!parser_.parse(std::vector<uint8_t>(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
-            std::bind(&WebSocketConnection::procMessage, this, std::placeholders::_1)))
+            std::bind(&WebSocketConnection::procWebSocketMessage, this, std::placeholders::_1),
+            std::bind(&WebSocketConnection::procSudaGureumMessage, this, std::placeholders::_1)))
         {
-            std::cerr << "Invalid data received." << std::endl;
+            Log::instance().alert("WebSocketConnection[{}]: read: invalid data received", static_cast<void *>(this));
             socket_->close();
             return;
         }
@@ -209,7 +227,7 @@ namespace SudaGureum
         {
             if(!closeReady_)
             {
-                std::cerr << ec.message() << std::endl;
+                Log::instance().alert("WebSocketConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
                 socket_->close(); // implies forcely canceling read
             }
             return;
@@ -227,41 +245,46 @@ namespace SudaGureum
         }
     }
 
-    void WebSocketConnection::procMessage(const WebSocketMessage &message)
+    void WebSocketConnection::procWebSocketMessage(const WebSocketRequest &message)
     {
-        if(message.command_ == WebSocketMessage::BadRequest)
+        switch(message.command_)
         {
-            static const std::string response =
-                "HTTP/1.1 400 Bad Request\r\n"
-                "Connection: close\r\n"
-                "Content-Type: text/plain; charset=UTF-8\r\n"
-                "\r\n"
-                "The request is bad.";
-            sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
-        }
-        else if(message.command_ == WebSocketMessage::HandshakeRequest)
-        {
-            static const std::string responseFormat =
-                "HTTP/1.1 101 Switching Protocols\r\n"
-                "Connection: Upgrade\r\n"
-                "Upgrade: websocket\r\n"
-                "Sec-WebSocket-Accept: {}\r\n"
-                "Sec-WebSocket-Version: 13\r\n"
-                "\r\n";
+        case WebSocketRequest::BadRequest:
+            {
+                static const std::string response =
+                    "HTTP/1.1 400 Bad Request\r\n"
+                    "Connection: close\r\n"
+                    "Content-Type: text/plain; charset=UTF-8\r\n"
+                    "\r\n"
+                    "The request is bad.";
+                sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
+            }
+            break;
 
-            std::string accept = message.params_.find("Key")->second + KeyConcatMagic;
-            auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
-            std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
+        case WebSocketRequest::HandshakeRequest:
+            {
+                static const std::string responseFormat =
+                    "HTTP/1.1 101 Switching Protocols\r\n"
+                    "Connection: Upgrade\r\n"
+                    "Upgrade: websocket\r\n"
+                    "Sec-WebSocket-Accept: {}\r\n"
+                    "Sec-WebSocket-Version: 13\r\n"
+                    "\r\n";
 
-            std::string response = fmt::format(responseFormat, acceptHashed);
-            sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
-        }
-        else if(message.command_ == WebSocketMessage::Ping)
-        {
-            sendRaw(encodeFrame(Pong, message.rawData_));
-        }
-        else if(message.command_ == WebSocketMessage::Close)
-        {
+                std::string accept = message.params_.find("Key")->second + KeyConcatMagic;
+                auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
+                std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
+
+                std::string response = fmt::format(responseFormat, acceptHashed);
+                sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
+            }
+            break;
+
+        case WebSocketRequest::Ping:
+            sendWebSocketMessage(WebSocketResponse(WebSocketResponse::Pong, message.rawData_));
+            break;
+
+        case WebSocketRequest::Close:
             closeReceived_ = true;
             if(closeReady_) // already sent close frame
             {
@@ -271,6 +294,33 @@ namespace SudaGureum
             else
             {
                 close();
+            }
+            break;
+        }
+    }
+
+    void WebSocketConnection::procSudaGureumMessage(const SudaGureumRequest &message)
+    {
+        // TODO: implement
+        if(message.method_ == "heartbeat")
+        {
+            rapidjson::Document seenEidsDoc;
+
+            try
+            {
+                if(!seenEidsDoc.Parse<0>(message.params_.at("seenEids").c_str()).HasParseError())
+                {
+                    throw(RapidJson::Exception(""));
+                    return;
+                }
+
+                // TODO: implement
+            }
+            catch(const RapidJson::Exception &)
+            {
+                SudaGureumResponse response(message, false);
+                response.responseDoc_.AddMember("message", "invalid json", response.responseDoc_.GetAllocator());
+                sendSudaGureumMessage(std::move(response));
             }
         }
     }

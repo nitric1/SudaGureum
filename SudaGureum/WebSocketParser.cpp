@@ -2,31 +2,78 @@
 
 #include "WebSocketParser.h"
 
+#include "Log.h"
+
 namespace SudaGureum
 {
-    const std::string WebSocketMessage::BadRequest = "BadRequest";
-    const std::string WebSocketMessage::HandshakeRequest = "HandshakeRequest";
-    const std::string WebSocketMessage::Close = "Close";
-    const std::string WebSocketMessage::Ping = "Ping";
-
-    WebSocketMessage::WebSocketMessage()
+    WebSocketRequest::WebSocketRequest()
     {
     }
 
-    WebSocketMessage::WebSocketMessage(std::string command)
-        : command_(std::move(command))
+    WebSocketRequest::WebSocketRequest(Command command)
+        : command_(command)
     {
     }
 
-    WebSocketMessage::WebSocketMessage(std::string command, ParamsMap params)
-        : command_(std::move(command))
+    WebSocketRequest::WebSocketRequest(Command command, ParamsMap params)
+        : command_(command)
         , params_(std::move(params))
     {
     }
 
-    WebSocketMessage::WebSocketMessage(std::string command, std::vector<uint8_t> rawData)
-        : command_(std::move(command))
+    WebSocketRequest::WebSocketRequest(Command command, std::vector<uint8_t> rawData)
+        : command_(command)
         , rawData_(std::move(rawData))
+    {
+    }
+
+    WebSocketResponse::WebSocketResponse()
+    {
+    }
+
+    WebSocketResponse::WebSocketResponse(Command command)
+        : command_(command)
+    {
+    }
+
+    WebSocketResponse::WebSocketResponse(Command command, std::vector<uint8_t> rawData)
+        : command_(command)
+        , rawData_(std::move(rawData))
+    {
+    }
+
+    WebSocketFrameOpcode WebSocketResponse::opcode() const
+    {
+        switch(command_)
+        {
+        case Close:
+            return SudaGureum::Close;
+
+        case Pong:
+            return SudaGureum::Pong;
+
+        case Text:
+            return SudaGureum::Text;
+        }
+
+        throw(std::invalid_argument("WebSocketResponse: unknown command"));
+    }
+
+    SudaGureumResponse::SudaGureumResponse()
+        : id_(0)
+        , success_(false)
+    {
+    }
+
+    SudaGureumResponse::SudaGureumResponse(const SudaGureumRequest &request)
+        : id_(request.id_)
+        , success_(false)
+    {
+    }
+
+    SudaGureumResponse::SudaGureumResponse(const SudaGureumRequest &request, bool success)
+        : id_(request.id_)
+        , success_(success)
     {
     }
 
@@ -47,7 +94,9 @@ namespace SudaGureum
     {
     }
 
-    bool WebSocketParser::parse(const std::vector<uint8_t> &data, std::function<void (const WebSocketMessage &)> cb)
+    bool WebSocketParser::parse(const std::vector<uint8_t> &data,
+        std::function<void (const WebSocketRequest &)> wscb,
+        std::function<void (const SudaGureumRequest &)> sgcb)
     {
         if(state_ == Error)
         {
@@ -124,7 +173,7 @@ namespace SudaGureum
                     }
                     if(!parseHttpHeader(std::string(buffer_.begin(), buffer_.end())))
                     {
-                        cb(WebSocketMessage(WebSocketMessage::BadRequest));
+                        wscb(WebSocketRequest(WebSocketRequest::BadRequest));
                         state_ = Error;
                         return false;
                     }
@@ -143,7 +192,7 @@ namespace SudaGureum
                 }
                 else
                 {
-                    cb(WebSocketMessage(WebSocketMessage::BadRequest));
+                    wscb(WebSocketRequest(WebSocketRequest::BadRequest));
                     state_ = Error;
                     return false;
                 }
@@ -155,13 +204,13 @@ namespace SudaGureum
                     if(host_.empty() || origin_.empty() || key_.empty() ||
                         !connectionUpgrade_ || !upgraded_ || !versionValid_)
                     {
-                        cb(WebSocketMessage(WebSocketMessage::BadRequest));
+                        wscb(WebSocketRequest(WebSocketRequest::BadRequest));
                         state_ = Error;
                         return false;
                     }
 
                     // TODO: Message standard is not set; may be changed.
-                    cb(WebSocketMessage(WebSocketMessage::HandshakeRequest,
+                    wscb(WebSocketRequest(WebSocketRequest::HandshakeRequest,
                         {{"Path", path_}, {"Host", host_}, {"Origin", origin_}, {"Key", key_}}));
                     state_ = InWebSocketFrameHeader;
                 }
@@ -188,7 +237,7 @@ namespace SudaGureum
                         {
                             if(payloadLen_ == 0)
                             {
-                                parseEmptyFrame(cb);
+                                parseEmptyFrame(wscb, sgcb);
                                 buffer_.clear();
                             }
                             else
@@ -249,7 +298,7 @@ namespace SudaGureum
 
                         if(payloadLen_ == 0)
                         {
-                            parseEmptyFrame(cb);
+                            parseEmptyFrame(wscb, sgcb);
                             state_ = InWebSocketFrameHeader;
                             buffer_.clear();
                         }
@@ -266,7 +315,7 @@ namespace SudaGureum
                 buffer_.push_back(ch);
                 if(buffer_.size() == payloadLen_)
                 {
-                    parseFrame(std::move(buffer_), cb);
+                    parseFrame(std::move(buffer_), wscb, sgcb);
                     state_ = InWebSocketFrameHeader;
                     buffer_.clear();
                 }
@@ -334,7 +383,8 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseEmptyFrame(std::function<void(const WebSocketMessage &)> cb)
+    bool WebSocketParser::parseEmptyFrame(std::function<void (const WebSocketRequest &)> wscb,
+        std::function<void (const SudaGureumRequest &)> sgcb)
     {
         if(IsControlFrameOpcode(opcode_)) // control opcode
         {
@@ -346,7 +396,7 @@ namespace SudaGureum
             switch(opcode_)
             {
             case Close: // close
-                cb(WebSocketMessage("Close"));
+                wscb(WebSocketRequest(WebSocketRequest::Close));
                 break;
 
             case Ping: // ping
@@ -361,7 +411,7 @@ namespace SudaGureum
 
         if(finalFragment_)
         {
-            if(!parsePayload())
+            if(!parsePayload(sgcb))
             {
                 return false;
             }
@@ -372,7 +422,9 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parseFrame(std::vector<uint8_t> data, std::function<void(const WebSocketMessage &)> cb)
+    bool WebSocketParser::parseFrame(std::vector<uint8_t> data,
+        std::function<void (const WebSocketRequest &)> wscb,
+        std::function<void (const SudaGureumRequest &)> sgcb)
     {
         if(masked_)
         {
@@ -393,7 +445,7 @@ namespace SudaGureum
             switch(opcode_)
             {
             case Close: // close
-                cb(WebSocketMessage(WebSocketMessage::Close, std::move(data)));
+                wscb(WebSocketRequest(WebSocketRequest::Close, std::move(data)));
                 break;
 
             case Ping: // ping
@@ -401,7 +453,7 @@ namespace SudaGureum
                 {
                     return false; // ping payload must be masked
                 }
-                cb(WebSocketMessage(WebSocketMessage::Ping, std::move(data)));
+                wscb(WebSocketRequest(WebSocketRequest::Ping, std::move(data)));
                 break;
 
             case Pong: // pong
@@ -417,7 +469,7 @@ namespace SudaGureum
 
         if(finalFragment_)
         {
-            if(!parsePayload())
+            if(!parsePayload(sgcb))
             {
                 return false;
             }
@@ -428,20 +480,38 @@ namespace SudaGureum
         return true;
     }
 
-    bool WebSocketParser::parsePayload()
+    bool WebSocketParser::parsePayload(std::function<void (const SudaGureumRequest &)> cb)
     {
         rapidjson::Document doc;
 
         totalPayload_.push_back('\0');
+
+        Log::instance().trace("WebSocketParser: parse json: {}",
+            reinterpret_cast<const char *>(totalPayload_.data()));
 
         if(doc.ParseInsitu<0>(reinterpret_cast<char *>(totalPayload_.data())).HasParseError())
         {
             return false;
         }
 
-        if(doc.HasMember("_method")) // RPC message (client > server)
+        try // RPC message (client > server)
         {
-            std::string method = doc["_method"].GetCppString();
+            SudaGureumRequest message;
+
+            message.id_ = doc["_reqid"].GetInt();
+            message.method_ = doc["_method"].GetCppString();
+
+            // TODO: more specific message
+
+            cb(message);
+        }
+        catch(const RapidJson::Exception &e)
+        {
+            Log::instance().alert("WebSocketParser: parse json failed: {}", e.what());
+        }
+        catch(const std::out_of_range &e)
+        {
+            Log::instance().alert("WebSocketParser: lack of required argument: {}", e.what());
         }
 
         return true;
