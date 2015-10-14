@@ -8,6 +8,19 @@ namespace SudaGureum
 {
     class WebSocketServer;
 
+    class WebSocketContext : private boost::noncopyable
+    {
+    public:
+        WebSocketContext();
+
+    public:
+        bool authorized() const;
+        const std::string &userId() const;
+
+    private:
+        std::string userId_;
+    };
+
     class WebSocketConnection : public std::enable_shared_from_this<WebSocketConnection>
     {
     private:

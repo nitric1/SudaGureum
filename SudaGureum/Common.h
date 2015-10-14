@@ -56,6 +56,7 @@
 #include <boost/locale.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/indexed_by.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -64,6 +65,9 @@
 #include <boost/regex.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/signals2.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 using std::max; using std::min;
 

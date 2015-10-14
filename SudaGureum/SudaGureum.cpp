@@ -105,13 +105,9 @@ namespace SudaGureum
 
                 // Sleep(100);
 
-                // auto client2 = pool.connect("irc.ozinger.org", 6667, boost::assign::list_of("SudaGureum1")("SudaGureum2"));
-
-                // pool.join();
-
                 auto user = Users::instance().user("SudaGureum");
                 auto servers = user->servers();
-                auto client1 = servers.find("Ozinger")->second.ircClient_;
+                auto client1 = servers.find("Ozinger")->ircClient_;
 
                 while(std::cin)
                 {
