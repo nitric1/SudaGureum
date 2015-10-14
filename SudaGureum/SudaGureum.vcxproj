@@ -187,6 +187,7 @@
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
     <ClInclude Include="Archive.h" />
+    <ClInclude Include="RapidJson.h" />
     <ClInclude Include="SCrypt.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="Singleton.h" />
