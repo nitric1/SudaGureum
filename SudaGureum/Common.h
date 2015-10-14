@@ -77,6 +77,8 @@ using std::max; using std::min;
 #include <rapidjson/document.h>
 
 #include <scrypt/lib/crypto/crypto_scrypt.h>
+#include <spdlog/spdlog.h>
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4819) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss

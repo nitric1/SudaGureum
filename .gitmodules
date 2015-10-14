@@ -11,3 +11,6 @@
 [submodule "External/SubmoduleLib/SQLiteCpp"]
 	path = External/SubmoduleLib/SQLiteCpp
 	url = https://github.com/SRombauts/SQLiteCpp.git
+[submodule "External/SubmoduleLib/spdlog"]
+	path = External/SubmoduleLib/spdlog
+	url = https://github.com/gabime/spdlog.git
