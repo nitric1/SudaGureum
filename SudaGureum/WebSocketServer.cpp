@@ -80,6 +80,7 @@ namespace SudaGureum
 
     void WebSocketConnection::sendMessage(const WebSocketMessage &message)
     {
+        rapidjson::Document doc;
         // TODO: implement
     }
 

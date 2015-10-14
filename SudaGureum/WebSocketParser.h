@@ -17,7 +17,7 @@ namespace SudaGureum
         Pong = 0xA
     };
 
-    struct WebSocketMessage
+    struct WebSocketMessage // General WebSocket message
     {
         typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
 
@@ -34,6 +34,12 @@ namespace SudaGureum
         WebSocketMessage(std::string command);
         WebSocketMessage(std::string command, ParamsMap params);
         WebSocketMessage(std::string command, std::vector<uint8_t> rawData);
+    };
+
+    struct WebClientMessage // "SudaGureum" message
+    {
+        uint32_t id_;
+        std::string method_;
     };
 
     class WebSocketParser
