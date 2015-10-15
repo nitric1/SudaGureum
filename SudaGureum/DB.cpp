@@ -3,15 +3,17 @@
 #include "DB.h"
 
 #include "Configure.h"
+#include "Log.h"
 
 namespace SQLite // SQLiteCpp custom function implementation
 {
     void assertion_failed(const char *file, long line, const char *func, const char *expr, const char *message)
     {
 #ifdef _DEBUG
-        std::cerr << "SQLiteCpp assertion failed: " << message << "\n";
-        std::cerr << "File: " << file << ", line " << line << ", function " << func << "\n";
-        std::cerr << "Expression: " << expr << "\n";
+        auto &log = SudaGureum::Log::instance();
+        log.critical("SQLiteCpp assertion failed: {}", message);
+        log.critical("File: {}, line: {}, function: {}", file, line, func);
+        log.critical("Expression: {}", expr);
 #endif
 
         abort();

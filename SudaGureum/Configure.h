@@ -16,10 +16,17 @@ namespace SudaGureum
     private:
         ConfigureMap::const_iterator find(const std::string &name) const;
 
-    public:
+    private:
         bool load(const boost::filesystem::path &file);
+
+    public:
         bool exists(const std::string &name) const;
         std::string get(const std::string &name, const std::string &defaultValue = std::string()) const;
+        template<typename T>
+        T getAs(const std::string &name, const T &defaultValue = T()) const
+        {
+            return boost::lexical_cast<T>(get(name, boost::lexical_cast<std::string>(defaultValue)));
+        }
 
     private:
         Configure &operator =(const Configure &) = delete;
@@ -28,5 +35,7 @@ namespace SudaGureum
         ConfigureMap confMap_;
 
         friend class Singleton<Configure>;
+        friend void run(int argc, wchar_t **argv);
+        friend void run(int argc, char **argv);
     };
 }

@@ -8,7 +8,7 @@ namespace SudaGureum
     {
         const char *DataPath = "./Data";
         const char *LogPath = "./Data/Log";
-        const char *IrcClientCloseTimeoutSec = "5";
-        const char *WebSocketServerCloseTimeoutSec = "5";
+        const long IrcClientCloseTimeoutSec = 5;
+        const long WebSocketServerCloseTimeoutSec = 5;
     }
 }
