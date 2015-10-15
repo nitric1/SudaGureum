@@ -6,7 +6,7 @@ namespace SudaGureum
     {
         extern const char *DataPath;
         extern const char *LogPath;
-        extern const char *IrcClientCloseTimeoutSec;
-        extern const char *WebSocketServerCloseTimeoutSec;
+        extern const long IrcClientCloseTimeoutSec;
+        extern const long WebSocketServerCloseTimeoutSec;
     }
 }

@@ -183,6 +183,8 @@
     <ClInclude Include="DB.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="Event.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
     <ClInclude Include="IrcParser.h" />
@@ -210,6 +212,8 @@
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="DB.cpp" />
     <ClCompile Include="Default.cpp" />
+    <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="MtIoService.cpp" />
     <ClCompile Include="IrcClient.cpp" />
     <ClCompile Include="IrcParser.cpp" />

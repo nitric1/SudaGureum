@@ -4,6 +4,7 @@
 
 #include "Configure.h"
 #include "Default.h"
+#include "Log.h"
 #include "Socket.h"
 #include "Utility.h"
 
@@ -216,9 +217,12 @@ namespace SudaGureum
     void IrcClient::sendMessage(const IrcMessage &message)
     {
         {
+            std::string encoded = encodeMessage(message);
+            Log::instance().info("{}>>> {}", nickname_, encoded);
+
             std::lock_guard<std::mutex> lock(bufferWriteLock_);
-            bufferToWrite_.push_back(encodeMessage(message) + "\r\n");
-            print(decodeUtf8(nickname_ + ">>> " + bufferToWrite_.back()));
+            bufferToWrite_.push_back(std::move(encoded) + "\r\n");
+            // print(decodeUtf8(nickname_ + ">>> " + bufferToWrite_.back()));
         }
         write();
     }
@@ -269,8 +273,7 @@ namespace SudaGureum
         clearMe_ = clearMe;
         sendMessage(IrcMessage("QUIT", {"Bye!"}));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
-            boost::lexical_cast<long>(Configure::instance().get("irc_client_close_timeout_sec",
-                DefaultConfigureValue::IrcClientCloseTimeoutSec))
+            Configure::instance().getAs("irc_client_close_timeout_sec", DefaultConfigureValue::IrcClientCloseTimeoutSec)
         ));
         closeTimer_.async_wait(boost::bind(
             std::mem_fn(&IrcClient::handleCloseTimeout),
@@ -324,7 +327,7 @@ namespace SudaGureum
         {
             if(!quitReady_)
             {
-                std::cerr << ec.message() << std::endl;
+                Log::instance().alert("IrcClient[{}]: read failed: {}", static_cast<void *>(this), ec.message());
                 forceClose();
             }
             return;
@@ -333,7 +336,7 @@ namespace SudaGureum
         if(!parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
             std::bind(&IrcClient::procMessage, this, std::placeholders::_1)))
         {
-            std::cerr << "Invalid message received." << std::endl;
+            Log::instance().alert("IrcClient[{}]: invalid message received", static_cast<void *>(this));
             forceClose();
             return;
         }
@@ -353,7 +356,7 @@ namespace SudaGureum
         {
             if(!quitReady_)
             {
-                std::cerr << ec.message() << std::endl;
+                Log::instance().alert("IrcClient[{}]: write failed: {}", static_cast<void *>(this), ec.message());
                 forceClose();
             }
             return;
@@ -375,7 +378,8 @@ namespace SudaGureum
     {
         // TODO: asserts(error and close) or fail-safe process
 
-        print(decodeUtf8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
+        //print(decodeUtf8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
+        Log::instance().info("{}<<< {}", nickname_, encodeMessage(message));
 
         // Dictionary order; letters first.
 
