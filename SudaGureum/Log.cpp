@@ -2,9 +2,9 @@
 
 #include "Log.h"
 
+#include "Application.h"
 #include "Configure.h"
 #include "Default.h"
-#include "Global.h"
 
 namespace SudaGureum
 {
@@ -66,7 +66,7 @@ namespace SudaGureum
             std::make_shared<spdlog::sinks::daily_file_sink_mt>((logPath / "SudaGureum").string(), "log", 0, 0),
         };
 
-        if(!GlobalContext::instance().daemonized())
+        if(!Application::instance().daemonized())
         {
             sinks.push_back(std::make_shared<StdoutSink>());
         }

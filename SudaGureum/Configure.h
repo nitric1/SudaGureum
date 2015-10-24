@@ -35,7 +35,6 @@ namespace SudaGureum
         ConfigureMap confMap_;
 
         friend class Singleton<Configure>;
-        friend void run(int argc, wchar_t **argv);
-        friend void run(int argc, char **argv);
+        friend class Application;
     };
 }
