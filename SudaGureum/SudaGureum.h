@@ -3,8 +3,8 @@
 namespace SudaGureum
 {
 #ifdef _WIN32
-    void run(int argc, wchar_t **argv);
+#  define SUDAGUREUM_MAIN_NAME wmain
 #else
-    void run(int argc, char **argv);
+#  define SUDAGUREUM_MAIN_NAME main
 #endif
 }
