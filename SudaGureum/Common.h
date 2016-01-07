@@ -74,6 +74,7 @@ using std::max; using std::min;
 // External library inclusion
 
 #include <cppformat/format.h>
+#include <http-parser/http_parser.h>
 #include <openssl/sha.h>
 #include <openssl/tls1.h>
 
