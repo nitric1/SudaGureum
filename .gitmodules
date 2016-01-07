@@ -14,3 +14,6 @@
 [submodule "External/SubmoduleLib/spdlog"]
 	path = External/SubmoduleLib/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "External/SubmoduleLib/http-parser"]
+	path = External/SubmoduleLib/http-parser
+	url = https://github.com/nodejs/http-parser.git
