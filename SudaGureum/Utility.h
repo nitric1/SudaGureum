@@ -1,7 +1,26 @@
 #pragma once
 
+#include "Comparator.h"
+
 namespace SudaGureum
 {
+    class Finally final
+    {
+    public:
+        Finally() = delete;
+        Finally(std::function<void ()> fn) : fn_(std::move(fn)) {}
+        Finally(const Finally &) = delete;
+        Finally(Finally &&) = delete;
+        Finally &operator =(const Finally &) = delete;
+        Finally &operator =(Finally &&) = delete;
+        ~Finally() { fn_(); }
+
+    private:
+        std::function<void ()> fn_;
+    };
+
+    typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> CaseInsensitiveUnorderedMap;
+
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
 

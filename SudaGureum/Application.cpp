@@ -10,7 +10,7 @@
 #include "SCrypt.h"
 #include "User.h"
 #include "Utility.h"
-#include "WebSocketServer.h"
+#include "HttpServer.h"
 
 namespace SudaGureum
 {
@@ -113,7 +113,7 @@ namespace SudaGureum
         try // after logger setup
         {
             IrcClientPool pool;
-            WebSocketServer server(44444, true);
+            HttpServer server(44444, true);
 
             // auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
             Users::instance().load(pool);

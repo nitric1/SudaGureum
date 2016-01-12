@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Comparator.h"
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -19,23 +19,19 @@ namespace SudaGureum
 
     struct WebSocketRequest // General WebSocket message (client -> server)
     {
-        typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
-
         enum Command
         {
-            BadRequest,
-            HandshakeRequest,
             Close,
             Ping,
         };
 
         Command command_;
-        ParamsMap params_;
+        CaseInsensitiveUnorderedMap params_;
         std::vector<uint8_t> rawData_;
 
         WebSocketRequest();
         explicit WebSocketRequest(Command command);
-        WebSocketRequest(Command command, ParamsMap params);
+        WebSocketRequest(Command command, CaseInsensitiveUnorderedMap params);
         WebSocketRequest(Command command, std::vector<uint8_t> rawData);
     };
 
@@ -58,16 +54,14 @@ namespace SudaGureum
         WebSocketFrameOpcode opcode() const;
     };
 
-    struct SudaGureumRequest // "SudaGureum" message (client -> server)
+    struct SudaGureumRequest // "SudaGureum" specific message (client -> server)
     {
-        typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> ParamsMap;
-
         uint32_t id_;
         std::string method_;
-        ParamsMap params_;
+        CaseInsensitiveUnorderedMap params_;
     };
 
-    struct SudaGureumResponse // "SudaGureum" message (server -> client)
+    struct SudaGureumResponse // "SudaGureum" specific message (server -> client)
     {
         uint32_t id_;
         bool success_;
@@ -83,15 +77,9 @@ namespace SudaGureum
     private:
         enum State
         {
-            WaitHandshakeHttpStatus,
-            InHandshakeHttpStatus,
-            WaitHandshakeHeader,
-            InHandshakeHeader,
-            WaitLf,
-            WaitHandshakeEndLf,
-            InWebSocketFrameHeader,
-            InPayload,
-            Error
+            IN_WEB_SOCKET_FRAME_HEADER,
+            IN_PAYLOAD,
+            PARSE_ERROR
         };
 
     private:
@@ -109,8 +97,6 @@ namespace SudaGureum
         explicit operator bool() const;
 
     private:
-        bool confirmHttpStatus(const std::string &line);
-        bool parseHttpHeader(const std::string &line);
         bool parseEmptyFrame(std::function<void (const WebSocketRequest &)> wscb,
             std::function<void (const SudaGureumRequest &)> sgcb);
         bool parseFrame(std::vector<uint8_t> data,
@@ -121,8 +107,6 @@ namespace SudaGureum
     private:
         State state_;
         std::vector<uint8_t> buffer_;
-        std::string path_, host_, origin_, key_;
-        bool connectionUpgrade_, upgraded_, versionValid_;
 
         bool finalFragment_;
         WebSocketFrameOpcode opcode_;

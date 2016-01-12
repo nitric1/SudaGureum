@@ -16,8 +16,8 @@ namespace SudaGureum
     {
         for(auto &info: servers)
         {
-            auto res = servers_.emplace();
-            if(res.second == false)
+            auto inserted = servers_.emplace();
+            if(inserted.second == false)
             {
                 // TODO: error
             }
@@ -26,10 +26,8 @@ namespace SudaGureum
             {
                 *static_cast<UserServerInfo *>(&server) = info;
             };
-            if(!servers_.modify(res.first, modifier))
-            {
-                // TODO: must not occur
-            }
+            bool res = servers_.modify(inserted.first, modifier);
+            assert(res);
         }
     }
 
@@ -54,10 +52,8 @@ namespace SudaGureum
 
         for(auto it = servers_.begin(); it != servers_.end(); ++ it)
         {
-            if(!servers_.modify(it, modifier))
-            {
-                // TODO: must not occur
-            }
+            auto res = servers_.modify(it, modifier);
+            assert(res);
         }
     }
 
@@ -195,7 +191,7 @@ namespace SudaGureum
     {
         // TODO: temporary; load from db
 
-        UserServerInfo info = {"Ozinger", "altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"}, false, {"#HNO3"}};
+        UserServerInfo info = {"Ozinger", "irc.ozinger.org", 16666, "UTF-8", {"SudaGureum1", "SudaGureum2"}, true, {"#HNO3"}};
         std::shared_ptr<User> user(new User(
             "SudaGureum",
             ircClientPool,

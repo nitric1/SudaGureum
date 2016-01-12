@@ -8,5 +8,7 @@ namespace SudaGureum
         extern const char *LogPath;
         extern const long IrcClientCloseTimeoutSec;
         extern const long WebSocketServerCloseTimeoutSec;
+        extern const long HttpServerKeepAliveTimeoutSec;
+        extern const size_t HttpServerKeepAliveMaxCount;
     }
 }

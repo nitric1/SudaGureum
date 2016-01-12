@@ -174,16 +174,17 @@ namespace SudaGureum
         socket_->asyncConnect(endpointIt,
             [&](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)
             {
-                if(!ec)
+                if(ec)
+                {
+                    Log::instance().alert("IrcClient[{}]: connect failed: {}", static_cast<void *>(this), ec.message());
+                    // TODO: retry
+                }
+                else
                 {
                     connectBeginning_ = true;
                     sendMessage(IrcMessage("USER", {nicknameCandidates_[0], "0", "*", nicknameCandidates_[0]}));
                     nickname(nicknameCandidates_[0]);
                     read();
-                }
-                else
-                {
-                    // callback
                 }
             });
     }
@@ -376,7 +377,7 @@ namespace SudaGureum
 
     void IrcClient::procMessage(const IrcMessage &message)
     {
-        // TODO: asserts(error and close) or fail-safe process
+        // TODO: assertions (error and close) or fail-safe process
 
         //print(decodeUtf8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
         Log::instance().info("{}<<< {}", nickname_, encodeMessage(message));
