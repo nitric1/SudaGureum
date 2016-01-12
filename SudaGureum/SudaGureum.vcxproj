@@ -184,6 +184,8 @@
     <ClInclude Include="Default.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="HttpParser.h" />
+    <ClInclude Include="HttpServer.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MtIoService.h" />
     <ClInclude Include="IrcClient.h" />
@@ -213,6 +215,8 @@
     <ClCompile Include="DB.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="HttpParser.cpp" />
+    <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MtIoService.cpp" />
     <ClCompile Include="IrcClient.cpp" />

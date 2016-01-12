@@ -109,7 +109,10 @@ namespace SudaGureum
 
         std::vector<uint8_t> buffer(fileSize);
         if(!ifp.read(buffer.data(), fileSize))
+        {
+            throw(std::runtime_error("cannot open the file"));
             return std::vector<uint8_t>();
+        }
 
         return buffer;
     }

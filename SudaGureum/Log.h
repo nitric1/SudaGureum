@@ -6,10 +6,10 @@ namespace SudaGureum
 {
     /*
      * Meaning of logger levels:
-     *   info: not harmful; just for lower-level contextual information, or really just for printing
-     *   trace: not harmful; just for higher-level contextual information
+     *   info: not harmful; just for lower-level contextual information, or really just for printing (socket connection etc...)
+     *   trace: not harmful; just for higher-level contextual information (HTTP request etc...)
      *   debug: info's or traces only for debug mode
-     *   alert: recovable errors including wrong data input
+     *   alert: recovable errors including wrong data input (= user failures)
      *   error: non-recovable errors
      */
 

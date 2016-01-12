@@ -15,7 +15,7 @@ namespace SudaGureum
     {
     }
 
-    WebSocketRequest::WebSocketRequest(Command command, ParamsMap params)
+    WebSocketRequest::WebSocketRequest(Command command, CaseInsensitiveUnorderedMap params)
         : command_(command)
         , params_(std::move(params))
     {
@@ -83,10 +83,7 @@ namespace SudaGureum
     }
 
     WebSocketParser::WebSocketParser()
-        : state_(WaitHandshakeHttpStatus)
-        , connectionUpgrade_(false)
-        , upgraded_(false)
-        , versionValid_(false)
+        : state_(IN_WEB_SOCKET_FRAME_HEADER)
         , finalFragment_(false)
         , masked_(false)
         , payloadLen1_(0)
@@ -98,7 +95,7 @@ namespace SudaGureum
         std::function<void (const WebSocketRequest &)> wscb,
         std::function<void (const SudaGureumRequest &)> sgcb)
     {
-        if(state_ == Error)
+        if(state_ == PARSE_ERROR)
         {
             return false;
         }
@@ -107,121 +104,7 @@ namespace SudaGureum
         {
             switch(state_)
             {
-            case WaitHandshakeHttpStatus:
-                if(ch == '\r' || ch == '\n')
-                {
-                    state_ = Error;
-                    return false;
-                }
-                else
-                {
-                    buffer_.push_back(ch);
-                    state_ = InHandshakeHttpStatus;
-                }
-                break;
-
-            case InHandshakeHttpStatus:
-                if(ch == '\r' || ch == '\n')
-                {
-                    if(ch == '\r')
-                    {
-                        state_ = WaitLf;
-                    }
-                    else if(ch == '\n')
-                    {
-                        state_ = WaitHandshakeHeader;
-                    }
-                    if(!confirmHttpStatus(std::string(buffer_.begin(), buffer_.end())))
-                    {
-                        state_ = Error;
-                        return false;
-                    }
-                    buffer_.clear();
-                }
-                else
-                {
-                    buffer_.push_back(ch);
-                }
-                break;
-
-            case WaitHandshakeHeader:
-                if(ch == '\r')
-                {
-                    state_ = WaitHandshakeEndLf;
-                }
-                else if(ch == '\n')
-                {
-                    state_ = InWebSocketFrameHeader;
-                }
-                else
-                {
-                    buffer_.push_back(ch);
-                    state_ = InHandshakeHeader;
-                }
-                break;
-
-            case InHandshakeHeader:
-                if(ch == '\r' || ch == '\n')
-                {
-                    if(ch == '\r')
-                    {
-                        state_ = WaitLf;
-                    }
-                    else if(ch == '\n')
-                    {
-                        state_ = WaitHandshakeHeader;
-                    }
-                    if(!parseHttpHeader(std::string(buffer_.begin(), buffer_.end())))
-                    {
-                        wscb(WebSocketRequest(WebSocketRequest::BadRequest));
-                        state_ = Error;
-                        return false;
-                    }
-                    buffer_.clear();
-                }
-                else
-                {
-                    buffer_.push_back(ch);
-                }
-                break;
-
-            case WaitLf:
-                if(ch == '\n')
-                {
-                    state_ = WaitHandshakeHeader;
-                }
-                else
-                {
-                    wscb(WebSocketRequest(WebSocketRequest::BadRequest));
-                    state_ = Error;
-                    return false;
-                }
-                break;
-
-            case WaitHandshakeEndLf:
-                if(ch == '\n')
-                {
-                    if(host_.empty() || origin_.empty() || key_.empty() ||
-                        !connectionUpgrade_ || !upgraded_ || !versionValid_)
-                    {
-                        wscb(WebSocketRequest(WebSocketRequest::BadRequest));
-                        state_ = Error;
-                        return false;
-                    }
-
-                    // TODO: Message standard is not set; may be changed.
-                    wscb(WebSocketRequest(WebSocketRequest::HandshakeRequest,
-                        {{"Path", path_}, {"Host", host_}, {"Origin", origin_}, {"Key", key_}}));
-                    state_ = InWebSocketFrameHeader;
-                }
-                else
-                {
-                    state_ = Error;
-                    return false;
-                }
-                break;
-
-            case InWebSocketFrameHeader:
+            case IN_WEB_SOCKET_FRAME_HEADER:
                 buffer_.push_back(ch);
                 if(buffer_.size() == 2)
                 {
@@ -242,7 +125,7 @@ namespace SudaGureum
                             }
                             else
                             {
-                                state_ = InPayload;
+                                state_ = IN_PAYLOAD;
                                 buffer_.clear();
                             }
                         }
@@ -259,10 +142,9 @@ namespace SudaGureum
                     {
                         waitFor += 8;
                     }
-                    else if(!masked_)
+                    else
                     {
-                        state_ = Error; // must not be occured; assert?
-                        return false;
+                        assert(masked_);
                     }
 
                     if(masked_)
@@ -299,86 +181,29 @@ namespace SudaGureum
                         if(payloadLen_ == 0)
                         {
                             parseEmptyFrame(wscb, sgcb);
-                            state_ = InWebSocketFrameHeader;
+                            state_ = IN_WEB_SOCKET_FRAME_HEADER;
                             buffer_.clear();
                         }
                         else
                         {
-                            state_ = InPayload;
+                            state_ = IN_PAYLOAD;
                             buffer_.clear();
                         }
                     }
                 }
                 break;
 
-            case InPayload:
+            case IN_PAYLOAD:
                 buffer_.push_back(ch);
                 if(buffer_.size() == payloadLen_)
                 {
                     parseFrame(std::move(buffer_), wscb, sgcb);
-                    state_ = InWebSocketFrameHeader;
+                    state_ = IN_WEB_SOCKET_FRAME_HEADER;
                     buffer_.clear();
                 }
                 break;
             }
         }
-
-        return true;
-    }
-
-    bool WebSocketParser::confirmHttpStatus(const std::string &line)
-    {
-        static const boost::regex HttpStatusRegex("GET ([^ ]+) HTTP\\/1\\.1", boost::regex::extended);
-        boost::smatch match;
-        if(!boost::regex_match(line, match, HttpStatusRegex))
-        {
-            return false;
-        }
-
-        path_ = match[1].str();
-        return true;
-    }
-
-    bool WebSocketParser::parseHttpHeader(const std::string &line)
-    {
-        size_t colonPos = line.find(":");
-        if(colonPos == std::string::npos)
-        {
-            return false;
-        }
-
-        std::string key = line.substr(0, colonPos);
-        std::string value = line.substr(colonPos + 1);
-
-        boost::algorithm::trim(key);
-        if(key.empty())
-        {
-            return false;
-        }
-
-        boost::algorithm::trim(value);
-
-        if(boost::iequals(key, "Host"))
-            host_ = std::move(value);
-        else if(boost::iequals(key, "Origin"))
-            origin_ = std::move(value);
-        else if(boost::iequals(key, "Sec-WebSocket-Key"))
-            key_ = std::move(value);
-        else if(boost::iequals(key, "Sec-WebSocket-Version"))
-        {
-            std::vector<std::string> versions;
-            boost::algorithm::split(versions, value, boost::algorithm::is_any_of(","));
-            versionValid_ = std::find_if(versions.begin(), versions.end(),
-                [](std::string &version)
-                {
-                    boost::algorithm::trim(version);
-                    return version == "13";
-                }) != versions.end();
-        }
-        else if(boost::iequals(key, "Connection"))
-            connectionUpgrade_ = boost::iequals(value, "Upgrade");
-        else if(boost::iequals(key, "Upgrade"))
-            upgraded_ = boost::iequals(value, "websocket");
 
         return true;
     }
@@ -519,6 +344,6 @@ namespace SudaGureum
 
     WebSocketParser::operator bool() const
     {
-        return (state_ != Error);
+        return (state_ != PARSE_ERROR);
     }
 }

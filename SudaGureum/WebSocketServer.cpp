@@ -4,6 +4,7 @@
 
 #include "Configure.h"
 #include "Default.h"
+#include "HttpServer.h"
 #include "Log.h"
 #include "Utility.h"
 
@@ -43,16 +44,11 @@ namespace SudaGureum
 
             return frame;
         }
-
-        std::vector<uint8_t> encodeMessage(const WebSocketRequest &message)
-        {
-            return std::vector<uint8_t>();
-        }
     }
 
     const std::string WebSocketConnection::KeyConcatMagic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    WebSocketConnection::WebSocketConnection(WebSocketServer &server, bool ssl)
+    WebSocketConnection::WebSocketConnection(HttpServer &server, bool ssl)
         : server_(server)
         , ios_(server.ios_)
         , closeReady_(false)
@@ -60,9 +56,26 @@ namespace SudaGureum
         , closeReceived_(false)
     {
         if(ssl)
-            socket_ = std::make_shared<TcpSslSocket>(ios_, server.ctx_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSslSocket>>(ios_, server.ctx_);
         else
-            socket_ = std::make_shared<TcpSocket>(ios_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSocket>>(ios_);
+    }
+
+    WebSocketConnection::WebSocketConnection(HttpServer &server,
+        std::shared_ptr<BufferedWriterSocketBase> socket, const std::vector<uint8_t> &readBuffer)
+        : server_(server)
+        , ios_(server.ios_)
+        , socket_(std::move(socket))
+        , closeReady_(false)
+        , closeTimer_(ios_)
+        , closeReceived_(false)
+    {
+        if(readBuffer.size() > bufferToRead_.size())
+        {
+            throw(std::logic_error("readBuffer is too large"));
+        }
+        std::copy(readBuffer.begin(), readBuffer.end(), bufferToRead_.begin());
+        // handleRead is called by HttpConnection
     }
 
     WebSocketConnection::~WebSocketConnection()
@@ -72,33 +85,34 @@ namespace SudaGureum
 
     void WebSocketConnection::sendRaw(std::vector<uint8_t> data)
     {
-        {
-            std::lock_guard<std::mutex> lock(bufferWriteLock_);
-            bufferToWrite_.push_back(std::move(data));
-        }
-        write();
+        socket_->asyncWrite(data,
+            boost::bind(
+                std::mem_fn(&WebSocketConnection::handleWrite),
+                shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
     }
 
-    void WebSocketConnection::sendWebSocketMessage(const WebSocketResponse &message)
+    void WebSocketConnection::sendWebSocketResponse(const WebSocketResponse &response)
     {
-        WebSocketFrameOpcode opcode = message.opcode();
-        sendRaw(encodeFrame(opcode, message.rawData_));
+        WebSocketFrameOpcode opcode = response.opcode();
+        sendRaw(encodeFrame(opcode, response.rawData_));
     }
 
-    void WebSocketConnection::sendSudaGureumMessage(SudaGureumResponse &&message)
+    void WebSocketConnection::sendSudaGureumResponse(SudaGureumResponse &&response)
     {
-        message.responseDoc_.AddMember("_reqid", message.id_, message.responseDoc_.GetAllocator());
-        message.responseDoc_.AddMember("success", message.success_, message.responseDoc_.GetAllocator());
+        response.responseDoc_.AddMember("_reqid", response.id_, response.responseDoc_.GetAllocator());
+        response.responseDoc_.AddMember("success", response.success_, response.responseDoc_.GetAllocator());
 
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        message.responseDoc_.Accept(writer);
+        response.responseDoc_.Accept(writer);
 
         const uint8_t *data = reinterpret_cast<const uint8_t *>(buffer.GetString());
 
-        WebSocketResponse response(WebSocketResponse::Text,
+        WebSocketResponse wsResponse(WebSocketResponse::Text,
             std::vector<uint8_t>(data, data + buffer.GetSize()));
-        sendWebSocketMessage(response);
+        sendWebSocketResponse(wsResponse);
     }
 
     void WebSocketConnection::startSsl()
@@ -107,9 +121,7 @@ namespace SudaGureum
             boost::bind(
                 std::mem_fn(&WebSocketConnection::handleHandshake),
                 shared_from_this(),
-                boost::asio::placeholders::error
-            )
-        );
+                boost::asio::placeholders::error));
     }
 
     void WebSocketConnection::read()
@@ -120,64 +132,20 @@ namespace SudaGureum
                 std::mem_fn(&WebSocketConnection::handleRead),
                 shared_from_this(),
                 boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred
-            )
-        );
-    }
-
-    void WebSocketConnection::write()
-    {
-        std::lock_guard<std::mutex> lock(writeLock_);
-
-        if(inWrite_.exchange(true))
-        {
-            return;
-        }
-
-        std::vector<uint8_t> frame;
-        {
-            std::lock_guard<std::mutex> lock(bufferWriteLock_);
-            if(!bufferToWrite_.empty())
-            {
-                frame = std::move(bufferToWrite_.front());
-                bufferToWrite_.pop_front();
-            }
-        }
-
-        if(!frame.empty())
-        {
-            auto framePtr = std::make_shared<std::vector<uint8_t>>(std::move(frame));
-
-            socket_->asyncWrite(
-                boost::asio::buffer(*framePtr, framePtr->size()),
-                boost::bind(
-                    std::mem_fn(&WebSocketConnection::handleWrite),
-                    shared_from_this(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred,
-                    framePtr
-                )
-            );
-        }
-        else
-        {
-            inWrite_ = false;
-        }
+                boost::asio::placeholders::bytes_transferred));
     }
 
     void WebSocketConnection::close()
     {
         closeReady_ = true;
-        sendWebSocketMessage(WebSocketResponse(WebSocketResponse::Close));
+        sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Close));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
             Configure::instance().getAs("websocket_server_close_timeout_sec",
-                DefaultConfigureValue::WebSocketServerCloseTimeoutSec)
-        ));
+                DefaultConfigureValue::WebSocketServerCloseTimeoutSec)));
         closeTimer_.async_wait(boost::bind(
             std::mem_fn(&WebSocketConnection::handleCloseTimeout),
             shared_from_this(),
-            boost::asio::placeholders::error
-        ));
+            boost::asio::placeholders::error));
     }
 
     void WebSocketConnection::handleHandshake(const boost::system::error_code &ec)
@@ -196,17 +164,17 @@ namespace SudaGureum
     {
         if(ec)
         {
+            Log::instance().alert("WebSocketConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
             if(!closeReady_)
             {
-                Log::instance().alert("WebSocketConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
                 socket_->close(); // implies forcely canceling write
             }
             return;
         }
 
         if(!parser_.parse(std::vector<uint8_t>(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
-            std::bind(&WebSocketConnection::procWebSocketMessage, this, std::placeholders::_1),
-            std::bind(&WebSocketConnection::procSudaGureumMessage, this, std::placeholders::_1)))
+            std::bind(&WebSocketConnection::procWebSocketRequest, this, std::placeholders::_1),
+            std::bind(&WebSocketConnection::procSudaGureumRequest, this, std::placeholders::_1)))
         {
             Log::instance().alert("WebSocketConnection[{}]: read: invalid data received", static_cast<void *>(this));
             socket_->close();
@@ -219,21 +187,17 @@ namespace SudaGureum
         }
     }
 
-    void WebSocketConnection::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::vector<uint8_t>> &messagePtr)
+    void WebSocketConnection::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred)
     {
-        inWrite_ = false;
-
         if(ec)
         {
+            Log::instance().alert("WebSocketConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
             if(!closeReady_)
             {
-                Log::instance().alert("WebSocketConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
                 socket_->close(); // implies forcely canceling read
             }
             return;
         }
-
-        write();
     }
 
     void WebSocketConnection::handleCloseTimeout(const boost::system::error_code &ec)
@@ -245,43 +209,12 @@ namespace SudaGureum
         }
     }
 
-    void WebSocketConnection::procWebSocketMessage(const WebSocketRequest &message)
+    void WebSocketConnection::procWebSocketRequest(const WebSocketRequest &request)
     {
-        switch(message.command_)
+        switch(request.command_)
         {
-        case WebSocketRequest::BadRequest:
-            {
-                static const std::string response =
-                    "HTTP/1.1 400 Bad Request\r\n"
-                    "Connection: close\r\n"
-                    "Content-Type: text/plain; charset=UTF-8\r\n"
-                    "\r\n"
-                    "The request is bad.";
-                sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
-            }
-            break;
-
-        case WebSocketRequest::HandshakeRequest:
-            {
-                static const std::string responseFormat =
-                    "HTTP/1.1 101 Switching Protocols\r\n"
-                    "Connection: Upgrade\r\n"
-                    "Upgrade: websocket\r\n"
-                    "Sec-WebSocket-Accept: {}\r\n"
-                    "Sec-WebSocket-Version: 13\r\n"
-                    "\r\n";
-
-                std::string accept = message.params_.find("Key")->second + KeyConcatMagic;
-                auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
-                std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
-
-                std::string response = fmt::format(responseFormat, acceptHashed);
-                sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
-            }
-            break;
-
         case WebSocketRequest::Ping:
-            sendWebSocketMessage(WebSocketResponse(WebSocketResponse::Pong, message.rawData_));
+            sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Pong, request.rawData_));
             break;
 
         case WebSocketRequest::Close:
@@ -299,16 +232,16 @@ namespace SudaGureum
         }
     }
 
-    void WebSocketConnection::procSudaGureumMessage(const SudaGureumRequest &message)
+    void WebSocketConnection::procSudaGureumRequest(const SudaGureumRequest &request)
     {
         // TODO: implement
-        if(message.method_ == "heartbeat")
+        if(request.method_ == "heartbeat")
         {
             rapidjson::Document seenEidsDoc;
 
             try
             {
-                if(!seenEidsDoc.Parse<0>(message.params_.at("seenEids").c_str()).HasParseError())
+                if(!seenEidsDoc.Parse<0>(request.params_.at("seenEids").c_str()).HasParseError())
                 {
                     throw(RapidJson::Exception(""));
                     return;
@@ -318,108 +251,10 @@ namespace SudaGureum
             }
             catch(const RapidJson::Exception &)
             {
-                SudaGureumResponse response(message, false);
+                SudaGureumResponse response(request, false);
                 response.responseDoc_.AddMember("message", "invalid json", response.responseDoc_.GetAllocator());
-                sendSudaGureumMessage(std::move(response));
+                sendSudaGureumResponse(std::move(response));
             }
         }
-    }
-
-    std::string WebSocketServer::handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose)
-    {
-        return Configure::instance().get("ssl_certificate_password");
-    }
-
-    WebSocketServer::WebSocketServer(uint16_t port, bool ssl)
-        : acceptor_(ios_)
-    {
-        try
-        {
-            acceptor_.open(boost::asio::ip::tcp::v6());
-            acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-            acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), port));
-            acceptor_.listen();
-        }
-        catch(const boost::system::system_error &e)
-        {
-            if(e.code() == make_error_code(boost::asio::error::address_family_not_supported)) // no ipv6 capability
-            {
-                acceptor_.open(boost::asio::ip::tcp::v4());
-                acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-                acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-                acceptor_.listen();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        if(ssl)
-        {
-            auto &conf = Configure::instance();
-
-            ctx_ = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
-            ctx_->set_password_callback(&WebSocketServer::handleGetPassword);
-
-            std::vector<uint8_t> data;
-
-            if(conf.exists("ssl_certificate_chain_file"))
-            {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
-                if(data.empty())
-                    throw(std::runtime_error("invalid ssl_certificate_chain_file configure"));
-                ctx_->use_certificate_chain(boost::asio::buffer(data));
-            }
-            else
-            {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_file"))));
-                if(data.empty())
-                    throw(std::runtime_error("invalid ssl_certificate_file configure"));
-                ctx_->use_certificate(boost::asio::buffer(data), boost::asio::ssl::context::pem);
-            }
-            data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_private_key_file"))));
-            if(data.empty())
-                throw(std::runtime_error("invalid ssl_private_key_file configure"));
-            ctx_->use_private_key(boost::asio::buffer(data), boost::asio::ssl::context::pem);
-
-            acceptNextSsl();
-        }
-        else
-        {
-            acceptNext();
-        }
-    }
-
-    void WebSocketServer::acceptNext()
-    {
-        nextConn_.reset(new WebSocketConnection(*this, false));
-        acceptor_.async_accept(static_cast<TcpSocket *>(nextConn_->socket_.get())->socket(),
-            boost::bind(&WebSocketServer::handleAccept, this, boost::asio::placeholders::error));
-    }
-
-    void WebSocketServer::acceptNextSsl()
-    {
-        nextConn_.reset(new WebSocketConnection(*this, true));
-        acceptor_.async_accept(static_cast<TcpSslSocket *>(nextConn_->socket_.get())->socket(),
-            boost::bind(&WebSocketServer::handleAcceptSsl, this, boost::asio::placeholders::error));
-    }
-
-    void WebSocketServer::handleAccept(const boost::system::error_code &ec)
-    {
-        if(!ec)
-        {
-            nextConn_->read();
-        }
-        acceptNext();
-    }
-
-    void WebSocketServer::handleAcceptSsl(const boost::system::error_code &ec)
-    {
-        if(!ec)
-        {
-            nextConn_->startSsl();
-        }
-        acceptNextSsl();
     }
 }
