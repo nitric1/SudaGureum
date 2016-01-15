@@ -97,23 +97,31 @@ namespace SudaGureum
         return str;
     }
 
-    std::vector<uint8_t> readFile(const boost::filesystem::path &path)
+    std::deque<uint8_t> readFile(const boost::filesystem::path &path)
     {
         typedef boost::filesystem::basic_ifstream<uint8_t> bifstream;
 
         bifstream ifp(path, bifstream::binary);
-        auto fileBeginPos = ifp.tellg();
-        ifp.seekg(0, bifstream::end);
-        size_t fileSize = ifp.tellg() - fileBeginPos;
-        ifp.seekg(0, bifstream::beg);
-
-        std::vector<uint8_t> buffer(fileSize);
-        if(!ifp.read(buffer.data(), fileSize))
+        if(!ifp)
         {
             throw(std::runtime_error("cannot open the file"));
-            return std::vector<uint8_t>();
+            return {};
         }
 
-        return buffer;
+        std::deque<uint8_t> data;
+        std::array<uint8_t, BUFSIZ> chunk;
+        while(ifp.read(chunk.data(), chunk.size()) || ifp.gcount())
+        {
+            data.insert(data.end(), chunk.begin(), chunk.begin() + ifp.gcount());
+        }
+
+        return data;
+    }
+
+    std::vector<uint8_t> readFileIntoVector(const boost::filesystem::path &path)
+    {
+        auto data = readFile(path);
+        std::vector<uint8_t> vec(data.begin(), data.end());
+        return vec;
     }
 }

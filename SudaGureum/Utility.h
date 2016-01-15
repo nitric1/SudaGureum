@@ -31,5 +31,6 @@ namespace SudaGureum
     std::array<uint8_t, 20> hashSha1(const std::vector<uint8_t> &data);
     std::string hashSha1ToHexString(const std::vector<uint8_t> &data);
 
-    std::vector<uint8_t> readFile(const boost::filesystem::path &path);
+    std::deque<uint8_t> readFile(const boost::filesystem::path &path);
+    std::vector<uint8_t> readFileIntoVector(const boost::filesystem::path &path);
 }
