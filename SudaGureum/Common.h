@@ -80,7 +80,11 @@ using std::max; using std::min;
 
 #include "RapidJson.h"
 
+extern "C"
+{
 #include <scrypt/lib/crypto/crypto_scrypt.h>
+}
+
 #include <spdlog/spdlog.h>
 
 #ifdef _MSC_VER
