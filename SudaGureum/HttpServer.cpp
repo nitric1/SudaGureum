@@ -340,19 +340,19 @@ namespace SudaGureum
 
             if(conf.exists("ssl_certificate_chain_file"))
             {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
+                data = readFileIntoVector(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_chain_file configure"));
                 ctx_->use_certificate_chain(boost::asio::buffer(data));
             }
             else
             {
-                data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_file"))));
+                data = readFileIntoVector(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_certificate_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_file configure"));
                 ctx_->use_certificate(boost::asio::buffer(data), boost::asio::ssl::context::pem);
             }
-            data = readFile(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_private_key_file"))));
+            data = readFileIntoVector(boost::filesystem::wpath(decodeUtf8(conf.get("ssl_private_key_file"))));
             if(data.empty())
                 throw(std::runtime_error("invalid ssl_private_key_file configure"));
             ctx_->use_private_key(boost::asio::buffer(data), boost::asio::ssl::context::pem);
