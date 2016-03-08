@@ -70,6 +70,94 @@ namespace SudaGureum
         return decoded;
     }
 
+    namespace
+    {
+        int fromHexChar(char ch)
+        {
+            static const int table[256] =
+            {
+                //0  1   2   3   4   5   6   7   8   9   a   b   c   d   e   f
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1,
+                -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            };
+
+            return table[static_cast<unsigned char>(ch)];
+        }
+    }
+
+    std::string decodeURIComponent(const std::string &component)
+    {
+        std::string output;
+        output.reserve(component.size());
+
+        enum State { NORMAL, IN_PERCENT_UPPER, IN_PERCENT_LOWER } state = NORMAL;
+
+        char reverted = 0;
+        auto parseHex = [](char ch) -> char
+        {
+            using namespace fmt::literals;
+            int hex = fromHexChar(ch);
+            if(hex < 0)
+            {
+                throw(std::logic_error(fmt::format("invalid percent character: {ch} ({ch:d})", "ch"_a = ch)));
+            }
+            return static_cast<char>(hex);
+        };
+
+        for(char ch : component)
+        {
+            switch(state)
+            {
+            case NORMAL:
+                if(ch == '%')
+                {
+                    state = IN_PERCENT_UPPER;
+                    reverted = 0;
+                }
+                else
+                {
+                    output += ch;
+                }
+                break;
+
+            case IN_PERCENT_UPPER:
+                reverted = parseHex(ch) << 4;
+                state = IN_PERCENT_LOWER;
+                break;
+
+            case IN_PERCENT_LOWER:
+                reverted |= parseHex(ch);
+                output += reverted;
+                state = NORMAL;
+                break;
+            }
+        }
+
+        output.shrink_to_fit();
+        return output;
+    }
+
+    std::string decodeQueryString(const std::string &str)
+    {
+        std::string res = decodeURIComponent(str);
+        std::replace(res.begin(), res.end(), '+', ' ');
+        return res;
+    }
+
     std::array<uint8_t, 20> hashSha1(const std::vector<uint8_t> &data)
     {
         std::array<uint8_t, 20> result;

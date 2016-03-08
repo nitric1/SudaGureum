@@ -8,7 +8,7 @@ namespace SudaGureum
 {
     static int HttpParserOnUrl(http_parser *parser, const char *str, size_t length)
     {
-        static_cast<HttpParser *>(parser->data)->appendPath(str, length);
+        static_cast<HttpParser *>(parser->data)->appendTarget(str, length);
         return 0;
     }
 
@@ -85,9 +85,9 @@ namespace SudaGureum
         return {true, 0};
     }
 
-    void HttpParser::appendPath(const char *str, size_t length)
+    void HttpParser::appendTarget(const char *str, size_t length)
     {
-        request_.path_.append(str, length);
+        request_.rawTarget_.append(str, length);
     }
 
     void HttpParser::appendHeaderName(const char *str, size_t length)
@@ -108,6 +108,8 @@ namespace SudaGureum
 
     void HttpParser::completeHeader()
     {
+        boost::trim(currentHeaderName_);
+        boost::trim(currentHeaderValue_);
         request_.headers_.emplace(std::move(currentHeaderName_), std::move(currentHeaderValue_));
         currentHeaderName_.clear();
         currentHeaderValue_.clear();
@@ -121,7 +123,77 @@ namespace SudaGureum
 
     void HttpParser::appendBody(const char *str, size_t length)
     {
-        request_.body_.append(str, length);
+        request_.rawBody_.append(str, length);
+    }
+
+    namespace
+    {
+        bool parseQueryString(const std::string &rawQueryStr, HttpRequest::Queries &queries)
+        {
+            try
+            {
+                size_t prevPos = 0, nextPos = 0;
+                do
+                {
+                    nextPos = rawQueryStr.find_first_of("&;", prevPos);
+                    if(nextPos != prevPos)
+                    {
+                        size_t equalPos = rawQueryStr.find('=', prevPos);
+                        if(equalPos != std::string::npos && equalPos < nextPos)
+                        {
+                            size_t nameLen = equalPos - prevPos;
+                            size_t valueLen =
+                                (nextPos == std::string::npos ? std::string::npos : (nextPos - (equalPos + 1)));
+                            queries.insert(std::make_pair(
+                                decodeQueryString(rawQueryStr.substr(prevPos, nameLen)),
+                                decodeQueryString(rawQueryStr.substr(equalPos + 1, valueLen))));
+                        }
+                        else
+                        {
+                            size_t nameLen = (nextPos == std::string::npos ? std::string::npos : (nextPos - prevPos));
+                            queries.insert(std::make_pair(
+                                decodeQueryString(rawQueryStr.substr(prevPos, nameLen)),
+                                std::string()));
+                        }
+                    }
+
+                    prevPos = nextPos + 1;
+                }
+                while(nextPos != std::string::npos);
+            }
+            catch(const std::logic_error &)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        bool parseRequestTarget(std::string rawTarget, std::string &target, HttpRequest::Queries &queries)
+        {
+            if(rawTarget.empty())
+            {
+                // must not occur on http-parser
+                return false;
+            }
+
+            if(rawTarget[0] != '/') // if absolute-form (http://... for proxying), authority-form (CONNECT www...), or asterisk-form (OPTIONS * ...)
+            {
+                return false; // don't handle
+            }
+
+            size_t qsPos = rawTarget.find('?');
+            target = rawTarget.substr(0, qsPos);
+            if(qsPos != std::string::npos)
+            {
+                if(!parseQueryString(rawTarget.substr(qsPos + 1), queries))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     bool HttpParser::completeRequest()
@@ -130,11 +202,11 @@ namespace SudaGureum
 
         switch(parser_.method)
         {
-#define METHOD_CASE(x) case HTTP_##x: request_.method_ = HttpRequest::x; break
-            METHOD_CASE(GET);
-            METHOD_CASE(HEAD);
-            METHOD_CASE(POST);
-#undef METHOD_CASE
+#define _(x) case HTTP_##x: request_.method_ = HttpRequest::x; break
+            _(GET);
+            _(HEAD);
+            _(POST);
+#undef _
         default:
             request_.method_ = HttpRequest::OTHER;
         }
@@ -146,6 +218,27 @@ namespace SudaGureum
 
         request_.upgrade_ = !!parser_.upgrade;
         request_.keepAlive_ = !!http_should_keep_alive(&parser_);
+
+        if(!parseRequestTarget(request_.rawTarget_, request_.target_, request_.queries_))
+        {
+            return false;
+        }
+
+        try
+        {
+            // TODO: Content-Type parameters (charset, ...)
+            if(parser_.method == HttpRequest::POST &&
+                boost::iequals(request_.headers_.at("Content-Type"), "application/x-www-form-urlencoded"))
+            {
+                if(!parseQueryString(request_.rawBody_, request_.queries_))
+                {
+                    return false;
+                }
+            }
+        }
+        catch(const std::out_of_range &)
+        {
+        }
 
         return currentCallback_(request_);
     }

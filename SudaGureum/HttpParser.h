@@ -6,6 +6,8 @@ namespace SudaGureum
 {
     struct HttpRequest
     {
+        typedef CaseInsensitiveUnorderedMultimap Queries;
+
         enum Method
         {
             GET,
@@ -18,9 +20,11 @@ namespace SudaGureum
         bool http11_; // true = HTTP 1.1, false = HTTP 1.0
         bool upgrade_;
         bool keepAlive_;
-        std::string path_;
+        std::string rawTarget_;
+        std::string target_;
+        Queries queries_;
         CaseInsensitiveUnorderedMap headers_;
-        std::string body_;
+        std::string rawBody_;
 
     private:
         HttpRequest() = default;
@@ -45,7 +49,7 @@ namespace SudaGureum
             const std::vector<uint8_t> &data, std::function<bool (const HttpRequest &)> cb);
 
     private:
-        void appendPath(const char *str, size_t length);
+        void appendTarget(const char *str, size_t length);
         void appendHeaderName(const char *str, size_t length);
         void appendHeaderValue(const char *str, size_t length);
         void completeHeader();
