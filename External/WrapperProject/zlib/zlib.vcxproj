@@ -19,26 +19,52 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Assertion.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Column.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Database.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Exception.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\SQLiteCpp.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Statement.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Transaction.h" />
-    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\sqlite3\sqlite3.h" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\adler32.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\arch\x86\crc_folding.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\arch\x86\deflate_quick.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\arch\x86\fill_window_sse.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\arch\x86\insert_string_sse.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\arch\x86\x86.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\compress.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\crc32.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\deflate.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\deflate_fast.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\deflate_medium.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\deflate_slow.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\gzclose.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\gzlib.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\gzread.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\gzwrite.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\infback.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\inffast.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\inflate.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\inftrees.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\match.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\trees.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\uncompr.c" />
+    <ClCompile Include="..\..\SubmoduleLib\zlib-ng\zutil.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\sqlite3\sqlite3.c" />
-    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Column.cpp" />
-    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Database.cpp" />
-    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Statement.cpp" />
-    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Transaction.cpp" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\arch\x86\x86.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\crc32.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\deflate.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\deflate_p.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\gzguts.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\inffast.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\inffixed.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\inflate.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\inftrees.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\match.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\trees.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\zlib.h" />
+    <ClInclude Include="..\..\SubmoduleLib\zlib-ng\zutil.h" />
+    <ClInclude Include="zconf.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C2BF3A1A-303A-45D9-8399-2E702CF36370}</ProjectGuid>
+    <ProjectGuid>{AA0092CE-76E4-43FB-926B-16C105679DE7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>SQLiteCpp</RootNamespace>
+    <RootNamespace>zlib</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -86,16 +112,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/include;$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/sqlite3;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/zlib-ng;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/include;$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/sqlite3;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/zlib-ng;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/include;$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/sqlite3;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/zlib-ng;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/include;$(ProjectDir)/../../SubmoduleLib/SQLiteCpp/sqlite3;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/../../SubmoduleLib/zlib-ng;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,7 +129,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>SQLITECPP_ENABLE_ASSERT_HANDLER;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -117,7 +143,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>SQLITECPP_ENABLE_ASSERT_HANDLER;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -133,7 +159,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>SQLITECPP_ENABLE_ASSERT_HANDLER;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -154,7 +180,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>SQLITECPP_ENABLE_ASSERT_HANDLER;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

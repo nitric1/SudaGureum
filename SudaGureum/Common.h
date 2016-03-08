@@ -37,6 +37,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#elif defined(__GNUC__)
+#include <byteswap.h>
+#endif
+
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
@@ -96,11 +102,7 @@ extern "C"
 #pragma warning(pop)
 #endif
 
-#if defined(_MSC_VER)
-#include <intrin.h>
-#elif defined(__GNUC__)
-#include <byteswap.h>
-#endif
+#include <zlib-ng/zlib.h>
 
 // Other common inclusion
 
