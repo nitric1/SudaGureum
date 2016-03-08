@@ -217,8 +217,8 @@ namespace SudaGureum
         size_t currentKeepAliveCount = keepAliveCount_ --;
         bool keepAlive = (request.keepAlive_ && currentKeepAliveCount > 0);
 
-        Log::instance().trace("HttpConnection[{}]: http request, url={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
-            static_cast<void *>(this), request.path_, request.keepAlive_, keepAlive, currentKeepAliveCount);
+        Log::instance().trace("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
+            static_cast<void *>(this), request.rawTarget_, request.keepAlive_, keepAlive, currentKeepAliveCount);
 
         if(request.upgrade_)
         {
@@ -233,7 +233,7 @@ namespace SudaGureum
                 return true;
             }
 
-            // TODO: use HttpResponse
+            // TODO: use HttpResponse?
             static const std::string responseFormat =
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Connection: Upgrade\r\n"
