@@ -85,6 +85,7 @@ namespace SudaGureum
         template<typename ...Args>
         BufferedWriterSocket(boost::asio::io_service &ios, Args &&...args)
             : socket_(ios, std::forward<Args>(args)...)
+            , inWrite_(false)
         {
         }
 

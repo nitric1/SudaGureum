@@ -19,7 +19,10 @@ namespace SudaGureum
         std::function<void ()> fn_;
     };
 
-    typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> CaseInsensitiveUnorderedMap;
+    typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
+        CaseInsensitiveUnorderedMap;
+    typedef std::unordered_multimap<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
+        CaseInsensitiveUnorderedMultimap;
 
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
@@ -30,6 +33,9 @@ namespace SudaGureum
 
     std::string decodeURIComponent(const std::string &component);
     std::string decodeQueryString(const std::string &str);
+
+    std::string generateHttpDateTime(time_t time);
+    std::string generateHttpDateTime(const std::chrono::system_clock::time_point &time);
 
     std::array<uint8_t, 20> hashSha1(const std::vector<uint8_t> &data);
     std::string hashSha1ToHexString(const std::vector<uint8_t> &data);

@@ -85,7 +85,7 @@ namespace SudaGureum
 
     void WebSocketConnection::sendRaw(std::vector<uint8_t> data)
     {
-        socket_->asyncWrite(data,
+        socket_->asyncWrite(std::move(data),
             boost::bind(
                 std::mem_fn(&WebSocketConnection::handleWrite),
                 shared_from_this(),

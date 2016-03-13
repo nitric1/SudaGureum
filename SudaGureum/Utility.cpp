@@ -158,6 +158,43 @@ namespace SudaGureum
         return res;
     }
 
+    std::string generateHttpDateTime(time_t time)
+    {
+        // http://stackoverflow.com/a/2727122
+
+        struct tm t = {0,};
+#ifdef _MSC_VER
+        if(gmtime_s(&t, &time) != 0)
+        {
+            return {};
+        }
+#else
+        if(!gmtime_r(&time, &t))
+        {
+            return {};
+        }
+#endif
+
+        static const char *DAY_NAMES[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        static const char *MONTH_NAMES[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        char buf[40];
+        strftime(buf, sizeof(buf), "---, %d --- %Y %H:%M:%S GMT", &t);
+#ifdef _MSC_VER
+        memcpy_s(buf, 3, DAY_NAMES[t.tm_wday], 3);
+        memcpy_s(buf + 8, 3, MONTH_NAMES[t.tm_mon], 3);
+#else
+        memcpy(buf, DAY_NAMES[t.tm_wday], 3);
+        memcpy(buf + 8, MONTH_NAMES[t.tm_mon], 3);
+#endif
+        return buf;
+    }
+
+    std::string generateHttpDateTime(const std::chrono::system_clock::time_point &time)
+    {
+        return generateHttpDateTime(std::chrono::system_clock::to_time_t(time));
+    }
+
     std::array<uint8_t, 20> hashSha1(const std::vector<uint8_t> &data)
     {
         std::array<uint8_t, 20> result;

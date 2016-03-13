@@ -114,6 +114,7 @@ namespace SudaGureum
         {
             IrcClientPool pool;
             HttpServer server(44444, true);
+            registerHttpResourceProcessors(server);
 
             // auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
             Users::instance().load(pool);
@@ -165,5 +166,24 @@ namespace SudaGureum
         }
 
         return EXIT_SUCCESS;
+    }
+
+    void Application::registerHttpResourceProcessors(HttpServer &server)
+    {
+        server.registerResourceProcessor("/",
+            [](HttpConnection &conn, const HttpRequest &request, HttpResponse &response)
+        {
+            static const std::string Content = "Index page";
+            response.body_.assign(Content.begin(), Content.end());
+            return true;
+        });
+
+        server.registerResourceProcessor("/test",
+            [](HttpConnection &conn, const HttpRequest &request, HttpResponse &response)
+        {
+            static const std::string Content = "Test page";
+            response.body_.assign(Content.begin(), Content.end());
+            return true;
+        });
     }
 }

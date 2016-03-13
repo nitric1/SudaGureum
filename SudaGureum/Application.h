@@ -4,6 +4,8 @@
 
 namespace SudaGureum
 {
+    class HttpServer;
+
     class Application : public Singleton<Application>
     {
     private:
@@ -14,6 +16,9 @@ namespace SudaGureum
 
     public:
         bool daemonized() const { return daemonized_; }
+
+    private:
+        void registerHttpResourceProcessors(HttpServer &server);
 
     private:
         bool daemonized_;
