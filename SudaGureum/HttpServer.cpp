@@ -34,7 +34,7 @@ namespace SudaGureum
 
     void HttpConnection::sendRaw(std::vector<uint8_t> data)
     {
-        socket_->asyncWrite(data,
+        socket_->asyncWrite(std::move(data),
             boost::bind(
                 std::mem_fn(&HttpConnection::handleWrite),
                 shared_from_this(),
@@ -42,14 +42,76 @@ namespace SudaGureum
                 boost::asio::placeholders::bytes_transferred));
     }
 
+    void HttpConnection::sendString(const std::string &str)
+    {
+        sendRaw(std::vector<uint8_t>(str.begin(), str.end()));
+    }
+
+    namespace
+    {
+        const char *httpStatusMessage(uint16_t status)
+        {
+#define _(code, message) case code: return (message)
+            switch(status)
+            {
+                _(100, "Continue");
+                _(101, "Switching Protocols");
+                _(200, "OK");
+                _(201, "Created");
+                _(202, "Accepted");
+                _(203, "Non-Authoritative Information");
+                _(204, "No Content");
+                _(205, "Reset Content");
+                _(206, "Partial Content");
+                _(300, "Multiple Choices");
+                _(301, "Moved Permanently");
+                _(302, "Found");
+                _(303, "See Other");
+                _(304, "Not Modified");
+                _(305, "Use Proxy");
+                _(307, "Temporary Redirect");
+                _(400, "Bad Request");
+                _(401, "Unauthorized");
+                _(402, "Payment Required");
+                _(403, "Forbidden");
+                _(404, "Not Found");
+                _(405, "Method Not Allowed");
+                _(406, "Not Acceptable");
+                _(407, "Proxy Authentication Required");
+                _(408, "Request Time-out");
+                _(409, "Conflict");
+                _(410, "Gone");
+                _(411, "Length Required");
+                _(412, "Precondition Failed");
+                _(413, "Request Entity Too Large");
+                _(414, "Request-URI Too Large");
+                _(415, "Unsupported Media Type");
+                _(416, "Requested range not satisfiable");
+                _(417, "Expectation Failed");
+                _(500, "Internal Server Error");
+                _(501, "Not Implemented");
+                _(502, "Bad Gateway");
+                _(503, "Service Unavailable");
+                _(504, "Gateway Time-out");
+                _(505, "HTTP Version not supported");
+            default:
+                //throw(std::invalid_argument(fmt::format("invalid status: {}", status)));
+                //return nullptr;
+                return "Unknown";
+            }
+#undef _
+        }
+    }
+
     void HttpConnection::sendHttpResponse(HttpResponse &&response)
     {
-        // TODO: reimplement w/ compression
         std::string headerField = fmt::format(
-            "HTTP/1.1 {}\r\n" // TODO: status message
-            "Server: SudaGureum Placeholder Server\r\n"
+            "HTTP/1.1 {} {}\r\n"
+            "Server: SudaGureum HTTP Server\r\n"
+            "Date: {}\r\n"
             "Content-Length: {}\r\n",
-            response.status_,
+            response.status_, httpStatusMessage(response.status_),
+            generateHttpDateTime(std::chrono::system_clock::now()),
             response.body_.size());
         for(const auto &header : response.headers_)
         {
@@ -57,22 +119,67 @@ namespace SudaGureum
         }
         headerField += "\r\n";
 
-        std::vector<uint8_t> data(headerField.begin(), headerField.end());
-        data.insert(data.end(), response.body_.begin(), response.body_.end());
+        sendString(headerField);
+        sendRaw(std::move(response.body_));
+    }
 
-        sendRaw(std::move(data));
+    void HttpConnection::sendHttpResponse(const HttpRequest &request, HttpResponse &&response)
+    {
+        bool useDeflate = false; // actually "zlib" format (deflate + zlib header)
+        try
+        {
+            useDeflate = boost::ifind_first(request.headers_.at("Accept-Encoding"), "deflate");
+        }
+        catch(const std::out_of_range &)
+        {
+        }
+
+        if(useDeflate)
+        {
+            size_t bufLen = response.body_.size() + 32;
+            std::vector<uint8_t> buf(bufLen);
+            compress2(buf.data(), &bufLen, response.body_.data(), response.body_.size(), Z_BEST_COMPRESSION);
+
+            if(bufLen < response.body_.size())
+            {
+                response.headers_.insert_or_assign("Content-Encoding", "deflate");
+                buf.resize(bufLen);
+                response.body_ = std::move(buf);
+            }
+            else
+            {
+                useDeflate = false;
+            }
+        }
+
+        response.headers_.insert({"Connection", "close"});
+
+        std::string headerField = fmt::format(
+            "HTTP/{} {} {}\r\n"
+            "Server: SudaGureum HTTP Server\r\n"
+            "Date: {}\r\n"
+            "Content-Length: {}\r\n",
+            request.http11_ ? "1.1" : "1.0", response.status_, httpStatusMessage(response.status_),
+            generateHttpDateTime(std::chrono::system_clock::now()),
+            response.body_.size());
+        for(const auto &header : response.headers_)
+        {
+            headerField += fmt::format("{}: {}\r\n", header.first, header.second);
+        }
+        headerField += "\r\n";
+
+        sendString(headerField);
+        sendRaw(std::move(response.body_));
     }
 
     void HttpConnection::sendBadRequestResponse()
     {
-        // TODO: reimplement
         static const std::string Body = "Bad request";
 
         HttpResponse response;
         response.status_ = 403;
         response.headers_ =
         {
-            {"Connection", "close"},
             {"Content-Type", "text/plain"},
         };
         response.body_.assign(Body.begin(), Body.end());
@@ -220,11 +327,11 @@ namespace SudaGureum
         Log::instance().trace("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
             static_cast<void *>(this), request.rawTarget_, request.keepAlive_, keepAlive, currentKeepAliveCount);
 
-        if(request.upgrade_)
+        if(request.upgrade_ && boost::iequals(request.headers_.at("Upgrade"), "websocket"))
         {
-            if(!boost::iequals(request.headers_.at("Upgrade"), "websocket"))
+            if(!request.http11_)
             {
-                return true;
+                return false;
             }
 
             // accept only WebSocket version 13
@@ -238,6 +345,7 @@ namespace SudaGureum
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Connection: Upgrade\r\n"
                 "Upgrade: websocket\r\n"
+                "Date: {}\r\n"
                 "Sec-WebSocket-Accept: {}\r\n"
                 "Sec-WebSocket-Version: 13\r\n"
                 "\r\n";
@@ -246,48 +354,45 @@ namespace SudaGureum
             auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
             std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
 
-            std::string response = fmt::format(responseFormat, acceptHashed);
+            std::string response = fmt::format(responseFormat,
+                generateHttpDateTime(std::chrono::system_clock::now()), acceptHashed);
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
 
             upgradeWebSocket_ = true;
             return true;
         }
 
-        // TODO: process & response
-        // TODO: decode path & GET/HEAD/POST parameters
+        HttpResponse response = {0,};
 
-        // TODO: placeholder; remove
+        try
+        {
+            auto handler = server_.getResourceProcessor(request.target_);
+            response.status_ = 200;
+            handler(*this, request, response);
+        }
+        catch(const std::out_of_range &)
+        {
+            static const std::string Content = "Not found";
+            response.status_ = 404;
+            response.headers_ = {
+                {"Content-Type", "text/plain; charset=UTF-8"}
+            };
+            response.body_.assign(Content.begin(), Content.end());
+        }
+
         if(keepAlive)
         {
-            static const std::string responseFormat =
-                "HTTP/1.1 404 Not Found\r\n"
-                "Connection: keep-alive\r\n"
-                "Keep-Alive: timeout={}, max={}\r\n"
-                "Server: SudaGureum Placeholder Server\r\n"
-                "Content-Type: text-plain; charset=UTF-8\r\n"
-                "Content-Length: 33\r\n"
-                "\r\n"
-                "HTTP Server Not Fully Implemented";
+            response.headers_.insert({"Connection", "keep-alive"});
+            response.headers_.insert({
+                "Keep-Alive",
+                fmt::format("timeout={}, max={}",
+                    Configure::instance().getAs("http_server_keep_alive_timeout_sec",
+                        DefaultConfigureValue::HttpServerKeepAliveTimeoutSec),
+                    currentKeepAliveCount)
+            });
+        }
 
-            std::string response = fmt::format(responseFormat,
-                Configure::instance().getAs("http_server_keep_alive_timeout_sec",
-                    DefaultConfigureValue::HttpServerKeepAliveTimeoutSec),
-                currentKeepAliveCount);
-            sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
-        }
-        else
-        {
-            static const std::string response =
-                "HTTP/1.1 404 Not Found\r\n"
-                "Connection: close\r\n"
-                "Server: SudaGureum Placeholder Server\r\n"
-                "Content-Type: text-plain; charset=UTF-8\r\n"
-                "Content-Length: 33\r\n"
-                "\r\n"
-                "HTTP Server Not Fully Implemented";
-            static const std::vector<uint8_t> responseVector(response.begin(), response.end());
-            sendRaw(responseVector);
-        }
+        sendHttpResponse(request, std::move(response));
 
         if(!keepAlive)
         {
@@ -395,5 +500,15 @@ namespace SudaGureum
             nextConn_->startSsl();
         }
         acceptNextSsl();
+    }
+
+    bool HttpServer::registerResourceProcessor(std::string path, ResourceProcessorFunc fn)
+    {
+        return processors_.insert({std::move(path), std::move(fn)}).second;
+    }
+
+    const HttpServer::ResourceProcessorFunc &HttpServer::getResourceProcessor(const std::string &path) const
+    {
+        return processors_.at(path);
     }
 }

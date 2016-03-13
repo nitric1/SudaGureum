@@ -28,12 +28,14 @@ namespace SudaGureum
         void startSsl();
         void read();
         void sendRaw(std::vector<uint8_t> data);
+        void sendString(const std::string &str);
         void close();
         void setKeepAliveTimeout();
         void cancelKeepAliveTimeout();
 
     private:
         void sendHttpResponse(HttpResponse &&response);
+        void sendHttpResponse(const HttpRequest &request, HttpResponse &&response);
         void sendBadRequestResponse();
 
     private:
@@ -62,6 +64,9 @@ namespace SudaGureum
 
     class HttpServer : public MtIoService
     {
+    public:
+        typedef std::function<bool(HttpConnection &, const HttpRequest &, HttpResponse &)> ResourceProcessorFunc;
+
     private:
         static std::string handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose);
 
@@ -71,6 +76,12 @@ namespace SudaGureum
 
     public:
         HttpServer(uint16_t port, bool ssl);
+
+    public:
+        bool registerResourceProcessor(std::string path, ResourceProcessorFunc fn);
+
+    private:
+        const ResourceProcessorFunc &getResourceProcessor(const std::string &path) const;
 
     private:
         void acceptNext();
@@ -85,6 +96,7 @@ namespace SudaGureum
         boost::asio::ip::tcp::acceptor acceptor_;
         std::shared_ptr<boost::asio::ssl::context> ctx_;
         std::shared_ptr<HttpConnection> nextConn_;
+        std::unordered_map<std::string, ResourceProcessorFunc> processors_;
 
         friend class HttpConnection;
         friend class WebSocketConnection;
