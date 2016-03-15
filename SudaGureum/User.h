@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Archive.h"
-#include "Backlog.h"
 #include "IrcClient.h"
 #include "Singleton.h"
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -43,8 +43,6 @@ namespace SudaGureum
         struct Server : UserServerInfo
         {
             std::weak_ptr<IrcClient> ircClient_;
-
-            std::unordered_map<std::string, Backlog> backlogs_;
         };
 
         typedef boost::multi_index_container<
