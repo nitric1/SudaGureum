@@ -1,9 +1,5 @@
 #pragma once
 
-#include "Backlog.h"
-#include "Singleton.h"
-#include "User.h"
-
 namespace SudaGureum
 {
     struct LogLine
@@ -15,7 +11,8 @@ namespace SudaGureum
             MODE,
             TOPIC,
             NOTICE,
-            PRIVMSG
+            PRIVMSG,
+            SERVERMSG
         };
 
         std::chrono::system_clock::time_point time_;

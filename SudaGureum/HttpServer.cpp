@@ -326,7 +326,7 @@ namespace SudaGureum
         size_t currentKeepAliveCount = keepAliveCount_ --;
         bool keepAlive = (request.keepAlive_ && currentKeepAliveCount > 0);
 
-        Log::instance().info("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
+        Log::instance().info("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} KAcnt={}", // R(requested), A(applied)
             static_cast<void *>(this), request.rawTarget_, request.keepAlive_, keepAlive, currentKeepAliveCount);
 
         if(request.upgrade_ && boost::iequals(request.headers_.at("Upgrade"), "websocket"))

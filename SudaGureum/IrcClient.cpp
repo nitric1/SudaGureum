@@ -80,18 +80,12 @@ namespace SudaGureum
     std::string IrcClient::getNicknameFromPrefix(std::string prefix)
     {
         size_t userPrefixPos = prefix.find("!");
-        if(userPrefixPos != std::string::npos)
+        if(userPrefixPos == std::string::npos)
         {
-            return std::move(prefix.erase(userPrefixPos, std::string::npos));
+            return {};
         }
 
-        size_t hostPrefixPos = prefix.find("@");
-        if(hostPrefixPos != std::string::npos)
-        {
-            return std::move(prefix.erase(hostPrefixPos, std::string::npos));
-        }
-
-        return prefix;
+        return std::move(prefix.erase(userPrefixPos, std::string::npos));
     }
 
     IrcClient::IrcClient(IrcClientPool &pool, size_t connectionId)
@@ -381,326 +375,372 @@ namespace SudaGureum
     {
         // TODO: assertions (error and close) or fail-safe process
 
-        //print(decodeUtf8(nickname_ + "<<< " + encodeMessage(message)) + L"\r\n");
         Log::instance().info("{}<<< {}", nickname_, encodeMessage(message));
 
         // Dictionary order; letters first.
 
-        if(message.command_ == "ERROR")
-        {
-            if(quitReady_) // graceful quit
-            {
-                socket_->close();
-                if(clearMe_)
-                {
-                    pool_.closed(shared_from_this());
-                }
-            }
-        }
-        else if(message.command_ == "JOIN")
-        {
-            const std::string &channel = message.params_.at(0);
-            if(isMyPrefix(message.prefix_))
-            {
-                channels_.emplace(channel, Channel());
+        // TODO: search tree
+#define DISPATCH(cmd, fn) else if(message.command_ == (cmd)) { (fn)(message); }
+#define DISPATCH_BLOCK(cmd) else if(message.command_ == (cmd))
 
-                // TODO: request channel modes
-            }
-            else
-            {
-                auto it = channels_.find(channel);
-                if(it != channels_.end())
-                {
-                    std::string nickname = getNicknameFromPrefix(message.prefix_);
-                    it->second.participants_.insert(Participant(nickname));
-                    onJoinChannel(JoinChannelArgs{shared_from_this(), channel, nickname});
-                }
-            }
-        }
-        else if(message.command_ == "MODE")
-        {
-            const std::string &to = message.params_.at(0);
-            if(to == nickname_)
-            {
-            }
-            else
-            {
-                auto it = channels_.find(to);
-                if(it != channels_.end())
-                {
-                    const std::string &modifier = message.params_.at(1);
-
-                    size_t nextParamIdx = 2;
-                    auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
-
-                    boost::logic::tribool operation = boost::logic::indeterminate;
-                    // XXX: need to follow CHANMODES and PREFIX?
-                    for(char ch: modifier)
-                    {
-                        switch(ch)
-                        {
-                        case '+':
-                            operation = true;
-                            continue;
-
-                        case '-':
-                            operation = false;
-                            continue;
-                        }
-
-                        if(boost::logic::indeterminate(operation)) // a +/- sign required for server response
-                            continue;
-
-                        switch(ch)
-                        {
-                        case 'O': // channel creator
-                            break;
-
-                        case 'q': // owner
-                        case 'a': // admin
-                        case 'o': // op
-                        case 'h': // half-op
-                        case 'v': // voice
-                            if(!boost::logic::indeterminate(operation))
-                            {
-                                auto partIt = it->second.participants_.find(nextParam());
-                                if(partIt != it->second.participants_.end())
-                                {
-                                    it->second.participants_.modify(partIt, [operation, ch](Participant &p)
-                                    {
-                                        if(operation)
-                                        {
-                                            p.modes_.set(participantModeFromPermission(ch));
-                                        }
-                                        else
-                                        {
-                                            p.modes_.reset(participantModeFromPermission(ch));
-                                        }
-                                    });
-                                }
-                            }
-                            break;
-
-                            // TODO: implement below modes
-                        case 'l': // limit
-                            break;
-
-                        case 'k': // key
-                            break;
-
-                        case 'b': // ban
-                            break;
-
-                        case 'e': // ban exception
-                            break;
-
-                        case 'I': // invitation mask
-                            break;
-
-                        default: // consume params
-                            if(std::binary_search(channelModes_[0].begin(), channelModes_[0].end(), ch)) // mode A
-                                nextParam();
-                            else if(std::binary_search(channelModes_[1].begin(), channelModes_[1].end(), ch)) // mode B
-                                nextParam();
-                            else if(nicknamePrefixMap_.get<1>().find(ch) != nicknamePrefixMap_.get<1>().end()) // prefix; considered as mode B
-                                nextParam();
-                            else if(operation && std::binary_search(channelModes_[2].begin(), channelModes_[2].end(), ch)) // mode C
-                                nextParam();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        else if(message.command_ == "NOTICE")
-        {
-            // TODO: can send notices personally?
-            onChannelNotice(ChannelMessageArgs{shared_from_this(),
-                message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1]});
-        }
-        else if(message.command_ == "PART")
-        {
-            const std::string &channel = message.params_.at(0);
-            if(isMyPrefix(message.prefix_))
-            {
-                channels_.erase(channel);
-            }
-            else
-            {
-                auto it = channels_.find(channel);
-                if(it != channels_.end())
-                {
-                    it->second.participants_.erase(getNicknameFromPrefix(message.prefix_));
-                }
-            }
-        }
-        else if(message.command_ == "PING")
+        if(false) {}
+        DISPATCH("ERROR", procMessageError)
+        DISPATCH("JOIN", procMessageJoin)
+        DISPATCH("MODE", procMessageMode)
+        DISPATCH("NOTICE", procMessageNotice)
+        DISPATCH("PART", procMessagePart)
+        DISPATCH_BLOCK("PING")
         {
             sendMessage(IrcMessage("PONG", message.params_));
         }
-        else if(message.command_ == "PRIVMSG")
+        DISPATCH("PRIVMSG", procMessagePrivmsg)
+        DISPATCH("001", procMessageWelcome) // RPL_WELCOME
+        DISPATCH("005", procMessageIsupport) // RPL_ISUPPORT
+        DISPATCH("331", procMessageNotopic) // RPL_NOTOPIC
+        DISPATCH("332", procMessageTopic) // RPL_TOPIC
+        DISPATCH("333", procMessageTopicsetter) // RPL_TOPICSETTER (tentative)
+        DISPATCH("353", procMessageNamreply) // RPL_NAMREPLY
+        DISPATCH_BLOCK("366") // RPL_ENDOFNAMES
         {
-            std::string channel = message.params_[0];
-            if(channel == nickname_)
+        }
+        DISPATCH_BLOCK("432") // ERR_ERRONEOUSNICKNAME
+        {
+            if(connectBeginning_)
             {
-                onPersonalMessage(PersonalMessageArgs{shared_from_this(),
-                    getNicknameFromPrefix(message.prefix_), message.params_[1]});
+                tryNextNickname();
             }
             else
             {
-                onChannelMessage(ChannelMessageArgs{shared_from_this(),
-                    message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1]});
+                // TODO: error message
             }
         }
-        else if(message.command_ == "001") // RPL_WELCOME
+        DISPATCH_BLOCK("433") // ERR_NICKNAMEINUSE
         {
-            connectBeginning_ = false;
-
-            onConnect(shared_from_this());
-            onServerMessage(ServerMessageArgs{shared_from_this(), message.command_, message.params_[0]});
-        }
-        else if(message.command_ == "005") // RPL_ISUPPORT
-        {
-            std::string name, value;
-            for(auto it = ++ message.params_.begin(), end = -- message.params_.end(); it != end; ++ it)
+            if(connectBeginning_)
             {
-                size_t equalPos = it->find("=");
-                if(equalPos != std::string::npos)
-                {
-                    name = it->substr(0, equalPos);
-                    value = it->substr(equalPos + 1);
-                    serverOptions_.emplace(name, value);
-                }
-                else
-                {
-                    value.clear();
-                    serverOptions_.emplace(name, value);
-                }
+                tryNextNickname();
+            }
+            else
+            {
+                // TODO: error message
+            }
+        }
+        DISPATCH_BLOCK("436") // ERR_NICKCOLLISION
+        {
+            if(connectBeginning_)
+            {
+                tryNextNickname();
+            }
+            else
+            {
+                // TODO: error message
+            }
+        }
+        DISPATCH_BLOCK("437") // ERR_UNAVAILRESOURCE
+        {
+            if(connectBeginning_)
+            {
+                tryNextNickname();
+            }
+            else
+            {
+                // TODO: error message
+            }
+        }
 
-                if(name == "CHANTYPES")
+#undef DISPATCH
+#undef DISPATCH_BLOCK
+    }
+
+    void IrcClient::procMessageError(const IrcMessage &message)
+    {
+        if(quitReady_) // graceful quit
+        {
+            socket_->close();
+            if(clearMe_)
+            {
+                pool_.closed(shared_from_this());
+            }
+        }
+    }
+
+    void IrcClient::procMessageJoin(const IrcMessage &message)
+    {
+        const std::string &channel = message.params_.at(0);
+        if(isMyPrefix(message.prefix_))
+        {
+            channels_.emplace(channel, Channel());
+
+            // TODO: request channel modes
+        }
+        else
+        {
+            auto it = channels_.find(channel);
+            if(it != channels_.end())
+            {
+                std::string nickname = getNicknameFromPrefix(message.prefix_);
+                it->second.participants_.insert(Participant(nickname));
+                onJoinChannel(JoinChannelArgs{ shared_from_this(), channel, nickname });
+            }
+        }
+    }
+
+    void IrcClient::procMessageMode(const IrcMessage &message)
+    {
+        const std::string &to = message.params_.at(0);
+        if(to == nickname_)
+        {
+        }
+        else
+        {
+            auto it = channels_.find(to);
+            if(it != channels_.end())
+            {
+                const std::string &modifier = message.params_.at(1);
+
+                size_t nextParamIdx = 2;
+                auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
+
+                boost::logic::tribool operation = boost::logic::indeterminate;
+                // XXX: need to follow CHANMODES and PREFIX?
+                for(char ch : modifier)
                 {
-                    channelTypes_ = std::move(value);
-                    std::sort(channelTypes_.begin(), channelTypes_.end());
-                }
-                else if(name == "CHANMODES")
-                {
-                    std::vector<std::string> supportedModes;
-                    boost::algorithm::split(supportedModes, value, boost::algorithm::is_any_of(","));
-                    if(supportedModes.size() == 4)
+                    switch(ch)
                     {
-                        for(size_t i = 0; i < 4; ++ i)
-                        {
-                            channelModes_[i] = std::move(supportedModes[i]);
-                            std::sort(channelModes_[i].begin(), channelModes_[i].end());
-                        }
+                    case '+':
+                        operation = true;
+                        continue;
+
+                    case '-':
+                        operation = false;
+                        continue;
                     }
-                }
-                else if(name == "PREFIX")
-                {
-                    static const boost::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)", boost::regex::extended);
-                    boost::smatch matched;
-                    if(boost::regex_match(value, matched, PrefixRegex))
+
+                    if(boost::logic::indeterminate(operation)) // a +/- sign required for server response
+                        continue;
+
+                    switch(ch)
                     {
-                        if(matched[1].length() == matched[2].length())
+                    case 'O': // channel creator
+                        break;
+
+                    case 'q': // owner
+                    case 'a': // admin
+                    case 'o': // op
+                    case 'h': // half-op
+                    case 'v': // voice
+                        if(!boost::logic::indeterminate(operation))
                         {
-                            nicknamePrefixMap_.clear();
-                            for(auto valueIt = matched[1].first, keyIt = matched[2].first;
-                                valueIt != matched[1].second && keyIt != matched[2].second;
-                                ++ valueIt, ++ keyIt)
+                            auto partIt = it->second.participants_.find(nextParam());
+                            if(partIt != it->second.participants_.end())
                             {
-                                nicknamePrefixMap_.insert(CcPair(*keyIt, *valueIt));
+                                it->second.participants_.modify(partIt, [operation, ch](Participant &p)
+                                {
+                                    if(operation)
+                                    {
+                                        p.modes_.set(participantModeFromPermission(ch));
+                                    }
+                                    else
+                                    {
+                                        p.modes_.reset(participantModeFromPermission(ch));
+                                    }
+                                });
                             }
                         }
+                        break;
+
+                        // TODO: implement below modes
+                    case 'l': // limit
+                        break;
+
+                    case 'k': // key
+                        break;
+
+                    case 'b': // ban
+                        break;
+
+                    case 'e': // ban exception
+                        break;
+
+                    case 'I': // invitation mask
+                        break;
+
+                    default: // consume params
+                        if(std::binary_search(channelModes_[0].begin(), channelModes_[0].end(), ch)) // mode A
+                            nextParam();
+                        else if(std::binary_search(channelModes_[1].begin(), channelModes_[1].end(), ch)) // mode B
+                            nextParam();
+                        else if(nicknamePrefixMap_.get<1>().find(ch) != nicknamePrefixMap_.get<1>().end()) // prefix; considered as mode B
+                            nextParam();
+                        else if(operation && std::binary_search(channelModes_[2].begin(), channelModes_[2].end(), ch)) // mode C
+                            nextParam();
+                        break;
                     }
                 }
             }
         }
-        else if(message.command_ == "331") // RPL_NOTOPIC
+    }
+
+    void IrcClient::procMessageNotice(const IrcMessage &message)
+    {
+        // XXX: can send notices personally: yes
+        onChannelNotice(ChannelMessageArgs{ shared_from_this(),
+            message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1] });
+    }
+
+    void IrcClient::procMessagePart(const IrcMessage &message)
+    {
+        const std::string &channel = message.params_.at(0);
+        if(isMyPrefix(message.prefix_))
         {
-            auto it = channels_.find(message.params_.at(1));
+            channels_.erase(channel);
+        }
+        else
+        {
+            auto it = channels_.find(channel);
             if(it != channels_.end())
             {
-                it->second.topic_ = "";
-                it->second.topicSetter_ = "";
-                it->second.topicSetTime_ = std::chrono::system_clock::now();
+                it->second.participants_.erase(getNicknameFromPrefix(message.prefix_));
             }
         }
-        else if(message.command_ == "332") // RPL_TOPIC
+    }
+
+    void IrcClient::procMessagePrivmsg(const IrcMessage &message)
+    {
+        std::string channel = message.params_[0];
+        if(channel == nickname_)
         {
-            auto it = channels_.find(message.params_.at(1));
-            if(it != channels_.end())
-            {
-                it->second.topic_ = message.params_.at(2);
-            }
+            onPersonalMessage(PersonalMessageArgs{ shared_from_this(),
+                getNicknameFromPrefix(message.prefix_), message.params_[1] });
         }
-        else if(message.command_ == "333") // RPL_TOPICSETTER (tentative)
+        else
         {
-            auto it = channels_.find(message.params_.at(1));
-            if(it != channels_.end())
-            {
-                it->second.topicSetter_ = message.params_.at(2);
-                it->second.topicSetTime_ = std::chrono::system_clock::from_time_t(
-                    boost::lexical_cast<time_t>(message.params_.at(3)));
-            }
+            onChannelMessage(ChannelMessageArgs{ shared_from_this(),
+                message.params_[0], getNicknameFromPrefix(message.prefix_), message.params_[1] });
         }
-        else if(message.command_ == "353") // RPL_NAMREPLY
+    }
+
+    void IrcClient::procMessageWelcome(const IrcMessage &message)
+    {
+        connectBeginning_ = false;
+
+        onConnect(shared_from_this());
+        onServerMessage(ServerMessageArgs{ shared_from_this(), message.command_, message.params_[1] });
+    }
+
+    void IrcClient::procMessageIsupport(const IrcMessage &message)
+    {
+        std::string name, value;
+        for(auto it = ++ message.params_.begin(), end = -- message.params_.end(); it != end; ++ it)
         {
-            auto it = channels_.find(message.params_.at(2));
-            if(it != channels_.end())
+            size_t equalPos = it->find("=");
+            if(equalPos != std::string::npos)
             {
-                char accessivity = message.params_.at(1)[0];
-                switch(accessivity)
+                name = it->substr(0, equalPos);
+                value = it->substr(equalPos + 1);
+                serverOptions_.emplace(name, value);
+            }
+            else
+            {
+                value.clear();
+                serverOptions_.emplace(name, value);
+            }
+
+            if(name == "CHANTYPES")
+            {
+                channelTypes_ = std::move(value);
+                std::sort(channelTypes_.begin(), channelTypes_.end());
+            }
+            else if(name == "CHANMODES")
+            {
+                std::vector<std::string> supportedModes;
+                boost::algorithm::split(supportedModes, value, boost::algorithm::is_any_of(","));
+                if(supportedModes.size() == 4)
                 {
-                case Channel::Public:
-                case Channel::Private:
-                case Channel::Secret:
-                    // OK
-                    break;
-
-                default:
-                    return;
+                    for(size_t i = 0; i < 4; ++ i)
+                    {
+                        channelModes_[i] = std::move(supportedModes[i]);
+                        std::sort(channelModes_[i].begin(), channelModes_[i].end());
+                    }
                 }
-
-                it->second.accessivity_ = accessivity;
-
-                std::vector<std::string> participantNicknames;
-                boost::algorithm::split(participantNicknames, message.params_.at(3), boost::algorithm::is_space());
-                for(std::string &nickname: participantNicknames)
+            }
+            else if(name == "PREFIX")
+            {
+                static const boost::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)", boost::regex::extended);
+                boost::smatch matched;
+                if(boost::regex_match(value, matched, PrefixRegex))
                 {
-                    it->second.participants_.insert(parseParticipant(nickname));
+                    if(matched[1].length() == matched[2].length())
+                    {
+                        nicknamePrefixMap_.clear();
+                        for(auto valueIt = matched[1].first, keyIt = matched[2].first;
+                            valueIt != matched[1].second && keyIt != matched[2].second;
+                            ++ valueIt, ++ keyIt)
+                        {
+                            nicknamePrefixMap_.insert(CcPair(*keyIt, *valueIt));
+                        }
+                    }
                 }
             }
         }
-        else if(message.command_ == "366") // RPL_ENDOFNAMES
+    }
+
+    void IrcClient::procMessageNotopic(const IrcMessage &message)
+    {
+        auto it = channels_.find(message.params_.at(1));
+        if(it != channels_.end())
         {
-            // join complete; you can see channel now
+            it->second.topic_ = "";
+            it->second.topicSetter_ = "";
+            it->second.topicSetTime_ = std::chrono::system_clock::now();
         }
-        else if(message.command_ == "432") // ERR_ERRONEOUSNICKNAME
+    }
+
+    void IrcClient::procMessageTopic(const IrcMessage &message)
+    {
+        auto it = channels_.find(message.params_.at(1));
+        if(it != channels_.end())
         {
-            if(connectBeginning_)
+            it->second.topic_ = message.params_.at(2);
+        }
+    }
+
+    void IrcClient::procMessageTopicsetter(const IrcMessage &message)
+    {
+        auto it = channels_.find(message.params_.at(1));
+        if(it != channels_.end())
+        {
+            it->second.topicSetter_ = message.params_.at(2);
+            it->second.topicSetTime_ = std::chrono::system_clock::from_time_t(
+                boost::lexical_cast<time_t>(message.params_.at(3)));
+        }
+    }
+
+    void IrcClient::procMessageNamreply(const IrcMessage &message)
+    {
+        auto it = channels_.find(message.params_.at(2));
+        if(it != channels_.end())
+        {
+            char accessivity = message.params_.at(1)[0];
+            switch(accessivity)
             {
-                tryNextNickname();
+            case Channel::Public:
+            case Channel::Private:
+            case Channel::Secret:
+                // OK
+                break;
+
+            default:
+                return;
             }
-        }
-        else if(message.command_ == "433") // ERR_NICKNAMEINUSE
-        {
-            if(connectBeginning_)
+
+            it->second.accessivity_ = accessivity;
+
+            std::vector<std::string> participantNicknames;
+            boost::algorithm::split(participantNicknames, message.params_.at(3), boost::algorithm::is_space());
+            for(std::string &nickname : participantNicknames)
             {
-                tryNextNickname();
-            }
-        }
-        else if(message.command_ == "436") // ERR_NICKCOLLISION
-        {
-            if(connectBeginning_)
-            {
-                tryNextNickname();
-            }
-        }
-        else if(message.command_ == "437") // ERR_UNAVAILRESOURCE
-        {
-            if(connectBeginning_)
-            {
-                tryNextNickname();
+                it->second.participants_.insert(parseParticipant(nickname));
             }
         }
     }

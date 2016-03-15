@@ -185,6 +185,20 @@ namespace SudaGureum
         void procMessage(const IrcMessage &message);
 
     private:
+        void procMessageError(const IrcMessage &message);
+        void procMessageJoin(const IrcMessage &message);
+        void procMessageMode(const IrcMessage &message);
+        void procMessageNotice(const IrcMessage &message);
+        void procMessagePart(const IrcMessage &message);
+        void procMessagePrivmsg(const IrcMessage &message);
+        void procMessageWelcome(const IrcMessage &message);
+        void procMessageIsupport(const IrcMessage &message);
+        void procMessageNotopic(const IrcMessage &message);
+        void procMessageTopic(const IrcMessage &message);
+        void procMessageTopicsetter(const IrcMessage &message);
+        void procMessageNamreply(const IrcMessage &message);
+
+    private:
         IrcClientPool &pool_;
         size_t connectionId_;
         asio::io_service &ios_;

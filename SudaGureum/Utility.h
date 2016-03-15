@@ -54,6 +54,7 @@ namespace SudaGureum
     std::string decodeURIComponent(const std::string &str);
     std::string decodeQueryString(const std::string &str);
 
+    std::string generateHttpDateTime();
     std::string generateHttpDateTime(time_t time);
     std::string generateHttpDateTime(const std::chrono::system_clock::time_point &time);
 
