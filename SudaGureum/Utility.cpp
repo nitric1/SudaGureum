@@ -133,6 +133,11 @@ namespace SudaGureum
         return res;
     }
 
+    std::string generateHttpDateTime()
+    {
+        return generateHttpDateTime(time(nullptr));
+    }
+
     std::string generateHttpDateTime(time_t time)
     {
         // http://stackoverflow.com/a/2727122

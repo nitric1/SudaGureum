@@ -120,26 +120,159 @@ namespace SudaGureum
     // Find client connection from WebSocketServer
     void User::onIrcClientServerMessage(const IrcClient::ServerMessageArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            {},
+            LogLine::SERVERMSG,
+            args.text_,
+        };
+
+        archive_.insert(info->name_, "", logLine);
     }
 
     void User::onIrcClientJoinChannel(const IrcClient::JoinChannelArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            args.nickname_,
+            LogLine::JOIN,
+            {},
+        };
+
+        archive_.insert(info->name_, args.channel_, logLine);
     }
 
     void User::onIrcClientPartChannel(const IrcClient::PartChannelArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            args.nickname_,
+            LogLine::PART,
+            {},
+        };
+
+        archive_.insert(info->name_, args.channel_, logLine);
     }
 
     void User::onIrcClientChannelMessage(const IrcClient::ChannelMessageArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            args.nickname_,
+            LogLine::PRIVMSG,
+            args.message_,
+        };
+
+        archive_.insert(info->name_, args.channel_, logLine);
     }
 
     void User::onIrcClientChannelNotice(const IrcClient::ChannelMessageArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            args.nickname_,
+            LogLine::NOTICE,
+            args.message_,
+        };
+
+        if(args.nickname_.empty()) // server notice
+        {
+            archive_.insert(info->name_, {}, logLine);
+        }
+        else
+        {
+            archive_.insert(info->name_, args.channel_, logLine);
+        }
     }
 
     void User::onIrcClientPersonalMessage(const IrcClient::PersonalMessageArgs &args)
     {
+        auto ircClientLock = args.ircClient_.lock();
+        if(!ircClientLock)
+        {
+            return;
+        }
+
+        auto info = serverInfo(ircClientLock.get());
+        if(info == nullptr)
+        {
+            return;
+        }
+
+        LogLine logLine =
+        {
+            std::chrono::system_clock::now(),
+            args.nickname_,
+            LogLine::PRIVMSG,
+            args.message_,
+        };
+
+        archive_.insert(info->name_, args.nickname_, logLine);
     }
 
     UserContext::UserContext()
