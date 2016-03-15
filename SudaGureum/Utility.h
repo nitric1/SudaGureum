@@ -19,10 +19,12 @@ namespace SudaGureum
         std::function<void ()> fn_;
     };
 
-    typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
-        CaseInsensitiveUnorderedMap;
-    typedef std::unordered_multimap<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
-        CaseInsensitiveUnorderedMultimap;
+    template<typename T = std::string>
+    using CaseInsensitiveUnorderedMap =
+        std::unordered_map<std::string, T, HashCaseInsensitive, EqualToCaseInsensitive>;
+    template<typename T = std::string>
+    using CaseInsensitiveUnorderedMultimap =
+        std::unordered_multimap<std::string, T, HashCaseInsensitive, EqualToCaseInsensitive>;
 
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
@@ -34,6 +36,7 @@ namespace SudaGureum
     std::string decodeURIComponent(const std::string &str);
     std::string decodeQueryString(const std::string &str);
 
+    std::string generateHttpDateTime();
     std::string generateHttpDateTime(time_t time);
     std::string generateHttpDateTime(const std::chrono::system_clock::time_point &time);
 

@@ -116,7 +116,6 @@ namespace SudaGureum
             HttpServer server(44444, true);
             registerHttpResourceProcessors(server);
 
-            // auto client1 = pool.connect("altirc.ozinger.org", 80, "UTF-8", {"SudaGureum1", "SudaGureum2"});
             Users::instance().load(pool);
 
             pool.run(4);
