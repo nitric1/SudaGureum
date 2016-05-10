@@ -165,20 +165,18 @@
     <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport.h" />
-    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\sysendian.h" />
-    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\scrypt_platform.h" />
     <ClInclude Include="cpuid.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_aesni.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_sse2.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.c" />
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.c" />
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c" />
     <ClCompile Include="cpuid.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

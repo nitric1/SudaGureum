@@ -30,16 +30,7 @@
     <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\sysendian.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\SubmoduleLib\scrypt\scrypt_platform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.h">
@@ -51,17 +42,11 @@
     <ClInclude Include="cpuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_aesni.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -74,10 +59,19 @@
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c">
+    <ClCompile Include="cpuid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cpuid.c">
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

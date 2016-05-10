@@ -151,12 +151,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SubmoduleLib\cppformat\format.cc" />
-    <ClCompile Include="..\..\SubmoduleLib\cppformat\posix.cc" />
+    <ClCompile Include="..\..\SubmoduleLib\cppformat\fmt\format.cc" />
+    <ClCompile Include="..\..\SubmoduleLib\cppformat\fmt\posix.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\SubmoduleLib\cppformat\format.h" />
-    <ClInclude Include="..\..\SubmoduleLib\cppformat\posix.h" />
+    <ClInclude Include="..\..\SubmoduleLib\cppformat\fmt\format.h" />
+    <ClInclude Include="..\..\SubmoduleLib\cppformat\fmt\posix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
