@@ -4,6 +4,8 @@
 *.opensdf
 *.sdf
 *.suo
+*.VC.db
+*.VC.opendb
 LocMetrics*
 SudaGureum.conf
 
