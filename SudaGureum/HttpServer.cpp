@@ -29,7 +29,7 @@ namespace SudaGureum
 
     HttpConnection::~HttpConnection()
     {
-        Log::instance().trace("HttpConnection[{}]: connection closed", static_cast<void *>(this));
+        Log::instance().info("HttpConnection[{}]: connection closed", static_cast<void *>(this));
     }
 
     void HttpConnection::sendRaw(std::vector<uint8_t> data)
@@ -239,7 +239,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            Log::instance().alert("HttpConnection[{}]: handshake failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("HttpConnection[{}]: handshake failed: {}", static_cast<void *>(this), ec.message());
             // socket automatically closed
             return;
         }
@@ -258,7 +258,7 @@ namespace SudaGureum
 
         if(ec)
         {
-            Log::instance().alert("HttpConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("HttpConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
             close(); // implies forcely canceling write
             return;
         }
@@ -269,7 +269,7 @@ namespace SudaGureum
             std::bind(&HttpConnection::procHttpRequest, this, std::placeholders::_1));
         if(!res.first)
         {
-            Log::instance().alert("HttpConnection[{}]: read: invalid data received", static_cast<void *>(this));
+            Log::instance().warn("HttpConnection[{}]: read: invalid data received", static_cast<void *>(this));
             sendBadRequestResponse();
             // do not continue read -> socket closed after writing
             return;
@@ -278,14 +278,14 @@ namespace SudaGureum
         {
             if(upgradeWebSocket_)
             {
-                Log::instance().trace("HttpConnection[{}]: read: upgrade to web socket", static_cast<void *>(this));
+                Log::instance().info("HttpConnection[{}]: read: upgrade to web socket", static_cast<void *>(this));
                 data.erase(data.begin(), data.begin() + res.second);
                 std::shared_ptr<WebSocketConnection> wsConn(new WebSocketConnection(server_, std::move(socket_), data));
                 wsConn->handleRead(boost::system::error_code(), data.size());
             }
             else
             {
-                Log::instance().alert("HttpConnection[{}]: read: wrong upgrade header or not web socket", static_cast<void *>(this));
+                Log::instance().warn("HttpConnection[{}]: read: wrong upgrade header or not web socket", static_cast<void *>(this));
                 sendBadRequestResponse();
                 // do not continue read -> socket closed after writing
             }
@@ -304,7 +304,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            Log::instance().alert("HttpConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("HttpConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
             close(); // implies forcely canceling read
             return;
         }
@@ -324,7 +324,7 @@ namespace SudaGureum
         size_t currentKeepAliveCount = keepAliveCount_ --;
         bool keepAlive = (request.keepAlive_ && currentKeepAliveCount > 0);
 
-        Log::instance().trace("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
+        Log::instance().info("HttpConnection[{}]: http request, target={} keepAlive=R{}/A{} curKAcnt={}", // R(requested), A(applied)
             static_cast<void *>(this), request.rawTarget_, request.keepAlive_, keepAlive, currentKeepAliveCount);
 
         if(request.upgrade_ && boost::iequals(request.headers_.at("Upgrade"), "websocket"))

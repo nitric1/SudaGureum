@@ -80,7 +80,7 @@ namespace SudaGureum
 
     WebSocketConnection::~WebSocketConnection()
     {
-        Log::instance().trace("WebSocketConnection[{}]: connection closed", static_cast<void *>(this));
+        Log::instance().info("WebSocketConnection[{}]: connection closed", static_cast<void *>(this));
     }
 
     void WebSocketConnection::sendRaw(std::vector<uint8_t> data)
@@ -152,7 +152,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            Log::instance().alert("WebSocketConnection[{}]: handshake failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("WebSocketConnection[{}]: handshake failed: {}", static_cast<void *>(this), ec.message());
             // socket automatically closed
             return;
         }
@@ -164,7 +164,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            Log::instance().alert("WebSocketConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("WebSocketConnection[{}]: read failed: {}", static_cast<void *>(this), ec.message());
             if(!closeReady_)
             {
                 socket_->close(); // implies forcely canceling write
@@ -176,7 +176,7 @@ namespace SudaGureum
             std::bind(&WebSocketConnection::procWebSocketRequest, this, std::placeholders::_1),
             std::bind(&WebSocketConnection::procSudaGureumRequest, this, std::placeholders::_1)))
         {
-            Log::instance().alert("WebSocketConnection[{}]: read: invalid data received", static_cast<void *>(this));
+            Log::instance().warn("WebSocketConnection[{}]: read: invalid data received", static_cast<void *>(this));
             socket_->close();
             return;
         }
@@ -191,7 +191,7 @@ namespace SudaGureum
     {
         if(ec)
         {
-            Log::instance().alert("WebSocketConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
+            Log::instance().warn("WebSocketConnection[{}]: write failed: {}", static_cast<void *>(this), ec.message());
             if(!closeReady_)
             {
                 socket_->close(); // implies forcely canceling read

@@ -157,6 +157,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\asprintf.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\getopt.h" />
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\humansize.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.h" />
     <ClInclude Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.h" />
@@ -171,13 +174,16 @@
   <ItemGroup>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_aesni.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_sse2.c" />
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\asprintf.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\getopt.c" />
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\humansize.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix.c" />
     <ClCompile Include="..\..\SubmoduleLib\scrypt\lib\crypto\crypto_scrypt_smix_sse2.c" />
     <ClCompile Include="cpuid.c" />
+    <ClCompile Include="sha256.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

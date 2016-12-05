@@ -101,6 +101,7 @@ extern "C"
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+#include <SQLiteCpp/sqlite3/sqlite3.h>
 
 #include <zlib.h>
 
