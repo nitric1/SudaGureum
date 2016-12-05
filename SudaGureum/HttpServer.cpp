@@ -136,9 +136,9 @@ namespace SudaGureum
 
         if(useDeflate)
         {
-            size_t bufLen = response.body_.size() + 32;
+            unsigned long bufLen = static_cast<unsigned long>(response.body_.size() + 32);
             std::vector<uint8_t> buf(bufLen);
-            compress2(buf.data(), &bufLen, response.body_.data(), response.body_.size(), Z_BEST_COMPRESSION);
+            compress2(buf.data(), &bufLen, response.body_.data(), static_cast<unsigned long>(response.body_.size()), Z_BEST_COMPRESSION);
 
             if(bufLen < response.body_.size())
             {

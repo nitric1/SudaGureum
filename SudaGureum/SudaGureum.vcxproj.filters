@@ -157,9 +157,5 @@
     <None Include="SudaGureum.props" />
     <None Include="SudaGureum.Win32.props" />
     <None Include="SudaGureum.x64.props" />
-    <None Include="SudaGureum.Win32.Debug.props" />
-    <None Include="SudaGureum.Win32.Release.props" />
-    <None Include="SudaGureum.x64.Debug.props" />
-    <None Include="SudaGureum.x64.Release.props" />
   </ItemGroup>
 </Project>

@@ -61,25 +61,21 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="SudaGureum.props" />
     <Import Project="SudaGureum.Win32.props" />
-    <Import Project="SudaGureum.Win32.Debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="SudaGureum.props" />
     <Import Project="SudaGureum.x64.props" />
-    <Import Project="SudaGureum.x64.Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="SudaGureum.props" />
     <Import Project="SudaGureum.Win32.props" />
-    <Import Project="SudaGureum.Win32.Release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="SudaGureum.props" />
     <Import Project="SudaGureum.x64.props" />
-    <Import Project="SudaGureum.x64.Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -107,8 +103,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;http-parser.lib;scryptcrypto.lib;SQLiteCpp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,8 +118,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;http-parser.lib;scryptcrypto.lib;SQLiteCpp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,8 +140,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;http-parser.lib;scryptcrypto.lib;SQLiteCpp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,8 +162,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;cppformat.lib;http-parser.lib;scryptcrypto.lib;SQLiteCpp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -232,12 +220,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SudaGureum.props" />
-    <None Include="SudaGureum.Win32.Debug.props" />
     <None Include="SudaGureum.Win32.props" />
-    <None Include="SudaGureum.Win32.Release.props" />
-    <None Include="SudaGureum.x64.Debug.props" />
     <None Include="SudaGureum.x64.props" />
-    <None Include="SudaGureum.x64.Release.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\External\WrapperProject\http-parser\http-parser.vcxproj">
+      <Project>{91f31986-fd5d-4601-8bdc-1cdc8fd113bb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\External\WrapperProject\scryptcrypto\scryptcrypto.vcxproj">
+      <Project>{3e7a43e2-d2c0-4b49-bc93-ac4a4aaffca9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\External\WrapperProject\SQLiteCpp\SQLiteCpp.vcxproj">
+      <Project>{c2bf3a1a-303a-45d9-8399-2e702cf36370}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
