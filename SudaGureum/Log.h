@@ -6,11 +6,12 @@ namespace SudaGureum
 {
     /*
      * Meaning of logger levels:
-     *   info: not harmful; just for lower-level contextual information, or really just for printing (socket connection etc...)
-     *   trace: not harmful; just for higher-level contextual information (HTTP request etc...)
-     *   debug: info's or traces only for debug mode
-     *   alert: recovable errors including wrong data input (= user failures)
+     *   trace: not harmful; should be ignored; just for lower-level contextual information, or really just for printing (data read/written, etc)
+     *   debug: info's only for debug mode
+     *   info: not harmful; just for higher-level contextual information (socket connection, HTTP request, etc)
+     *   warn: recovable errors including wrong data input (= user failures)
      *   error: non-recovable errors
+     *   critical: errors must be fixed first
      */
 
     // Logger wrapper class which exposes interface returning the `spdlog::logger` instance.

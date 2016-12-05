@@ -332,11 +332,11 @@ namespace SudaGureum
         }
         catch(const RapidJson::Exception &e)
         {
-            Log::instance().alert("WebSocketParser: parse json failed: {}", e.what());
+            Log::instance().warn("WebSocketParser: parse json failed: {}", e.what());
         }
         catch(const std::out_of_range &e)
         {
-            Log::instance().alert("WebSocketParser: lack of required argument: {}", e.what());
+            Log::instance().warn("WebSocketParser: lack of required argument: {}", e.what());
         }
 
         return true;

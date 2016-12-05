@@ -176,7 +176,7 @@ namespace SudaGureum
             {
                 if(ec)
                 {
-                    Log::instance().alert("IrcClient[{}]: connect failed: {}", static_cast<void *>(this), ec.message());
+                    Log::instance().warn("IrcClient[{}]: connect failed: {}", static_cast<void *>(this), ec.message());
                     // TODO: retry
                 }
                 else
@@ -328,7 +328,7 @@ namespace SudaGureum
         {
             if(!quitReady_)
             {
-                Log::instance().alert("IrcClient[{}]: read failed: {}", static_cast<void *>(this), ec.message());
+                Log::instance().warn("IrcClient[{}]: read failed: {}", static_cast<void *>(this), ec.message());
                 forceClose();
             }
             return;
@@ -337,7 +337,7 @@ namespace SudaGureum
         if(!parser_.parse(std::string(bufferToRead_.begin(), bufferToRead_.begin() + bytesTransferred),
             std::bind(&IrcClient::procMessage, this, std::placeholders::_1)))
         {
-            Log::instance().alert("IrcClient[{}]: invalid message received", static_cast<void *>(this));
+            Log::instance().warn("IrcClient[{}]: invalid message received", static_cast<void *>(this));
             forceClose();
             return;
         }
@@ -357,7 +357,7 @@ namespace SudaGureum
         {
             if(!quitReady_)
             {
-                Log::instance().alert("IrcClient[{}]: write failed: {}", static_cast<void *>(this), ec.message());
+                Log::instance().warn("IrcClient[{}]: write failed: {}", static_cast<void *>(this), ec.message());
                 forceClose();
             }
             return;

@@ -45,15 +45,21 @@
     <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\asprintf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\getopt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\scrypt\libcperciva\util\humansize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_aesni.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\cpusupport\cpusupport_x86_sse2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\alg\sha256.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\warnp.c">
@@ -72,6 +78,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\insecure_memzero.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\asprintf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\getopt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\scrypt\libcperciva\util\humansize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha256.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
