@@ -79,7 +79,7 @@ using std::max; using std::min;
 
 // External library inclusion
 
-#include <cppformat/fmt/format.h>
+#include <fmt/format.h>
 #include <http-parser/http_parser.h>
 #include <openssl/sha.h>
 #include <openssl/tls1.h>
@@ -102,7 +102,7 @@ extern "C"
 #pragma warning(pop)
 #endif
 
-#include <zlib-ng/zlib.h>
+#include <zlib.h>
 
 // Other common inclusion
 

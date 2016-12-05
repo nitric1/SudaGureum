@@ -324,7 +324,7 @@ namespace SudaGureum
             SudaGureumRequest message;
 
             message.id_ = doc["_reqid"].GetInt();
-            message.method_ = doc["_method"].GetCppString();
+            message.method_ = doc["_method"].GetString();
 
             // TODO: more specific message
 

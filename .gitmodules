@@ -1,10 +1,3 @@
-[submodule "External/SubmoduleLib/rapidjson"]
-	path = External/SubmoduleLib/rapidjson
-	url = https://github.com/HNO3/rapidjson.git
-	branch = sg-rapidjson
-[submodule "External/SubmoduleLib/cppformat"]
-	path = External/SubmoduleLib/cppformat
-	url = https://github.com/cppformat/cppformat.git
 [submodule "External/SubmoduleLib/scrypt"]
 	path = External/SubmoduleLib/scrypt
 	url = https://github.com/Tarsnap/scrypt.git
@@ -17,6 +10,3 @@
 [submodule "External/SubmoduleLib/http-parser"]
 	path = External/SubmoduleLib/http-parser
 	url = https://github.com/nodejs/http-parser.git
-[submodule "External/SubmoduleLib/zlib-ng"]
-	path = External/SubmoduleLib/zlib-ng
-	url = https://github.com/Dead2/zlib-ng.git

@@ -3,8 +3,6 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <LibraryPath>$(SolutionDir)External\Lib32;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(SolutionDir)External\Bin32;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(SolutionDir)External\Include32;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
