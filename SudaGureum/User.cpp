@@ -214,6 +214,6 @@ namespace SudaGureum
     bool Users::checkPassword(const std::string &userId, const std::string &password) const
     {
         std::string passwordHash = UserDB::instance().fetchPasswordHash(userId);
-        return scryptCheck(password, passwordHash);
+        return Scrypt::check(password, passwordHash);
     }
 }

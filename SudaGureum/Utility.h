@@ -31,7 +31,7 @@ namespace SudaGureum
     std::string encodeBase64(boost::any_range<uint8_t, boost::single_pass_traversal_tag> data);
     std::vector<uint8_t> decodeBase64(std::string encoded);
 
-    std::string decodeURIComponent(const std::string &component);
+    std::string decodeURIComponent(const std::string &str);
     std::string decodeQueryString(const std::string &str);
 
     std::string generateHttpDateTime(time_t time);

@@ -33,6 +33,8 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+// #include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
@@ -42,6 +44,8 @@
 #elif defined(__GNUC__)
 #include <byteswap.h>
 #endif
+
+#define BOOST_NO_AUTO_PTR
 
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
