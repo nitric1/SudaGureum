@@ -2,6 +2,9 @@
 
 namespace SudaGureum
 {
-    std::string scryptPassword(const std::string &password);
-    bool scryptCheck(const std::string &password, const std::string &hash);
+    namespace Scrypt
+    {
+        std::string crypt(const std::string &password);
+        bool check(const std::string &password, const std::string &hash);
+    }
 }
