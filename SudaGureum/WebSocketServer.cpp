@@ -75,7 +75,7 @@ namespace SudaGureum
             throw(std::logic_error("readBuffer is too large"));
         }
         std::copy(readBuffer.begin(), readBuffer.end(), bufferToRead_.begin());
-        // handleRead is called by HttpConnection
+        // handleRead is called by HttpConnection because shared_from_this is not available here.
     }
 
     WebSocketConnection::~WebSocketConnection()
@@ -219,7 +219,7 @@ namespace SudaGureum
 
         case WebSocketRequest::Close:
             closeReceived_ = true;
-            if(closeReady_) // already sent close frame
+            if(closeReady_) // close frame is already sent
             {
                 closeTimer_.cancel();
                 socket_->close();
