@@ -204,7 +204,7 @@ namespace SudaGureum
         std::string channelTypes_;
         NicknamePrefixMap nicknamePrefixMap_;
 
-        bool connectBeginning_;
+        bool connectBeginning_; // TODO: rename (not cool)
         std::vector<std::string> nicknameCandidates_;
         size_t currentNicknameIndex_;
 

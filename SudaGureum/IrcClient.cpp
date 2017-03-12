@@ -446,7 +446,7 @@ namespace SudaGureum
                             continue;
                         }
 
-                        if(boost::logic::indeterminate(operation)) // +- required for server response
+                        if(boost::logic::indeterminate(operation)) // a +/- sign required for server response
                             continue;
 
                         switch(ch)
@@ -479,6 +479,7 @@ namespace SudaGureum
                             }
                             break;
 
+                            // TODO: implement below modes
                         case 'l': // limit
                             break;
 
