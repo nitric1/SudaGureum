@@ -100,7 +100,6 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -117,7 +116,6 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm200 /Bv %(AdditionalOptions)</AdditionalOptions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
