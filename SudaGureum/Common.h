@@ -1,6 +1,6 @@
 #pragma once
 
-// Definition for windows
+// Definitions for Windows
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -14,15 +14,13 @@
 #define NTDDI_VERSION 0x06000100
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
-// Standard C/C++ library & boost library inclusion
-
-// FIXME: g++ does not support <codecvt>. Use <codecvt> and remove <boost/locale.hpp> AFTER g++ supports it.
+// Standard C/C++ library & boost library #includes
 
 #include <algorithm>
 #include <atomic>
 #include <bitset>
 #include <chrono>
-// #include <codecvt>
+#include <codecvt>
 #include <deque>
 #include <fstream>
 #include <iostream>
@@ -38,12 +36,6 @@
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
-
-#if defined(_MSC_VER)
-#include <intrin.h>
-#elif defined(__GNUC__)
-#include <byteswap.h>
-#endif
 
 #define BOOST_NO_AUTO_PTR
 
@@ -63,7 +55,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/locale.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
@@ -81,7 +72,7 @@
 
 using std::max; using std::min;
 
-// External library inclusion
+// External library #includes
 
 #include <fmt/format.h>
 #include <http-parser/http_parser.h>
@@ -109,6 +100,6 @@ extern "C"
 
 #include <zlib.h>
 
-// Other common inclusion
+// Other common #includes
 
 #include "Types.h"
