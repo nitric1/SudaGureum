@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudaGureum", "SudaGureum\SudaGureum.vcxproj", "{B16607EA-BBEA-4E25-853B-ECD733ADA18D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudaGureum", "SudaGureum\Su
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EADE70B2-04E9-4527-A872-FCFBCB6C7285}"
 	ProjectSection(SolutionItems) = preProject
+		.clang-format = .clang-format
+		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		CMakeLists.txt = CMakeLists.txt
@@ -25,6 +27,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLiteCpp", "External\WrapperProject\SQLiteCpp\SQLiteCpp.vcxproj", "{C2BF3A1A-303A-45D9-8399-2E702CF36370}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http-parser", "External\WrapperProject\http-parser\http-parser.vcxproj", "{91F31986-FD5D-4601-8BDC-1CDC8FD113BB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fmt", "External\WrapperProject\fmt\fmt.vcxproj", "{8B7CBE3F-7792-4843-BD68-2A883D1D3909}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +70,14 @@ Global
 		{91F31986-FD5D-4601-8BDC-1CDC8FD113BB}.Release|Win32.Build.0 = Release|Win32
 		{91F31986-FD5D-4601-8BDC-1CDC8FD113BB}.Release|x64.ActiveCfg = Release|x64
 		{91F31986-FD5D-4601-8BDC-1CDC8FD113BB}.Release|x64.Build.0 = Release|x64
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Debug|Win32.Build.0 = Debug|Win32
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Debug|x64.ActiveCfg = Debug|x64
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Debug|x64.Build.0 = Debug|x64
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|Win32.ActiveCfg = Release|Win32
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|Win32.Build.0 = Release|Win32
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|x64.ActiveCfg = Release|x64
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,5 +86,9 @@ Global
 		{3E7A43E2-D2C0-4B49-BC93-AC4A4AAFFCA9} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 		{C2BF3A1A-303A-45D9-8399-2E702CF36370} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 		{91F31986-FD5D-4601-8BDC-1CDC8FD113BB} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
+		{8B7CBE3F-7792-4843-BD68-2A883D1D3909} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0608337-C192-4FFB-A0D8-592936F31B5A}
 	EndGlobalSection
 EndGlobal
