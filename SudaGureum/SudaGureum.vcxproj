@@ -231,6 +231,9 @@
     <None Include="SudaGureum.x64.props" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\External\WrapperProject\fmt\fmt.vcxproj">
+      <Project>{8b7cbe3f-7792-4843-bd68-2a883d1d3909}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\External\WrapperProject\http-parser\http-parser.vcxproj">
       <Project>{91f31986-fd5d-4601-8bdc-1cdc8fd113bb}</Project>
     </ProjectReference>

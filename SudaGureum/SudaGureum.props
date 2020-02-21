@@ -3,12 +3,10 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir);$(SolutionDir)External\Include;$(SolutionDir)External\SubmoduleLib;$(SolutionDir)External\SubmoduleLib\spdlog\include;$(SolutionDir)External\SubmoduleLib\SQLiteCpp\sqlite3;$(SolutionDir)External\SubmoduleLib\SQLiteCpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)External\Include;$(SolutionDir)External\SubmoduleLib;$(SolutionDir)External\SubmoduleLib\spdlog\include;$(SolutionDir)External\SubmoduleLib\SQLiteCpp\sqlite3;$(SolutionDir)External\SubmoduleLib\SQLiteCpp\include;$(SolutionDir)External\SubmoduleLib\fmt\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
-    <ClCompile>
-      <PreprocessorDefinitions>FMT_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

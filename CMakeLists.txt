@@ -46,7 +46,7 @@ find_package(Boost 1.51.0 COMPONENTS date_time filesystem locale program_options
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 include_directories(${Boost_INCLUDE_DIR} ${OpenSSL_INCLUDE_DIR} ${SQLite3_INCLUDE_DIR}
-    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/rapidjson/include" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/SQLiteCpp/include"
+    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/rapidjson/include" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/SQLiteCpp/include" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/fmt/include"
     "${CMAKE_CURRENT_LIST_DIR}")
 link_directories(${Boost_LIBRARY_DIR} ${OpenSSL_LIBRARY_DIR} ${SQLite3_LIBRARY_DIR})
 

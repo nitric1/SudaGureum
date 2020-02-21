@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "IrcClient.h"
 
@@ -164,7 +164,7 @@ namespace SudaGureum
         currentNicknameIndex_ = 0;
 
         boost::asio::ip::tcp::resolver resolver(ios_);
-        boost::asio::ip::tcp::resolver::query query(host, fmt::FormatInt(port).str());
+        boost::asio::ip::tcp::resolver::query query(host, fmt::format_int(port).str());
         auto endpointIt = resolver.resolve(query);
 
         if(ssl)

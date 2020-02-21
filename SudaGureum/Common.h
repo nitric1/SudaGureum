@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Definitions for Windows
 
@@ -87,6 +87,8 @@ extern "C"
 }
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/base_sink.h>
+#include <spdlog/sinks/daily_file_sink.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
