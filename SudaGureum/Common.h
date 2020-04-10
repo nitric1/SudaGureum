@@ -7,11 +7,12 @@
 #define _VARIADIC_MAX 10
 #define _SCL_SECURE_NO_WARNINGS
 
-#define WINVER 0x0600 // Windows Vista
-#define _WIN32_WINDOWS 0x0600
-#define _WIN32_WINNT 0x0600
-#define _WIN32_IE 0x0800
-#define NTDDI_VERSION 0x06000100
+// https://docs.microsoft.com/en-us/windows/win32/winprog/using-the-windows-headers
+#define WINVER 0x0A00 // Windows 10
+#define _WIN32_WINDOWS 0x0A00
+#define _WIN32_WINNT 0x0A00
+#define _WIN32_IE 0x0A00 // Internet Explorer 11
+#define NTDDI_VERSION 0x0A000007 // Windows 10, 1903
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library #includes
