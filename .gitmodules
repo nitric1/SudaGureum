@@ -13,3 +13,9 @@
 [submodule "External/SubmoduleLib/fmt"]
 	path = External/SubmoduleLib/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "External/SubmoduleLib/zlib"]
+	path = External/SubmoduleLib/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "External/SubmoduleLib/rapidjson"]
+	path = External/SubmoduleLib/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

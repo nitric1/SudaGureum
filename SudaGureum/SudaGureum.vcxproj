@@ -243,6 +243,9 @@
     <ProjectReference Include="..\External\WrapperProject\SQLiteCpp\SQLiteCpp.vcxproj">
       <Project>{c2bf3a1a-303a-45d9-8399-2e702cf36370}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\External\WrapperProject\zlib\zlib.vcxproj">
+      <Project>{be87fef2-a07f-4024-b4b0-15241d2021e4}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
