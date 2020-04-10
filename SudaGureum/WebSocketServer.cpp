@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "WebSocketServer.h"
 
@@ -110,7 +110,7 @@ namespace SudaGureum
 
         const uint8_t *data = reinterpret_cast<const uint8_t *>(buffer.GetString());
 
-        WebSocketResponse wsResponse(WebSocketResponse::Text,
+        WebSocketResponse wsResponse(WebSocketResponse::Command::Text,
             std::vector<uint8_t>(data, data + buffer.GetSize()));
         sendWebSocketResponse(wsResponse);
     }
@@ -138,7 +138,7 @@ namespace SudaGureum
     void WebSocketConnection::close()
     {
         closeReady_ = true;
-        sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Close));
+        sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Command::Close));
         closeTimer_.expires_from_now(boost::posix_time::seconds(
             Configure::instance().getAs("websocket_server_close_timeout_sec",
                 DefaultConfigureValue::WebSocketServerCloseTimeoutSec)));
@@ -213,11 +213,11 @@ namespace SudaGureum
     {
         switch(request.command_)
         {
-        case WebSocketRequest::Ping:
-            sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Pong, request.rawData_));
+        case WebSocketRequest::Command::Ping:
+            sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Command::Pong, request.rawData_));
             break;
 
-        case WebSocketRequest::Close:
+        case WebSocketRequest::Command::Close:
             closeReceived_ = true;
             if(closeReady_) // close frame is already sent
             {

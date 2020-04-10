@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Comparator.h"
 #include "Event.h"
@@ -16,7 +16,7 @@ namespace SudaGureum
     public:
         struct Participant
         {
-            enum Modes
+            enum Modes : size_t
             {
                 Voice = 0,
                 HalfOp,
@@ -53,7 +53,7 @@ namespace SudaGureum
 
         struct Channel
         {
-            enum Accessivity
+            enum Accessivity : char
             {
                 Public = '=',
                 Private = '*',
@@ -69,6 +69,7 @@ namespace SudaGureum
 
             Channel()
                 : accessivity_(0)
+                , limit_(0)
             {
             }
         };

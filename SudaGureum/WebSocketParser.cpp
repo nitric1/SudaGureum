@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "WebSocketParser.h"
 
@@ -7,6 +7,7 @@
 namespace SudaGureum
 {
     WebSocketRequest::WebSocketRequest()
+        : command_(Command::Close)
     {
     }
 
@@ -28,6 +29,7 @@ namespace SudaGureum
     }
 
     WebSocketResponse::WebSocketResponse()
+        : command_(Command::Close)
     {
     }
 
@@ -46,14 +48,14 @@ namespace SudaGureum
     {
         switch(command_)
         {
-        case Close:
-            return SudaGureum::Close;
+        case Command::Close:
+            return WebSocketFrameOpcode::Close;
 
-        case Pong:
-            return SudaGureum::Pong;
+        case Command::Pong:
+            return WebSocketFrameOpcode::Pong;
 
-        case Text:
-            return SudaGureum::Text;
+        case Command::Text:
+            return WebSocketFrameOpcode::Text;
         }
 
         throw(std::invalid_argument("WebSocketResponse: unknown command"));
@@ -83,11 +85,13 @@ namespace SudaGureum
     }
 
     WebSocketParser::WebSocketParser()
-        : state_(IN_WEB_SOCKET_FRAME_HEADER)
+        : state_(State::IN_WEB_SOCKET_FRAME_HEADER)
         , finalFragment_(false)
+        , opcode_(WebSocketFrameOpcode::Close)
         , masked_(false)
         , payloadLen1_(0)
         , payloadLen_(0)
+        , maskingKey_()
     {
     }
 
@@ -95,7 +99,7 @@ namespace SudaGureum
         std::function<void (const WebSocketRequest &)> wscb,
         std::function<void (const SudaGureumRequest &)> sgcb)
     {
-        if(state_ == PARSE_ERROR)
+        if(state_ == State::PARSE_ERROR)
         {
             return false;
         }
@@ -104,7 +108,7 @@ namespace SudaGureum
         {
             switch(state_)
             {
-            case IN_WEB_SOCKET_FRAME_HEADER:
+            case State::IN_WEB_SOCKET_FRAME_HEADER:
                 buffer_.push_back(ch);
                 if(buffer_.size() == 2)
                 {
@@ -125,7 +129,7 @@ namespace SudaGureum
                             }
                             else
                             {
-                                state_ = IN_PAYLOAD;
+                                state_ = State::IN_PAYLOAD;
                                 buffer_.clear();
                             }
                         }
@@ -181,24 +185,24 @@ namespace SudaGureum
                         if(payloadLen_ == 0)
                         {
                             parseEmptyFrame(wscb, sgcb);
-                            state_ = IN_WEB_SOCKET_FRAME_HEADER;
+                            state_ = State::IN_WEB_SOCKET_FRAME_HEADER;
                             buffer_.clear();
                         }
                         else
                         {
-                            state_ = IN_PAYLOAD;
+                            state_ = State::IN_PAYLOAD;
                             buffer_.clear();
                         }
                     }
                 }
                 break;
 
-            case IN_PAYLOAD:
+            case State::IN_PAYLOAD:
                 buffer_.push_back(ch);
                 if(buffer_.size() == payloadLen_)
                 {
                     parseFrame(std::move(buffer_), wscb, sgcb);
-                    state_ = IN_WEB_SOCKET_FRAME_HEADER;
+                    state_ = State::IN_WEB_SOCKET_FRAME_HEADER;
                     buffer_.clear();
                 }
                 break;
@@ -220,14 +224,14 @@ namespace SudaGureum
 
             switch(opcode_)
             {
-            case Close: // close
-                wscb(WebSocketRequest(WebSocketRequest::Close));
+            case WebSocketFrameOpcode::Close: // close
+                wscb(WebSocketRequest(WebSocketRequest::Command::Close));
                 break;
 
-            case Ping: // ping
+            case WebSocketFrameOpcode::Ping: // ping
                 return false; // must have payload
 
-            case Pong: // pong
+            case WebSocketFrameOpcode::Pong: // pong
                 return false; // must have payload
             }
 
@@ -269,19 +273,19 @@ namespace SudaGureum
 
             switch(opcode_)
             {
-            case Close: // close
-                wscb(WebSocketRequest(WebSocketRequest::Close, std::move(data)));
+            case WebSocketFrameOpcode::Close: // close
+                wscb(WebSocketRequest(WebSocketRequest::Command::Close, std::move(data)));
                 break;
 
-            case Ping: // ping
+            case WebSocketFrameOpcode::Ping: // ping
                 if(!masked_)
                 {
                     return false; // ping payload must be masked
                 }
-                wscb(WebSocketRequest(WebSocketRequest::Ping, std::move(data)));
+                wscb(WebSocketRequest(WebSocketRequest::Command::Ping, std::move(data)));
                 break;
 
-            case Pong: // pong
+            case WebSocketFrameOpcode::Pong: // pong
                 break;
             }
 
@@ -344,6 +348,6 @@ namespace SudaGureum
 
     WebSocketParser::operator bool() const
     {
-        return (state_ != PARSE_ERROR);
+        return (state_ != State::PARSE_ERROR);
     }
 }

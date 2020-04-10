@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include "Utility.h"
 
 namespace SudaGureum
 {
-    enum WebSocketFrameOpcode
+    enum class WebSocketFrameOpcode : int32_t
     {
         // Non-control frame
         Continuation = 0x0,
@@ -19,7 +19,7 @@ namespace SudaGureum
 
     struct WebSocketRequest // General WebSocket message (client -> server)
     {
-        enum Command
+        enum class Command : int32_t
         {
             Close,
             Ping,
@@ -37,7 +37,7 @@ namespace SudaGureum
 
     struct WebSocketResponse // General WebSocket message (server -> client)
     {
-        enum Command
+        enum class Command : int32_t
         {
             Close,
             Pong,
@@ -59,6 +59,11 @@ namespace SudaGureum
         uint32_t id_;
         std::string method_;
         CaseInsensitiveUnorderedMap params_;
+
+        SudaGureumRequest()
+            : id_(0)
+        {
+        }
     };
 
     struct SudaGureumResponse // "SudaGureum" specific message (server -> client)
@@ -75,7 +80,7 @@ namespace SudaGureum
     class WebSocketParser
     {
     private:
-        enum State
+        enum class State : int32_t
         {
             IN_WEB_SOCKET_FRAME_HEADER,
             IN_PAYLOAD,

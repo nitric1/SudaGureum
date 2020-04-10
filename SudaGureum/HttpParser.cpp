@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "HttpParser.h"
 
@@ -202,13 +202,13 @@ namespace SudaGureum
 
         switch(parser_.method)
         {
-#define _(x) case HTTP_##x: request_.method_ = HttpRequest::x; break
+#define _(x) case HTTP_##x: request_.method_ = HttpRequest::Method::x; break
             _(GET);
             _(HEAD);
             _(POST);
 #undef _
         default:
-            request_.method_ = HttpRequest::OTHER;
+            request_.method_ = HttpRequest::Method::OTHER;
         }
 
         if(parser_.http_minor != 0) // treat as HTTP 1.1
@@ -227,7 +227,7 @@ namespace SudaGureum
         try
         {
             // TODO: Content-Type parameters (charset, ...)
-            if(parser_.method == HttpRequest::POST &&
+            if(parser_.method == static_cast<int>(HttpRequest::Method::POST) &&
                 boost::iequals(request_.headers_.at("Content-Type"), "application/x-www-form-urlencoded"))
             {
                 if(!parseQueryString(request_.rawBody_, request_.queries_))

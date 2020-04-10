@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Utility.h"
 
@@ -96,7 +96,12 @@ namespace SudaGureum
         std::string output;
         output.reserve(str.size());
 
-        enum State { NORMAL, IN_PERCENT_UPPER, IN_PERCENT_LOWER } state = NORMAL;
+        enum class State : int32_t
+        {
+            NORMAL,
+            IN_PERCENT_UPPER,
+            IN_PERCENT_LOWER
+        } state = State::NORMAL;
 
         char reverted = 0;
         auto parseHex = [](char ch) -> char
@@ -114,10 +119,10 @@ namespace SudaGureum
         {
             switch(state)
             {
-            case NORMAL:
+            case State::NORMAL:
                 if(ch == '%')
                 {
-                    state = IN_PERCENT_UPPER;
+                    state = State::IN_PERCENT_UPPER;
                     reverted = 0;
                 }
                 else
@@ -126,15 +131,15 @@ namespace SudaGureum
                 }
                 break;
 
-            case IN_PERCENT_UPPER:
+            case State::IN_PERCENT_UPPER:
                 reverted = parseHex(ch) << 4;
-                state = IN_PERCENT_LOWER;
+                state = State::IN_PERCENT_LOWER;
                 break;
 
-            case IN_PERCENT_LOWER:
+            case State::IN_PERCENT_LOWER:
                 reverted |= parseHex(ch);
                 output += reverted;
-                state = NORMAL;
+                state = State::NORMAL;
                 break;
             }
         }

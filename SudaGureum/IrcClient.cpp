@@ -97,6 +97,7 @@ namespace SudaGureum
         : pool_(pool)
         , connectionId_(connectionId)
         , ios_(pool.ios_)
+        , bufferToRead_()
         , inWrite_(false)
         , nicknamePrefixMap_(DefaultNicknamePrefixMap)
         , connectBeginning_(false)
