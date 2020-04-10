@@ -87,17 +87,24 @@ extern "C"
 #include <scrypt/lib/crypto/crypto_scrypt.h>
 }
 
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4819) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss
+#endif
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/base_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
+#ifdef _MSC_VER
+#    pragma warning(pop) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss
+#endif
 
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4819) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss
+#    pragma warning(push)
+#    pragma warning(disable : 4819) // warning C4819: The file contains a character that cannot be represented in the current code page. Save the file in Unicode format to prevent data loss
 #endif
 #include <SQLiteCpp/SQLiteCpp.h>
 #ifdef _MSC_VER
-#pragma warning(pop)
+#    pragma warning(pop)
 #endif
 #include <SQLiteCpp/sqlite3/sqlite3.h>
 
