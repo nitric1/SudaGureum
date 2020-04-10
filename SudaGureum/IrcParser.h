@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace SudaGureum
 {
@@ -17,7 +17,7 @@ namespace SudaGureum
     class IrcParser
     {
     private:
-        enum State
+        enum class State : int32_t
         {
             None,
             InLine,

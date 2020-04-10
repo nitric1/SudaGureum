@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "IrcParser.h"
 
@@ -29,19 +29,19 @@ namespace SudaGureum
     }
 
     IrcParser::IrcParser()
-        : state_(None)
+        : state_(State::None)
     {
     }
 
     void IrcParser::clear()
     {
-        state_ = None;
+        state_ = State::None;
         buffer_.clear();
     }
 
     bool IrcParser::parse(const std::string &str, std::function<void (const IrcMessage &)> cb)
     {
-        if(state_ == Error)
+        if(state_ == State::Error)
         {
             return false;
         }
@@ -64,33 +64,33 @@ namespace SudaGureum
         {
             switch(state_)
             {
-            case None:
+            case State::None:
                 if(ch == '\r' || ch == '\n')
                 {
-                    state_ = Error;
+                    state_ = State::Error;
                     return false;
                 }
                 else
                 {
                     if(!append(ch))
                     {
-                        state_ = Error;
+                        state_ = State::Error;
                         return false;
                     }
-                    state_ = InLine;
+                    state_ = State::InLine;
                 }
                 break;
 
-            case InLine:
+            case State::InLine:
                 if(ch == '\r' || ch == '\n')
                 {
                     if(ch == '\r')
                     {
-                        state_ = WaitLf;
+                        state_ = State::WaitLf;
                     }
                     if(!parseMessage(std::move(buffer_), cb))
                     {
-                        state_ = Error;
+                        state_ = State::Error;
                         return false;
                     }
                     buffer_.clear();
@@ -104,15 +104,15 @@ namespace SudaGureum
                 }
                 break;
 
-            case WaitLf:
+            case State::WaitLf:
                 if(ch != '\n')
                 {
-                    state_ = Error;
+                    state_ = State::Error;
                     return false;
                 }
                 else
                 {
-                    state_ = None;
+                    state_ = State::None;
                 }
                 break;
             }
@@ -123,13 +123,13 @@ namespace SudaGureum
 
     bool IrcParser::parseMessage(const std::string &line, std::function<void (const IrcMessage &)> cb)
     {
-        enum
+        enum class ParseMessageState : int32_t
         {
             None,
             WaitCommand,
             InParam,
             InTrailing
-        } state = None;
+        } state = ParseMessageState::None;
 
         std::vector<std::string> words;
         boost::algorithm::split(words, line, boost::algorithm::is_any_of(" "));
@@ -137,14 +137,14 @@ namespace SudaGureum
         IrcMessage message;
         for(const std::string &word: words)
         {
-            if(state != InTrailing && word.empty())
+            if(state != ParseMessageState::InTrailing && word.empty())
             {
                 return false;
             }
 
             switch(state)
             {
-            case None:
+            case ParseMessageState::None:
                 if(word[0] == ':')
                 {
                     message.prefix_ = word.substr(1);
@@ -152,37 +152,37 @@ namespace SudaGureum
                     {
                         return false;
                     }
-                    state = WaitCommand;
+                    state = ParseMessageState::WaitCommand;
                 }
                 else
                 {
                     message.command_ = word;
-                    state = InParam;
+                    state = ParseMessageState::InParam;
                 }
                 break;
 
-            case WaitCommand:
+            case ParseMessageState::WaitCommand:
                 message.command_ = word;
-                state = InParam;
+                state = ParseMessageState::InParam;
                 break;
 
-            case InParam:
+            case ParseMessageState::InParam:
                 if(word[0] == ':')
                 {
                     message.params_.push_back(word.substr(1));
-                    state = InTrailing;
+                    state = ParseMessageState::InTrailing;
                 }
                 else
                 {
                     message.params_.push_back(word);
                     if(message.params_.size() >= 15)
                     {
-                        state = InTrailing;
+                        state = ParseMessageState::InTrailing;
                     }
                 }
                 break;
 
-            case InTrailing:
+            case ParseMessageState::InTrailing:
                 message.params_.back() += " " + word;
                 break;
             }
@@ -201,11 +201,11 @@ namespace SudaGureum
 
     IrcParser::operator bool() const
     {
-        return (state_ != Error);
+        return (state_ != State::Error);
     }
 
     bool IrcParser::operator !() const
     {
-        return (state_ == Error);
+        return (state_ == State::Error);
     }
 }

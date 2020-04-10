@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Utility.h"
 
@@ -8,7 +8,7 @@ namespace SudaGureum
     {
         typedef CaseInsensitiveUnorderedMultimap Queries;
 
-        enum Method
+        enum class Method : int32_t
         {
             GET,
             HEAD,
@@ -27,7 +27,13 @@ namespace SudaGureum
         std::string rawBody_;
 
     private:
-        HttpRequest() = default;
+        HttpRequest()
+            : method_(Method::OTHER)
+            , http11_(false)
+            , upgrade_(false)
+            , keepAlive_(false)
+        {
+        }
 
         friend class HttpParser;
     };
@@ -37,6 +43,11 @@ namespace SudaGureum
         uint16_t status_;
         CaseInsensitiveUnorderedMap headers_;
         std::vector<uint8_t> body_;
+
+        HttpResponse()
+            : status_(0)
+        {
+        }
     };
 
     class HttpParser

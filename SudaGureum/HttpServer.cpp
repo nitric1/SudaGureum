@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "HttpServer.h"
 
@@ -16,6 +16,7 @@ namespace SudaGureum
         : server_(server)
         , ios_(server.ios_)
         , continueRead_(true)
+        , bufferToRead_()
         , upgradeWebSocket_(false)
         , keepAliveCount_(Configure::instance().getAs(
             "http_server_keep_alive_max_count", DefaultConfigureValue::HttpServerKeepAliveMaxCount))
@@ -362,7 +363,7 @@ namespace SudaGureum
             return true;
         }
 
-        HttpResponse response = {0,};
+        HttpResponse response;
 
         try
         {
@@ -410,7 +411,8 @@ namespace SudaGureum
     }
 
     HttpServer::HttpServer(uint16_t port, bool ssl)
-        : acceptor_(ios_)
+        : ssl_(ssl)
+        , acceptor_(ios_)
     {
         try
         {
