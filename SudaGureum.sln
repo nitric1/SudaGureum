@@ -30,6 +30,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http-parser", "External\Wra
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fmt", "External\WrapperProject\fmt\fmt.vcxproj", "{8B7CBE3F-7792-4843-BD68-2A883D1D3909}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "External\WrapperProject\zlib\zlib.vcxproj", "{BE87FEF2-A07F-4024-B4B0-15241D2021E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -78,6 +80,14 @@ Global
 		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|Win32.Build.0 = Release|Win32
 		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|x64.ActiveCfg = Release|x64
 		{8B7CBE3F-7792-4843-BD68-2A883D1D3909}.Release|x64.Build.0 = Release|x64
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Debug|Win32.Build.0 = Debug|Win32
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Debug|x64.ActiveCfg = Debug|x64
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Debug|x64.Build.0 = Debug|x64
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Release|Win32.ActiveCfg = Release|Win32
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Release|Win32.Build.0 = Release|Win32
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Release|x64.ActiveCfg = Release|x64
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +97,7 @@ Global
 		{C2BF3A1A-303A-45D9-8399-2E702CF36370} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 		{91F31986-FD5D-4601-8BDC-1CDC8FD113BB} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 		{8B7CBE3F-7792-4843-BD68-2A883D1D3909} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
+		{BE87FEF2-A07F-4024-B4B0-15241D2021E4} = {85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0608337-C192-4FFB-A0D8-592936F31B5A}
