@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Application.h"
 
@@ -172,18 +172,18 @@ namespace SudaGureum
     {
         server.registerResourceProcessor("/",
             [](HttpConnection &conn, const HttpRequest &request, HttpResponse &response)
-        {
-            static const std::string Content = "Index page";
-            response.body_.assign(Content.begin(), Content.end());
-            return true;
-        });
+            {
+                static const std::string Content = "Index page";
+                response.body_.assign(Content.begin(), Content.end());
+                return true;
+            });
 
         server.registerResourceProcessor("/test",
             [](HttpConnection &conn, const HttpRequest &request, HttpResponse &response)
-        {
-            static const std::string Content = "Test page";
-            response.body_.assign(Content.begin(), Content.end());
-            return true;
-        });
+            {
+                static const std::string Content = "Test page";
+                response.body_.assign(Content.begin(), Content.end());
+                return true;
+            });
     }
 }
