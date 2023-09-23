@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace SudaGureum
 {
@@ -12,7 +12,7 @@ namespace SudaGureum
     }
 }
 
-#define RAPIDJSON_ASSERT(x) if((x)) {} else throw ::SudaGureum::RapidJson::Exception(#x)
+// #define RAPIDJSON_ASSERT(x) if((x)) {} else throw ::SudaGureum::RapidJson::Exception(#x)
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include <rapidjson/document.h>

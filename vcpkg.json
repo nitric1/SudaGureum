@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "sudagureum",
+  "builtin-baseline": "78ba9711d30c64a6b40462c72f356c681e2255f3",
+  "dependencies": [
+    "openssl",
+    "boost-algorithm",
+    "boost-asio",
+    "boost-date-time",
+    "boost-endian",
+    "boost-filesystem",
+    "boost-lexical-cast",
+    "boost-locale",
+    "boost-logic",
+    "boost-multi-index",
+    "boost-program-options",
+    "boost-regex",
+    "boost-serialization",
+    "boost-signals2",
+    "boost-system",
+    "boost-uuid"
+  ]
+}

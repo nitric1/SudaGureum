@@ -1,3 +1,4 @@
+# Files
 *.vcxproj.user
 *.aps
 *.APS
@@ -9,13 +10,16 @@
 LocMetrics*
 SudaGureum.conf
 
+# Directories
 .vs
 Data
 Debug
 Release
 x64
 ipch
+vcpkg_installed
 
+# Excludes
 !External/Bin32/Debug
 !External/Bin32/Release
 !External/Bin64/Debug

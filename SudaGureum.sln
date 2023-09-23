@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudaGureum", "SudaGureum\SudaGureum.vcxproj", "{B16607EA-BBEA-4E25-853B-ECD733ADA18D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		CMakeLists.txt = CMakeLists.txt
 		README.md = README.md
+		vcpkg.json = vcpkg.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External Wrapper Projects", "External Wrapper Projects", "{85EF702E-F7C5-49A1-952A-2A6AB9AD1D63}"
