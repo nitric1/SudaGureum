@@ -42,7 +42,7 @@ set(CMAKE_CXX_FLAGS "${FLAG}")
 
 file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
-find_package(Boost 1.51.0 COMPONENTS date_time filesystem locale program_options regex system thread REQUIRED)
+find_package(Boost 1.51.0 COMPONENTS date_time filesystem locale program_options regex system REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(ZLIB REQUIRED)
