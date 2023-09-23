@@ -8,7 +8,6 @@
     "boost-asio",
     "boost-date-time",
     "boost-endian",
-    "boost-filesystem",
     "boost-lexical-cast",
     "boost-locale",
     "boost-logic",

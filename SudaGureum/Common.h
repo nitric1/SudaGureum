@@ -27,6 +27,7 @@
 #include <chrono>
 #include <codecvt>
 #include <deque>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <locale>
@@ -56,9 +57,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/endian/conversion.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_index_container.hpp>

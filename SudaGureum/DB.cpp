@@ -28,9 +28,9 @@ namespace SudaGureum
     {
         std::string databaseFile(const std::string &dbName)
         {
-            boost::filesystem::path dataPath = Configure::instance().get("data_path", "./Data");
-            boost::system::error_code ec;
-            if(!boost::filesystem::create_directories(dataPath, ec) && ec)
+            std::filesystem::path dataPath = decodeUtf8(Configure::instance().get("data_path").value_or("./Data"));
+            std::error_code ec;
+            if(!std::filesystem::create_directories(dataPath, ec) && ec)
             {
                 throw(std::runtime_error(fmt::format("cannot create data directory: {}", ec.message())));
                 return {};

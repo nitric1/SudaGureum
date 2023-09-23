@@ -52,9 +52,9 @@ namespace SudaGureum
     {
         spdlog::set_pattern("[%H:%M:%S.%e %z][%t] %v");
 
-        boost::filesystem::path logPath = Configure::instance().get("log_path", DefaultConfigureValue::LogPath);
-        boost::system::error_code ec;
-        if(!boost::filesystem::create_directories(logPath, ec) && ec)
+        std::filesystem::path logPath = Configure::instance().get("log_path").value_or(DefaultConfigureValue::LogPath);
+        std::error_code ec;
+        if(!std::filesystem::create_directories(logPath, ec) && ec)
         {
             throw(std::runtime_error(fmt::format("cannot create data directory: {}", ec.message())));
             return;

@@ -219,7 +219,7 @@ namespace SudaGureum
         return str;
     }
 
-    std::deque<uint8_t> readFile(const boost::filesystem::path &path)
+    std::deque<uint8_t> readFile(const std::filesystem::path &path)
     {
         typedef boost::filesystem::basic_ifstream<uint8_t> bifstream;
 
@@ -240,7 +240,7 @@ namespace SudaGureum
         return data;
     }
 
-    std::vector<uint8_t> readFileIntoVector(const boost::filesystem::path &path)
+    std::vector<uint8_t> readFileIntoVector(const std::filesystem::path &path)
     {
         auto data = readFile(path);
         std::vector<uint8_t> vec(data.begin(), data.end());

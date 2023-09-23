@@ -17,7 +17,7 @@ namespace SudaGureum
         ConfigureMap::const_iterator find(const std::string &name) const;
 
     private:
-        bool load(const boost::filesystem::path &file);
+        bool load(const std::filesystem::path &file);
 
     public:
         bool exists(const std::string &name) const;

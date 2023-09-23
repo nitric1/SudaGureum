@@ -10,16 +10,16 @@ namespace SudaGureum
     {
     }
 
-    bool Configure::load(const boost::filesystem::path &file)
+    bool Configure::load(const std::filesystem::path &file)
     {
-        boost::filesystem::ifstream ifp(file, boost::filesystem::ifstream::binary);
+        std::ifstream ifp(file, std::ifstream::binary);
         if(!ifp)
             return false;
 
         auto fileBeginPos = ifp.tellg();
-        ifp.seekg(0, boost::filesystem::ifstream::end);
+        ifp.seekg(0, std::ifstream::end);
         size_t fileSize = ifp.tellg() - fileBeginPos;
-        ifp.seekg(0, boost::filesystem::ifstream::beg);
+        ifp.seekg(0, std::ifstream::beg);
 
         std::vector<char> buffer(fileSize);
         if(!ifp.read(buffer.data(), fileSize))
