@@ -52,23 +52,23 @@ namespace SudaGureum
         void close();
 
     private:
-        void handleHandshake(const boost::system::error_code &ec);
-        void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
-        void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred);
-        void handleCloseTimeout(const boost::system::error_code &ec);
+        void handleHandshake(const std::error_code &ec);
+        void handleRead(const std::error_code &ec, size_t bytesTransferred);
+        void handleWrite(const std::error_code &ec, size_t bytesTransferred);
+        void handleCloseTimeout(const std::error_code &ec);
         void procWebSocketRequest(const WebSocketRequest &request);
         void procSudaGureumRequest(const SudaGureumRequest &request);
 
     private:
         HttpServer &server_;
-        boost::asio::io_service &ios_;
+        asio::io_service &ios_;
         std::shared_ptr<BufferedWriterSocketBase> socket_;
 
         WebSocketParser parser_;
         std::array<uint8_t, 65536> bufferToRead_;
 
         bool closeReady_;
-        boost::asio::deadline_timer closeTimer_;
+        asio::basic_waitable_timer<std::chrono::steady_clock> closeTimer_;
         bool closeReceived_;
 
         friend class HttpConnection;

@@ -33,12 +33,19 @@ set(CMAKE_CXX_FLAGS "${FLAG}")
 
 file(GLOB_RECURSE SOURCES "SudaGureum/*.cpp")
 
-find_package(Boost 1.51.0 COMPONENTS date_time locale program_options regex system REQUIRED)
+find_package(Boost 1.51.0 COMPONENTS date_time locale program_options regex REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(ZLIB REQUIRED)
-include_directories(${Boost_INCLUDE_DIR} ${OpenSSL_INCLUDE_DIR} ${SQLite3_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
-    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/rapidjson/include" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/SQLiteCpp/include" "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/fmt/include"
+include_directories(
+    ${Boost_INCLUDE_DIR}
+    ${OpenSSL_INCLUDE_DIR}
+    ${SQLite3_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIR}
+    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib"
+    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/rapidjson/include"
+    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/SQLiteCpp/include"
+    "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/asio/asio/include"
     "${CMAKE_CURRENT_LIST_DIR}")
 link_directories(${Boost_LIBRARY_DIR} ${OpenSSL_LIBRARY_DIR} ${SQLite3_LIBRARY_DIR})
 

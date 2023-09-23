@@ -4,13 +4,13 @@
 
 namespace SudaGureum
 {
-    void MtIoService::runImpl(boost::asio::io_service &ios)
+    void MtIoService::runImpl(asio::io_service &ios)
     {
         try
         {
             ios.run();
         }
-        catch(const boost::system::system_error &e)
+        catch(const std::system_error &e)
         {
             std::cerr << "System error: " << e.what() << std::endl;
         }

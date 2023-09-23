@@ -1,72 +1,72 @@
 ﻿#pragma once
 
-#include "Common.h"
+#include "AsioHelper.h"
 
 namespace SudaGureum
 {
     class SocketBase
     {
     public:
-        virtual void asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler) = 0;
-        virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
-        virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
-        virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
-        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler) = 0;
-        virtual boost::system::error_code close() = 0;
+        virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler) = 0;
+        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler) = 0;
+        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler) = 0;
+        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler) = 0;
+        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
+            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler) = 0;
+        virtual std::error_code close() = 0;
     };
 
     class TcpSocket : public SocketBase
     {
     public:
-        TcpSocket(boost::asio::io_service &ios);
+        TcpSocket(asio::io_service &ios);
 
     public:
-        virtual void asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler);
-        virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler);
-        virtual boost::system::error_code close();
+        virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler);
+        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
+            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler);
+        virtual std::error_code close();
 
     public:
-        boost::asio::ip::tcp::socket &socket();
+        asio::ip::tcp::socket &socket();
 
     private:
-        boost::asio::ip::tcp::socket socket_;
+        asio::ip::tcp::socket socket_;
     };
 
     class TcpSslSocket : public SocketBase
     {
     public:
-        TcpSslSocket(boost::asio::io_service &ios);
-        TcpSslSocket(boost::asio::io_service &ios, std::shared_ptr<boost::asio::ssl::context> context);
+        TcpSslSocket(asio::io_service &ios);
+        TcpSslSocket(asio::io_service &ios, std::shared_ptr<asio::ssl::context> context);
 
     public:
-        virtual void asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler);
-        virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler);
-        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler);
-        virtual boost::system::error_code close();
+        virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler);
+        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler);
+        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
+            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler);
+        virtual std::error_code close();
 
     public:
-        boost::asio::ssl::stream<boost::asio::ip::tcp::socket>::lowest_layer_type &socket();
+        asio::ssl::stream<asio::ip::tcp::socket>::lowest_layer_type &socket();
 
     private:
-        std::shared_ptr<boost::asio::ssl::context> ctx_;
-        boost::asio::ssl::stream<boost::asio::ip::tcp::socket> stream_;
+        std::shared_ptr<asio::ssl::context> ctx_;
+        asio::ssl::stream<asio::ip::tcp::socket> stream_;
     };
 
     class BufferedWriterSocketBase : public SocketBase
@@ -75,7 +75,7 @@ namespace SudaGureum
         using SocketBase::asyncWrite;
 
         virtual void asyncWrite(std::vector<uint8_t> data,
-            std::function<void (const boost::system::error_code &, size_t)> handler) = 0;
+            std::function<void (const std::error_code &, size_t)> handler) = 0;
     };
 
     template<typename Socket>
@@ -83,44 +83,44 @@ namespace SudaGureum
     {
     public:
         template<typename ...Args>
-        BufferedWriterSocket(boost::asio::io_service &ios, Args &&...args)
+        BufferedWriterSocket(asio::io_service &ios, Args &&...args)
             : socket_(ios, std::forward<Args>(args)...)
             , inWrite_(false)
         {
         }
 
     public:
-        virtual void asyncHandshakeAsServer(std::function<void (const boost::system::error_code &)> handler)
+        virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler)
         {
             socket_.asyncHandshakeAsServer(std::move(handler));
         }
-        virtual void asyncReadSome(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler)
+        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncReadSome(buffer, std::move(handler));
         }
-        virtual void asyncWrite(const boost::asio::const_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler)
+        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncWrite(buffer, std::move(handler));
         }
-        virtual void asyncWrite(const boost::asio::mutable_buffers_1 &buffer,
-            std::function<void (const boost::system::error_code &, size_t)> handler)
+        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+            std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncWrite(buffer, std::move(handler));
         }
-        virtual void asyncConnect(boost::asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const boost::system::error_code &, boost::asio::ip::tcp::resolver::iterator)> handler)
+        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
+            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler)
         {
             socket_.asyncConnect(endPointIt, std::move(handler));
         }
-        virtual boost::system::error_code close()
+        virtual std::error_code close()
         {
             return socket_.close();
         }
 
         virtual void asyncWrite(std::vector<uint8_t> data,
-            std::function<void (const boost::system::error_code &, size_t)> handler)
+            std::function<void (const std::error_code &, size_t)> handler)
         {
             {
                 std::lock_guard<std::mutex> lock(bufferWriteLock_);
@@ -156,12 +156,12 @@ namespace SudaGureum
                 if(frame && !frame->empty())
                 {
                     socket_.asyncWrite(
-                        boost::asio::buffer(*frame, frame->size()),
-                        boost::bind(
-                            boost::mem_fn(&BufferedWriterSocket::handleWrite),
+                        asio::buffer(*frame, frame->size()),
+                        std::bind(
+                            std::mem_fn(&BufferedWriterSocket::handleWrite),
                             this->shared_from_this(),
-                            boost::asio::placeholders::error,
-                            boost::asio::placeholders::bytes_transferred));
+                            StdAsioPlaceholders::error,
+                            StdAsioPlaceholders::bytesTransferred));
                 }
                 else
                 {
@@ -175,7 +175,7 @@ namespace SudaGureum
             }
         }
 
-        void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred)
+        void handleWrite(const std::error_code &ec, size_t bytesTransferred)
         {
             auto handler = std::move(bufferToWrite_.front().second);
 
@@ -199,7 +199,7 @@ namespace SudaGureum
         Socket socket_;
         std::mutex bufferWriteLock_;
         std::deque<std::pair<
-            std::vector<uint8_t>, std::function<void (const boost::system::error_code &, size_t)>>> bufferToWrite_;
+            std::vector<uint8_t>, std::function<void (const std::error_code &, size_t)>>> bufferToWrite_;
         std::mutex writeLock_;
         std::atomic<bool> inWrite_;
     };

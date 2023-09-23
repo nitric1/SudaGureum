@@ -30,6 +30,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <locale>
 #include <memory>
@@ -50,9 +51,6 @@
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
-#include <boost/bind/bind.hpp>
 #include <boost/date_time/c_time.hpp>
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -78,6 +76,8 @@ using std::max; using std::min;
 
 // External library #includes
 
+#include <asio.hpp>
+#include <asio/ssl.hpp>
 #include <http-parser/http_parser.h>
 #include <openssl/sha.h>
 #include <openssl/tls1.h>

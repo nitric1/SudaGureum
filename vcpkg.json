@@ -5,7 +5,6 @@
   "dependencies": [
     "openssl",
     "boost-algorithm",
-    "boost-asio",
     "boost-date-time",
     "boost-endian",
     "boost-lexical-cast",
@@ -16,7 +15,6 @@
     "boost-regex",
     "boost-serialization",
     "boost-signals2",
-    "boost-system",
     "boost-uuid"
   ]
 }

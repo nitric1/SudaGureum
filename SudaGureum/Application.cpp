@@ -32,7 +32,7 @@ namespace SudaGureum
             {
                 throw;
             }
-            catch(const boost::system::system_error &e)
+            catch(const std::system_error &e)
             {
                 return std::format("System error: {}", e.what());
             }

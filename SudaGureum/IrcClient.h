@@ -179,15 +179,15 @@ namespace SudaGureum
         Participant parseParticipant(const std::string &nicknameWithPrefix) const;
 
     private:
-        void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
-        void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::string> &messagePtr);
-        void handleCloseTimeout(const boost::system::error_code &ec);
+        void handleRead(const std::error_code &ec, size_t bytesTransferred);
+        void handleWrite(const std::error_code &ec, size_t bytesTransferred, const std::shared_ptr<std::string> &messagePtr);
+        void handleCloseTimeout(const std::error_code &ec);
         void procMessage(const IrcMessage &message);
 
     private:
         IrcClientPool &pool_;
         size_t connectionId_;
-        boost::asio::io_service &ios_;
+        asio::io_service &ios_;
         std::shared_ptr<SocketBase> socket_;
 
         std::string encoding_;
@@ -214,7 +214,7 @@ namespace SudaGureum
         ChannelMap channels_;
 
         bool quitReady_;
-        boost::asio::deadline_timer closeTimer_;
+        asio::basic_waitable_timer<std::chrono::steady_clock> closeTimer_;
         bool clearMe_;
 
         friend class IrcClientPool;
@@ -238,7 +238,7 @@ namespace SudaGureum
         void closed(const std::shared_ptr<IrcClient> &client);
 
     private:
-        boost::asio::signal_set signals_; // TODO: temporary
+        asio::signal_set signals_; // TODO: temporary
         std::mutex clientsLock_;
         std::unordered_map<size_t, std::shared_ptr<IrcClient>> clients_;
         std::atomic<size_t> nextConnectionId_;

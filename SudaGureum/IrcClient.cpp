@@ -2,6 +2,7 @@
 
 #include "IrcClient.h"
 
+#include "AsioHelper.h"
 #include "Configure.h"
 #include "Default.h"
 #include "Log.h"
@@ -164,8 +165,8 @@ namespace SudaGureum
         nicknameCandidates_ = std::move(nicknames);
         currentNicknameIndex_ = 0;
 
-        boost::asio::ip::tcp::resolver resolver(ios_);
-        boost::asio::ip::tcp::resolver::query query(host, fmt::format_int(port).str());
+        asio::ip::tcp::resolver resolver(ios_);
+        asio::ip::tcp::resolver::query query(host, fmt::format_int(port).str());
         auto endpointIt = resolver.resolve(query);
 
         if(ssl)
@@ -173,7 +174,7 @@ namespace SudaGureum
         else
             socket_ = std::make_shared<TcpSocket>(ios_);
         socket_->asyncConnect(endpointIt,
-            [&](const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator resolverIt)
+            [&](const std::error_code &ec, asio::ip::tcp::resolver::iterator resolverIt)
             {
                 if(ec)
                 {
@@ -206,12 +207,12 @@ namespace SudaGureum
     void IrcClient::read()
     {
         socket_->asyncReadSome(
-            boost::asio::buffer(bufferToRead_),
-            boost::bind(
-                boost::mem_fn(&IrcClient::handleRead),
+            asio::buffer(bufferToRead_),
+            std::bind(
+                std::mem_fn(&IrcClient::handleRead),
                 shared_from_this(),
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred
+                StdAsioPlaceholders::error,
+                StdAsioPlaceholders::bytesTransferred
             )
         );
     }
@@ -253,12 +254,12 @@ namespace SudaGureum
             auto messagePtr = std::make_shared<std::string>(std::move(message));
 
             socket_->asyncWrite(
-                boost::asio::buffer(*messagePtr, messagePtr->size()),
-                boost::bind(
-                    boost::mem_fn(&IrcClient::handleWrite),
+                asio::buffer(*messagePtr, messagePtr->size()),
+                std::bind(
+                    std::mem_fn(&IrcClient::handleWrite),
                     shared_from_this(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred,
+                    StdAsioPlaceholders::error,
+                    StdAsioPlaceholders::bytesTransferred,
                     messagePtr
                 )
             );
@@ -274,13 +275,13 @@ namespace SudaGureum
         quitReady_ = true;
         clearMe_ = clearMe;
         sendMessage(IrcMessage("QUIT", {"Bye!"}));
-        closeTimer_.expires_from_now(boost::posix_time::seconds(
+        closeTimer_.expires_from_now(std::chrono::seconds(
             Configure::instance().getAs("irc_client_close_timeout_sec", DefaultConfigureValue::IrcClientCloseTimeoutSec)
         ));
-        closeTimer_.async_wait(boost::bind(
-            boost::mem_fn(&IrcClient::handleCloseTimeout),
+        closeTimer_.async_wait(std::bind(
+            std::mem_fn(&IrcClient::handleCloseTimeout),
             shared_from_this(),
-            boost::asio::placeholders::error
+            StdAsioPlaceholders::error
         ));
     }
 
@@ -323,7 +324,7 @@ namespace SudaGureum
         return participant;
     }
 
-    void IrcClient::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
+    void IrcClient::handleRead(const std::error_code &ec, size_t bytesTransferred)
     {
         if(ec)
         {
@@ -349,7 +350,7 @@ namespace SudaGureum
         }
     }
 
-    void IrcClient::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred,
+    void IrcClient::handleWrite(const std::error_code &ec, size_t bytesTransferred,
         const std::shared_ptr<std::string> &messagePtr)
     {
         inWrite_ = false;
@@ -367,7 +368,7 @@ namespace SudaGureum
         write();
     }
 
-    void IrcClient::handleCloseTimeout(const boost::system::error_code &ec)
+    void IrcClient::handleCloseTimeout(const std::error_code &ec)
     {
         if(!ec)
         {
@@ -713,7 +714,7 @@ namespace SudaGureum
         signals_.add(SIGQUIT);
 #endif
 
-        signals_.async_wait([this](const boost::system::error_code &/*ec*/, int /*signo*/)
+        signals_.async_wait([this](const std::error_code &/*ec*/, int /*signo*/)
         {
             closeAll();
         });

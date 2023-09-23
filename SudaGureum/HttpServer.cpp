@@ -2,6 +2,7 @@
 
 #include "HttpServer.h"
 
+#include "AsioHelper.h"
 #include "Configure.h"
 #include "Default.h"
 #include "Log.h"
@@ -36,11 +37,11 @@ namespace SudaGureum
     void HttpConnection::sendRaw(std::vector<uint8_t> data)
     {
         socket_->asyncWrite(std::move(data),
-            boost::bind(
-                boost::mem_fn(&HttpConnection::handleWrite),
+            std::bind(
+                std::mem_fn(&HttpConnection::handleWrite),
                 shared_from_this(),
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
+                StdAsioPlaceholders::error,
+                StdAsioPlaceholders::bytesTransferred));
     }
 
     void HttpConnection::sendString(const std::string &str)
@@ -191,10 +192,10 @@ namespace SudaGureum
     void HttpConnection::startSsl()
     {
         socket_->asyncHandshakeAsServer(
-            boost::bind(
-                boost::mem_fn(&HttpConnection::handleHandshake),
+            std::bind(
+                std::mem_fn(&HttpConnection::handleHandshake),
                 shared_from_this(),
-                boost::asio::placeholders::error));
+                StdAsioPlaceholders::error));
     }
 
     void HttpConnection::read()
@@ -205,12 +206,12 @@ namespace SudaGureum
         }
 
         socket_->asyncReadSome(
-            boost::asio::buffer(bufferToRead_),
-            boost::bind(
-                boost::mem_fn(&HttpConnection::handleRead),
+            asio::buffer(bufferToRead_),
+            std::bind(
+                std::mem_fn(&HttpConnection::handleRead),
                 shared_from_this(),
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
+                StdAsioPlaceholders::error,
+                StdAsioPlaceholders::bytesTransferred));
     }
 
     void HttpConnection::close()
@@ -221,22 +222,22 @@ namespace SudaGureum
 
     void HttpConnection::setKeepAliveTimeout()
     {
-        keepAliveTimer_.expires_from_now(boost::posix_time::seconds(
+        keepAliveTimer_.expires_from_now(std::chrono::seconds(
             Configure::instance().getAs("http_server_keep_alive_timeout_sec",
                 DefaultConfigureValue::HttpServerKeepAliveTimeoutSec)));
-        keepAliveTimer_.async_wait(boost::bind(
-            boost::mem_fn(&HttpConnection::handleKeepAliveTimeout),
+        keepAliveTimer_.async_wait(std::bind(
+            std::mem_fn(&HttpConnection::handleKeepAliveTimeout),
             shared_from_this(),
-            boost::asio::placeholders::error));
+            StdAsioPlaceholders::error));
     }
 
     void HttpConnection::cancelKeepAliveTimeout()
     {
-        boost::system::error_code ec;
+        std::error_code ec;
         keepAliveTimer_.cancel(ec);
     }
 
-    void HttpConnection::handleHandshake(const boost::system::error_code &ec)
+    void HttpConnection::handleHandshake(const std::error_code &ec)
     {
         if(ec)
         {
@@ -248,7 +249,7 @@ namespace SudaGureum
         read();
     }
 
-    void HttpConnection::handleRead(const boost::system::error_code &ec, size_t bytesTransferred)
+    void HttpConnection::handleRead(const std::error_code &ec, size_t bytesTransferred)
     {
         if(!continueRead_)
         {
@@ -282,7 +283,7 @@ namespace SudaGureum
                 Log::instance().info("HttpConnection[{}]: read: upgrade to web socket", static_cast<void *>(this));
                 data.erase(data.begin(), data.begin() + res.second);
                 std::shared_ptr<WebSocketConnection> wsConn(new WebSocketConnection(server_, std::move(socket_), data));
-                wsConn->handleRead(boost::system::error_code(), data.size());
+                wsConn->handleRead(std::error_code(), data.size());
             }
             else
             {
@@ -301,7 +302,7 @@ namespace SudaGureum
         read();
     }
 
-    void HttpConnection::handleWrite(const boost::system::error_code &ec, size_t bytesTransferred)
+    void HttpConnection::handleWrite(const std::error_code &ec, size_t bytesTransferred)
     {
         if(ec)
         {
@@ -311,7 +312,7 @@ namespace SudaGureum
         }
     }
 
-    void HttpConnection::handleKeepAliveTimeout(const boost::system::error_code &ec)
+    void HttpConnection::handleKeepAliveTimeout(const std::error_code &ec)
     {
         if(!ec)
         {
@@ -405,7 +406,7 @@ namespace SudaGureum
         return true;
     }
 
-    std::string HttpServer::handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose)
+    std::string HttpServer::handleGetPassword(size_t maxLength, asio::ssl::context::password_purpose purpose)
     {
         return Configure::instance().get("ssl_certificate_password");
     }
@@ -416,18 +417,18 @@ namespace SudaGureum
     {
         try
         {
-            acceptor_.open(boost::asio::ip::tcp::v6());
-            acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-            acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), port));
+            acceptor_.open(asio::ip::tcp::v6());
+            acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+            acceptor_.bind(asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
             acceptor_.listen();
         }
-        catch(const boost::system::system_error &e)
+        catch(const std::system_error &e)
         {
-            if(e.code() == make_error_code(boost::asio::error::address_family_not_supported)) // no ipv6 capability
+            if(e.code() == make_error_code(asio::error::address_family_not_supported)) // no ipv6 capability
             {
-                acceptor_.open(boost::asio::ip::tcp::v4());
-                acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-                acceptor_.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+                acceptor_.open(asio::ip::tcp::v4());
+                acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+                acceptor_.bind(asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port));
                 acceptor_.listen();
             }
             else
@@ -440,7 +441,7 @@ namespace SudaGureum
         {
             auto &conf = Configure::instance();
 
-            ctx_ = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
+            ctx_ = std::make_shared<asio::ssl::context>(asio::ssl::context::sslv23);
             ctx_->set_password_callback(&HttpServer::handleGetPassword);
 
             std::vector<uint8_t> data;
@@ -450,19 +451,19 @@ namespace SudaGureum
                 data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_chain_file configure"));
-                ctx_->use_certificate_chain(boost::asio::buffer(data));
+                ctx_->use_certificate_chain(asio::buffer(data));
             }
             else
             {
                 data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_certificate_file"))));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_file configure"));
-                ctx_->use_certificate(boost::asio::buffer(data), boost::asio::ssl::context::pem);
+                ctx_->use_certificate(asio::buffer(data), asio::ssl::context::pem);
             }
             data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_private_key_file"))));
             if(data.empty())
                 throw(std::runtime_error("invalid ssl_private_key_file configure"));
-            ctx_->use_private_key(boost::asio::buffer(data), boost::asio::ssl::context::pem);
+            ctx_->use_private_key(asio::buffer(data), asio::ssl::context::pem);
 
             acceptNextSsl();
         }
@@ -476,17 +477,17 @@ namespace SudaGureum
     {
         nextConn_.reset(new HttpConnection(*this, false));
         acceptor_.async_accept(static_cast<BufferedWriterSocket<TcpSocket> *>(nextConn_->socket_.get())->socket(),
-            boost::bind(&HttpServer::handleAccept, this, boost::asio::placeholders::error));
+            std::bind(&HttpServer::handleAccept, this, StdAsioPlaceholders::error));
     }
 
     void HttpServer::acceptNextSsl()
     {
         nextConn_.reset(new HttpConnection(*this, true));
         acceptor_.async_accept(static_cast<BufferedWriterSocket<TcpSslSocket> *>(nextConn_->socket_.get())->socket(),
-            boost::bind(&HttpServer::handleAcceptSsl, this, boost::asio::placeholders::error));
+            std::bind(&HttpServer::handleAcceptSsl, this, StdAsioPlaceholders::error));
     }
 
-    void HttpServer::handleAccept(const boost::system::error_code &ec)
+    void HttpServer::handleAccept(const std::error_code &ec)
     {
         if(!ec)
         {
@@ -495,7 +496,7 @@ namespace SudaGureum
         acceptNext();
     }
 
-    void HttpServer::handleAcceptSsl(const boost::system::error_code &ec)
+    void HttpServer::handleAcceptSsl(const std::error_code &ec)
     {
         if(!ec)
         {

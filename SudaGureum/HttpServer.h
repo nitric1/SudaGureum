@@ -39,15 +39,15 @@ namespace SudaGureum
         void sendBadRequestResponse();
 
     private:
-        void handleHandshake(const boost::system::error_code &ec);
-        void handleRead(const boost::system::error_code &ec, size_t bytesTransferred);
-        void handleWrite(const boost::system::error_code &ec, size_t bytesTransferred);
-        void handleKeepAliveTimeout(const boost::system::error_code &ec);
+        void handleHandshake(const std::error_code &ec);
+        void handleRead(const std::error_code &ec, size_t bytesTransferred);
+        void handleWrite(const std::error_code &ec, size_t bytesTransferred);
+        void handleKeepAliveTimeout(const std::error_code &ec);
         bool procHttpRequest(const HttpRequest &request);
 
     private:
         HttpServer &server_;
-        boost::asio::io_service &ios_;
+        asio::io_service &ios_;
         std::shared_ptr<BufferedWriterSocketBase> socket_;
 
         HttpParser parser_;
@@ -57,7 +57,7 @@ namespace SudaGureum
         bool upgradeWebSocket_;
 
         std::atomic<size_t> keepAliveCount_;
-        boost::asio::deadline_timer keepAliveTimer_;
+        asio::basic_waitable_timer<std::chrono::steady_clock> keepAliveTimer_;
 
         friend class HttpServer;
     };
@@ -68,7 +68,7 @@ namespace SudaGureum
         typedef std::function<bool(HttpConnection &, const HttpRequest &, HttpResponse &)> ResourceProcessorFunc;
 
     private:
-        static std::string handleGetPassword(size_t maxLength, boost::asio::ssl::context::password_purpose purpose);
+        static std::string handleGetPassword(size_t maxLength, asio::ssl::context::password_purpose purpose);
 
     private:
         HttpServer(const HttpServer &) = delete;
@@ -88,13 +88,13 @@ namespace SudaGureum
         void acceptNextSsl();
 
     private:
-        void handleAccept(const boost::system::error_code &ec);
-        void handleAcceptSsl(const boost::system::error_code &ec);
+        void handleAccept(const std::error_code &ec);
+        void handleAcceptSsl(const std::error_code &ec);
 
     private:
         bool ssl_;
-        boost::asio::ip::tcp::acceptor acceptor_;
-        std::shared_ptr<boost::asio::ssl::context> ctx_;
+        asio::ip::tcp::acceptor acceptor_;
+        std::shared_ptr<asio::ssl::context> ctx_;
         std::shared_ptr<HttpConnection> nextConn_;
         std::unordered_map<std::string, ResourceProcessorFunc> processors_;
 

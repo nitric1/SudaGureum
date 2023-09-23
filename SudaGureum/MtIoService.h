@@ -5,7 +5,7 @@ namespace SudaGureum
     class MtIoService
     {
     private:
-        static void runImpl(boost::asio::io_service &ios);
+        static void runImpl(asio::io_service &ios);
 
     public:
         virtual ~MtIoService() = 0;
@@ -16,7 +16,7 @@ namespace SudaGureum
         void stop();
 
     protected:
-        boost::asio::io_service ios_;
+        asio::io_service ios_;
         std::vector<std::shared_ptr<std::thread>> threads_;
     };
 }

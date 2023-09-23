@@ -16,3 +16,6 @@
 [submodule "External/SubmoduleLib/rapidjson"]
 	path = External/SubmoduleLib/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "External/SubmoduleLib/asio"]
+	path = External/SubmoduleLib/asio
+	url = https://github.com/chriskohlhoff/asio/

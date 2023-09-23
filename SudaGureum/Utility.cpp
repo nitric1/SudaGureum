@@ -17,31 +17,9 @@ namespace SudaGureum
     }
 
     // Base64 from http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception
-
-    template<typename IterT>
-    using ToBase64Iterator = boost::archive::iterators::base64_from_binary<
-        boost::archive::iterators::transform_width<IterT, 6, 8>>;
     template<typename IterT>
     using FromBase64Iterator = boost::archive::iterators::transform_width<
         boost::archive::iterators::binary_from_base64<IterT>, 8, 6>;
-
-    std::string encodeBase64(const std::vector<uint8_t> &data)
-    {
-        size_t padLen = (3 - data.size() % 3) % 3;
-        std::string encoded(ToBase64Iterator<std::vector<uint8_t>::const_iterator>(data.begin()), ToBase64Iterator<std::vector<uint8_t>::const_iterator>(data.end()));
-        encoded.append(padLen, '=');
-        return encoded;
-    }
-
-    std::string encodeBase64(boost::any_range<uint8_t, boost::single_pass_traversal_tag> data)
-    {
-        typedef decltype(data) RangeT;
-
-        std::string encoded(ToBase64Iterator<RangeT::const_iterator>(data.begin()), ToBase64Iterator<RangeT::const_iterator>(data.end()));
-        size_t padLen = (4 - encoded.size() % 4) % 4;
-        encoded.append(padLen, '=');
-        return encoded;
-    }
 
     std::vector<uint8_t> decodeBase64(std::string encoded)
     {
@@ -110,7 +88,7 @@ namespace SudaGureum
             int hex = fromHexChar(ch);
             if(hex < 0)
             {
-                throw(std::logic_error(std::format("invalid percent character: {ch} ({ch:d})", "ch"_a = ch)));
+                throw(std::logic_error(std::format("invalid percent character: {0} ({0:d})", ch)));
             }
             return static_cast<char>(hex);
         };
@@ -221,9 +199,7 @@ namespace SudaGureum
 
     std::deque<uint8_t> readFile(const std::filesystem::path &path)
     {
-        typedef boost::filesystem::basic_ifstream<uint8_t> bifstream;
-
-        bifstream ifp(path, bifstream::binary);
+        std::ifstream ifp(path, std::ifstream::binary);
         if(!ifp)
         {
             throw(std::runtime_error("cannot open the file"));
@@ -232,7 +208,7 @@ namespace SudaGureum
 
         std::deque<uint8_t> data;
         std::array<uint8_t, BUFSIZ> chunk;
-        while(ifp.read(chunk.data(), chunk.size()) || ifp.gcount())
+        while(ifp.read(reinterpret_cast<char *>(chunk.data()), chunk.size()) || ifp.gcount())
         {
             data.insert(data.end(), chunk.begin(), chunk.begin() + ifp.gcount());
         }
