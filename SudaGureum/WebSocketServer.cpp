@@ -87,7 +87,7 @@ namespace SudaGureum
     {
         socket_->asyncWrite(std::move(data),
             boost::bind(
-                std::mem_fn(&WebSocketConnection::handleWrite),
+                boost::mem_fn(&WebSocketConnection::handleWrite),
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
@@ -119,7 +119,7 @@ namespace SudaGureum
     {
         socket_->asyncHandshakeAsServer(
             boost::bind(
-                std::mem_fn(&WebSocketConnection::handleHandshake),
+                boost::mem_fn(&WebSocketConnection::handleHandshake),
                 shared_from_this(),
                 boost::asio::placeholders::error));
     }
@@ -129,7 +129,7 @@ namespace SudaGureum
         socket_->asyncReadSome(
             boost::asio::buffer(bufferToRead_),
             boost::bind(
-                std::mem_fn(&WebSocketConnection::handleRead),
+                boost::mem_fn(&WebSocketConnection::handleRead),
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
@@ -143,7 +143,7 @@ namespace SudaGureum
             Configure::instance().getAs("websocket_server_close_timeout_sec",
                 DefaultConfigureValue::WebSocketServerCloseTimeoutSec)));
         closeTimer_.async_wait(boost::bind(
-            std::mem_fn(&WebSocketConnection::handleCloseTimeout),
+            boost::mem_fn(&WebSocketConnection::handleCloseTimeout),
             shared_from_this(),
             boost::asio::placeholders::error));
     }

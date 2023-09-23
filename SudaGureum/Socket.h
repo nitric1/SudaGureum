@@ -158,8 +158,8 @@ namespace SudaGureum
                     socket_.asyncWrite(
                         boost::asio::buffer(*frame, frame->size()),
                         boost::bind(
-                            std::mem_fn(&BufferedWriterSocket::handleWrite),
-                            shared_from_this(),
+                            boost::mem_fn(&BufferedWriterSocket::handleWrite),
+                            this->shared_from_this(),
                             boost::asio::placeholders::error,
                             boost::asio::placeholders::bytes_transferred));
                 }

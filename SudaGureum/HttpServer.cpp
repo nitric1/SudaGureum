@@ -37,7 +37,7 @@ namespace SudaGureum
     {
         socket_->asyncWrite(std::move(data),
             boost::bind(
-                std::mem_fn(&HttpConnection::handleWrite),
+                boost::mem_fn(&HttpConnection::handleWrite),
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
@@ -192,7 +192,7 @@ namespace SudaGureum
     {
         socket_->asyncHandshakeAsServer(
             boost::bind(
-                std::mem_fn(&HttpConnection::handleHandshake),
+                boost::mem_fn(&HttpConnection::handleHandshake),
                 shared_from_this(),
                 boost::asio::placeholders::error));
     }
@@ -207,7 +207,7 @@ namespace SudaGureum
         socket_->asyncReadSome(
             boost::asio::buffer(bufferToRead_),
             boost::bind(
-                std::mem_fn(&HttpConnection::handleRead),
+                boost::mem_fn(&HttpConnection::handleRead),
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
@@ -225,7 +225,7 @@ namespace SudaGureum
             Configure::instance().getAs("http_server_keep_alive_timeout_sec",
                 DefaultConfigureValue::HttpServerKeepAliveTimeoutSec)));
         keepAliveTimer_.async_wait(boost::bind(
-            std::mem_fn(&HttpConnection::handleKeepAliveTimeout),
+            boost::mem_fn(&HttpConnection::handleKeepAliveTimeout),
             shared_from_this(),
             boost::asio::placeholders::error));
     }

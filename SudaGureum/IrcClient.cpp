@@ -208,7 +208,7 @@ namespace SudaGureum
         socket_->asyncReadSome(
             boost::asio::buffer(bufferToRead_),
             boost::bind(
-                std::mem_fn(&IrcClient::handleRead),
+                boost::mem_fn(&IrcClient::handleRead),
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred
@@ -255,7 +255,7 @@ namespace SudaGureum
             socket_->asyncWrite(
                 boost::asio::buffer(*messagePtr, messagePtr->size()),
                 boost::bind(
-                    std::mem_fn(&IrcClient::handleWrite),
+                    boost::mem_fn(&IrcClient::handleWrite),
                     shared_from_this(),
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred,
@@ -278,7 +278,7 @@ namespace SudaGureum
             Configure::instance().getAs("irc_client_close_timeout_sec", DefaultConfigureValue::IrcClientCloseTimeoutSec)
         ));
         closeTimer_.async_wait(boost::bind(
-            std::mem_fn(&IrcClient::handleCloseTimeout),
+            boost::mem_fn(&IrcClient::handleCloseTimeout),
             shared_from_this(),
             boost::asio::placeholders::error
         ));

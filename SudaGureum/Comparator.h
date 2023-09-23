@@ -2,7 +2,7 @@
 
 namespace SudaGureum
 {
-    struct LessCaseInsensitive : public std::binary_function<std::string, std::string, bool>
+    struct LessCaseInsensitive
     {
         bool operator()(const std::string &lhs, const std::string &rhs) const
         {
@@ -10,7 +10,7 @@ namespace SudaGureum
         }
     };
 
-    struct EqualToCaseInsensitive : public std::binary_function<std::string, std::string, bool>
+    struct EqualToCaseInsensitive
     {
         bool operator()(const std::string &lhs, const std::string &rhs) const
         {
@@ -18,7 +18,7 @@ namespace SudaGureum
         }
     };
 
-    struct HashCaseInsensitive : public std::unary_function<std::string, size_t>
+    struct HashCaseInsensitive
     {
         size_t operator()(const std::string &str) const
         {

@@ -14,6 +14,10 @@
 #define _WIN32_IE 0x0A00 // Internet Explorer 11
 #define NTDDI_VERSION 0x0A000007 // Windows 10, 1903
 
+// wstring_convert and codecvt_utf8_utf16 (and some more typedef's) are deprecated since C++17,
+// but there are no replacements at all; I'll use deprecated ones until some replacements are standardized.
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library #includes
 
