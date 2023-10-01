@@ -54,7 +54,6 @@
 #include <boost/date_time/c_time.hpp>
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
