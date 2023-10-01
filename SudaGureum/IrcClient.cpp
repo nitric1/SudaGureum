@@ -673,6 +673,7 @@ namespace SudaGureum
         }
         else if(message.command_ == "366") // RPL_ENDOFNAMES
         {
+            // join complete; you can see channel now
         }
         else if(message.command_ == "432") // ERR_ERRONEOUSNICKNAME
         {
