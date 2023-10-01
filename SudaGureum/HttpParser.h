@@ -6,7 +6,7 @@ namespace SudaGureum
 {
     struct HttpRequest
     {
-        typedef CaseInsensitiveUnorderedMultimap Queries;
+        typedef CaseInsensitiveMultimap<std::string> Queries;
 
         enum class Method : int32_t
         {
@@ -23,7 +23,7 @@ namespace SudaGureum
         std::string rawTarget_;
         std::string target_;
         Queries queries_;
-        CaseInsensitiveUnorderedMap headers_;
+        CaseInsensitiveMap<std::string> headers_;
         std::string rawBody_;
 
     private:
@@ -41,7 +41,7 @@ namespace SudaGureum
     struct HttpResponse
     {
         uint16_t status_;
-        CaseInsensitiveUnorderedMap headers_;
+        CaseInsensitiveMap<std::string> headers_;
         std::vector<uint8_t> body_;
 
         HttpResponse()

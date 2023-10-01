@@ -26,12 +26,12 @@ namespace SudaGureum
         };
 
         Command command_;
-        CaseInsensitiveUnorderedMap params_;
+        CaseInsensitiveMap<std::string> params_;
         std::vector<uint8_t> rawData_;
 
         WebSocketRequest();
         explicit WebSocketRequest(Command command);
-        WebSocketRequest(Command command, CaseInsensitiveUnorderedMap params);
+        WebSocketRequest(Command command, CaseInsensitiveMap<std::string> params);
         WebSocketRequest(Command command, std::vector<uint8_t> rawData);
     };
 
@@ -58,7 +58,7 @@ namespace SudaGureum
     {
         uint32_t id_;
         std::string method_;
-        CaseInsensitiveUnorderedMap params_;
+        CaseInsensitiveMap<std::string> params_;
 
         SudaGureumRequest()
             : id_(0)

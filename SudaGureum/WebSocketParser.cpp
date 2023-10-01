@@ -16,7 +16,7 @@ namespace SudaGureum
     {
     }
 
-    WebSocketRequest::WebSocketRequest(Command command, CaseInsensitiveUnorderedMap params)
+    WebSocketRequest::WebSocketRequest(Command command, CaseInsensitiveMap<std::string> params)
         : command_(command)
         , params_(std::move(params))
     {

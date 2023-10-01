@@ -4,6 +4,7 @@
 #include "Event.h"
 #include "IrcParser.h"
 #include "MtIoService.h"
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -74,8 +75,7 @@ namespace SudaGureum
             }
         };
 
-        typedef std::unordered_map<std::string, Channel,
-            HashCaseInsensitive, EqualToCaseInsensitive> ChannelMap;
+        typedef CaseInsensitiveMap<Channel> ChannelMap;
 
         typedef std::pair<char, char> CcPair;
         typedef boost::multi_index_container<
@@ -200,7 +200,7 @@ namespace SudaGureum
         std::mutex writeLock_;
         std::atomic<bool> inWrite_;
 
-        std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive> serverOptions_;
+        CaseInsensitiveMap<std::string> serverOptions_;
         std::array<std::string, 4> channelModes_;
         std::string channelTypes_;
         NicknamePrefixMap nicknamePrefixMap_;

@@ -19,10 +19,11 @@ namespace SudaGureum
         std::function<void ()> fn_;
     };
 
-    typedef std::unordered_map<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
-        CaseInsensitiveUnorderedMap;
-    typedef std::unordered_multimap<std::string, std::string, HashCaseInsensitive, EqualToCaseInsensitive>
-        CaseInsensitiveUnorderedMultimap;
+    template<typename ValueT>
+    using CaseInsensitiveMap = std::map<std::string, ValueT, LessCaseInsensitive>;
+
+    template<typename ValueT>
+    using CaseInsensitiveMultimap = std::multimap<std::string, ValueT, LessCaseInsensitive>;
 
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
