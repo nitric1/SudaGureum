@@ -460,11 +460,22 @@ namespace SudaGureum
                     throw(std::runtime_error("invalid ssl_certificate_file configure"));
                 ctx_->use_certificate(asio::buffer(data), asio::ssl::context::pem);
             }
-            auto privateKeyFilePathStr = conf.get("ssl_certificate_file").value_or("");
-            data = readFileIntoVector(std::filesystem::path(decodeUtf8(privateKeyFilePathStr)));
-            if(data.empty())
-                throw(std::runtime_error("invalid ssl_private_key_file configure"));
-            ctx_->use_private_key(asio::buffer(data), asio::ssl::context::pem);
+            else
+            {
+                throw(std::runtime_error("neither ssl_certificate_chain_file nor ssl_certificate_file is set"));
+            }
+
+            if(auto privateKeyFilePathStr = conf.get("ssl_private_key_file"))
+            {
+                data = readFileIntoVector(std::filesystem::path(decodeUtf8(privateKeyFilePathStr.value())));
+                if(data.empty())
+                    throw(std::runtime_error("invalid ssl_private_key_file configure"));
+                ctx_->use_private_key(asio::buffer(data), asio::ssl::context::pem);
+            }
+            else
+            {
+                throw(std::runtime_error("ssl_private_key_file is not set"));
+            }
 
             acceptNextSsl();
         }
