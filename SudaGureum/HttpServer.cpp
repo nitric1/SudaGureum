@@ -408,7 +408,7 @@ namespace SudaGureum
 
     std::string HttpServer::handleGetPassword(size_t maxLength, asio::ssl::context::password_purpose purpose)
     {
-        return Configure::instance().get("ssl_certificate_password");
+        return Configure::instance().get("ssl_certificate_password").value_or("");
     }
 
     HttpServer::HttpServer(uint16_t port, bool ssl)
@@ -446,21 +446,22 @@ namespace SudaGureum
 
             std::vector<uint8_t> data;
 
-            if(conf.exists("ssl_certificate_chain_file"))
+            if(auto certChainFilePathStr = conf.get("ssl_certificate_chain_file"))
             {
-                data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_certificate_chain_file"))));
+                data = readFileIntoVector(std::filesystem::path(decodeUtf8(certChainFilePathStr.value())));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_chain_file configure"));
                 ctx_->use_certificate_chain(asio::buffer(data));
             }
-            else
+            else if(auto certFilePathStr = conf.get("ssl_certificate_file"))
             {
-                data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_certificate_file"))));
+                data = readFileIntoVector(std::filesystem::path(decodeUtf8(certFilePathStr.value())));
                 if(data.empty())
                     throw(std::runtime_error("invalid ssl_certificate_file configure"));
                 ctx_->use_certificate(asio::buffer(data), asio::ssl::context::pem);
             }
-            data = readFileIntoVector(std::filesystem::path(decodeUtf8(conf.get("ssl_private_key_file"))));
+            auto privateKeyFilePathStr = conf.get("ssl_certificate_file").value_or("");
+            data = readFileIntoVector(std::filesystem::path(decodeUtf8(privateKeyFilePathStr)));
             if(data.empty())
                 throw(std::runtime_error("invalid ssl_private_key_file configure"));
             ctx_->use_private_key(asio::buffer(data), asio::ssl::context::pem);

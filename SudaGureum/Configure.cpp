@@ -74,11 +74,11 @@ namespace SudaGureum
         return find(name) != confMap_.end();
     }
 
-    std::string Configure::get(const std::string &name, const std::string &defaultValue) const
+    std::optional<std::string> Configure::get(const std::string &name) const
     {
         auto it = find(name);
         if(it == confMap_.end())
-            return defaultValue;
+            return {};
         return it->second;
     }
 }

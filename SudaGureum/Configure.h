@@ -21,11 +21,14 @@ namespace SudaGureum
 
     public:
         bool exists(const std::string &name) const;
-        std::string get(const std::string &name, const std::string &defaultValue = std::string()) const;
+        std::optional<std::string> get(const std::string &name) const;
         template<typename T>
         T getAs(const std::string &name, const T &defaultValue = T()) const
         {
-            return boost::lexical_cast<T>(get(name, boost::lexical_cast<std::string>(defaultValue)));
+            auto value = get(name);
+            if(!value)
+                return defaultValue;
+            return boost::lexical_cast<T>(value.value());
         }
 
     private:
