@@ -27,8 +27,27 @@ namespace SudaGureum
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
 
-    std::string encodeBase64(const std::vector<uint8_t> &data);
-    std::string encodeBase64(boost::any_range<uint8_t, boost::single_pass_traversal_tag> data);
+    namespace
+    {
+        template<typename IterT>
+        using ToBase64Iterator = boost::archive::iterators::base64_from_binary<
+            boost::archive::iterators::transform_width<IterT, 6, 8>>;
+    }
+
+    //std::string encodeBase64(const std::vector<uint8_t> &data);
+    template<std::ranges::input_range Range> requires std::same_as<std::ranges::range_value_t<Range>, uint8_t>
+    std::string encodeBase64(Range &&data)
+    {
+        typedef decltype(std::cbegin(data)) ConstIterT;
+        typedef decltype(std::cend(data)) ConstEndIterT;
+
+        static_assert(std::is_same<ConstIterT, ConstEndIterT>::value, "type of cbegin(Range) and cend(Range) is not same");
+
+        std::string encoded(ToBase64Iterator<ConstIterT>(std::ranges::cbegin(data)), ToBase64Iterator<ConstIterT>(std::ranges::cend(data)));
+        size_t padLen = (3 - encoded.size() % 3) % 3;
+        encoded.append(padLen, '=');
+        return encoded;
+    }
     std::vector<uint8_t> decodeBase64(std::string encoded);
 
     std::string decodeURIComponent(const std::string &str);

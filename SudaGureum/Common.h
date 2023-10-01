@@ -36,6 +36,7 @@
 #include <memory>
 #include <mutex>
 #include <random>
+#include <ranges>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -63,7 +64,6 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/program_options.hpp>
-#include <boost/range/any_range.hpp>
 #include <boost/regex.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/signals2.hpp>
