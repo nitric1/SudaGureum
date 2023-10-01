@@ -28,6 +28,7 @@
 #include <codecvt>
 #include <deque>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <locale>
@@ -38,7 +39,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-// #include <string_view>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
@@ -77,7 +78,6 @@ using std::max; using std::min;
 
 // External library #includes
 
-#include <fmt/format.h>
 #include <http-parser/http_parser.h>
 #include <openssl/sha.h>
 #include <openssl/tls1.h>

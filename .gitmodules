@@ -10,9 +10,6 @@
 [submodule "External/SubmoduleLib/http-parser"]
 	path = External/SubmoduleLib/http-parser
 	url = https://github.com/nodejs/http-parser.git
-[submodule "External/SubmoduleLib/fmt"]
-	path = External/SubmoduleLib/fmt
-	url = https://github.com/fmtlib/fmt.git
 [submodule "External/SubmoduleLib/zlib"]
 	path = External/SubmoduleLib/zlib
 	url = https://github.com/madler/zlib.git

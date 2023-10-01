@@ -110,7 +110,7 @@ namespace SudaGureum
             int hex = fromHexChar(ch);
             if(hex < 0)
             {
-                throw(std::logic_error(fmt::format("invalid percent character: {ch} ({ch:d})", "ch"_a = ch)));
+                throw(std::logic_error(std::format("invalid percent character: {ch} ({ch:d})", "ch"_a = ch)));
             }
             return static_cast<char>(hex);
         };

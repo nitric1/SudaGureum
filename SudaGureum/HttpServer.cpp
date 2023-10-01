@@ -96,7 +96,7 @@ namespace SudaGureum
                 _(504, "Gateway Time-out");
                 _(505, "HTTP Version not supported");
             default:
-                //throw(std::invalid_argument(fmt::format("invalid status: {}", status)));
+                //throw(std::invalid_argument(std::format("invalid status: {}", status)));
                 //return nullptr;
                 return "Unknown";
             }
@@ -106,7 +106,7 @@ namespace SudaGureum
 
     void HttpConnection::sendHttpResponse(HttpResponse &&response)
     {
-        std::string headerField = fmt::format(
+        std::string headerField = std::format(
             "HTTP/1.1 {} {}\r\n"
             "Server: SudaGureum HTTP Server\r\n"
             "Date: {}\r\n"
@@ -116,7 +116,7 @@ namespace SudaGureum
             response.body_.size());
         for(const auto &header : response.headers_)
         {
-            headerField += fmt::format("{}: {}\r\n", header.first, header.second);
+            headerField += std::format("{}: {}\r\n", header.first, header.second);
         }
         headerField += "\r\n";
 
@@ -155,7 +155,7 @@ namespace SudaGureum
 
         response.headers_.insert({"Connection", "close"});
 
-        std::string headerField = fmt::format(
+        std::string headerField = std::format(
             "HTTP/{} {} {}\r\n"
             "Server: SudaGureum HTTP Server\r\n"
             "Date: {}\r\n"
@@ -165,7 +165,7 @@ namespace SudaGureum
             response.body_.size());
         for(const auto &header : response.headers_)
         {
-            headerField += fmt::format("{}: {}\r\n", header.first, header.second);
+            headerField += std::format("{}: {}\r\n", header.first, header.second);
         }
         headerField += "\r\n";
 
@@ -342,7 +342,7 @@ namespace SudaGureum
             }
 
             // TODO: use HttpResponse?
-            static const std::string responseFormat =
+            static constexpr std::string_view responseFormat =
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Connection: Upgrade\r\n"
                 "Upgrade: websocket\r\n"
@@ -355,7 +355,7 @@ namespace SudaGureum
             auto hash = hashSha1(std::vector<uint8_t>(accept.begin(), accept.end()));
             std::string acceptHashed = encodeBase64(std::vector<uint8_t>(hash.begin(), hash.end()));
 
-            std::string response = fmt::format(responseFormat,
+            std::string response = std::format(responseFormat,
                 generateHttpDateTime(std::chrono::system_clock::now()), acceptHashed);
             sendRaw(std::vector<uint8_t>(response.begin(), response.end()));
 
@@ -386,7 +386,7 @@ namespace SudaGureum
             response.headers_.insert({"Connection", "keep-alive"});
             response.headers_.insert({
                 "Keep-Alive",
-                fmt::format("timeout={}, max={}",
+                std::format("timeout={}, max={}",
                     Configure::instance().getAs("http_server_keep_alive_timeout_sec",
                         DefaultConfigureValue::HttpServerKeepAliveTimeoutSec),
                     currentKeepAliveCount)

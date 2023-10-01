@@ -34,15 +34,15 @@ namespace SudaGureum
             }
             catch(const boost::system::system_error &e)
             {
-                return fmt::format("System error: {}", e.what());
+                return std::format("System error: {}", e.what());
             }
             catch(const std::runtime_error &e)
             {
-                return fmt::format("Runtime error: {}", e.what());
+                return std::format("Runtime error: {}", e.what());
             }
             catch(const std::exception &e)
             {
-                return fmt::format("Exception: {}", e.what());
+                return std::format("Exception: {}", e.what());
             }
             catch(...)
             {

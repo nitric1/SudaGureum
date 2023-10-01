@@ -56,7 +56,7 @@ namespace SudaGureum
         std::error_code ec;
         if(!std::filesystem::create_directories(logPath, ec) && ec)
         {
-            throw(std::runtime_error(fmt::format("cannot create data directory: {}", ec.message())));
+            throw(std::runtime_error(std::format("cannot create data directory: {}", ec.message())));
             return;
         }
 

@@ -48,7 +48,7 @@ namespace SudaGureum
             static_assert(1 <= SaltLen && SaltLen <= 16, "Salt length must be in the range of [1, 16]");
             static_assert(BufferLen == 64, "Buffer length must be 64");
 
-            static std::string paramStr = fmt::format("{:06x}", Param);
+            static std::string paramStr = std::format("{:06x}", Param);
 
             uint8_t salt[SaltLen];
 
