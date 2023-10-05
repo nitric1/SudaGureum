@@ -3,8 +3,8 @@
 namespace SudaGureum
 {
 #ifdef _WIN32
-#  define SUDAGUREUM_MAIN_NAME wmain
+#  define NATIVE_MAIN_NAME wmain
 #else
-#  define SUDAGUREUM_MAIN_NAME main
+#  define NATIVE_MAIN_NAME main
 #endif
 }
