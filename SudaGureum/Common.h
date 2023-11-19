@@ -18,6 +18,10 @@
 // but there are no replacements at all; I'll use deprecated ones until some replacements are standardized.
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
+// spdlog needs this define to use on latest MSVC; delete this if fixed
+// warning STL4043: stdext::checked_array_iterator, stdext::unchecked_array_iterator, and related factory functions are non-Standard extensions and will be removed in the future. std::span (since C++20) and gsl::span can be used instead. You can define _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING or _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS to suppress this warning.
+#define _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING 
+
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library #includes
 
