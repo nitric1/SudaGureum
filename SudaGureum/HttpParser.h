@@ -50,6 +50,13 @@ namespace SudaGureum
         }
     };
 
+    static int HttpParserOnUrl(http_parser *, const char *, size_t);
+    static int HttpParserOnHeaderField(http_parser *, const char *, size_t);
+    static int HttpParserOnHeaderValue(http_parser *, const char *, size_t);
+    static int HttpParserOnHeadersComplete(http_parser *);
+    static int HttpParserOnBody(http_parser *, const char *, size_t);
+    static int HttpParserOnMessageComplete(http_parser *);
+
     class HttpParser
     {
     public:
@@ -76,11 +83,11 @@ namespace SudaGureum
         std::string currentHeaderName_;
         std::string currentHeaderValue_;
 
-        friend static int HttpParserOnUrl(http_parser *, const char *, size_t);
-        friend static int HttpParserOnHeaderField(http_parser *, const char *, size_t);
-        friend static int HttpParserOnHeaderValue(http_parser *, const char *, size_t);
-        friend static int HttpParserOnHeadersComplete(http_parser *);
-        friend static int HttpParserOnBody(http_parser *, const char *, size_t);
-        friend static int HttpParserOnMessageComplete(http_parser *);
+        friend int HttpParserOnUrl(http_parser *, const char *, size_t);
+        friend int HttpParserOnHeaderField(http_parser *, const char *, size_t);
+        friend int HttpParserOnHeaderValue(http_parser *, const char *, size_t);
+        friend int HttpParserOnHeadersComplete(http_parser *);
+        friend int HttpParserOnBody(http_parser *, const char *, size_t);
+        friend int HttpParserOnMessageComplete(http_parser *);
     };
 }
