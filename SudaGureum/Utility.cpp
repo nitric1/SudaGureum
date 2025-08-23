@@ -153,14 +153,14 @@ namespace SudaGureum
         static const char *DAY_NAMES[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
         static const char *MONTH_NAMES[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        char buf[40];
-        strftime(buf, sizeof(buf), "---, %d --- %Y %H:%M:%S GMT", &t);
+        std::string buf(40, 0);
+        strftime(buf.data(), buf.size(), "---, %d --- %Y %H:%M:%S GMT", &t);
 #ifdef _MSC_VER
-        memcpy_s(buf, 3, DAY_NAMES[t.tm_wday], 3);
-        memcpy_s(buf + 8, 3, MONTH_NAMES[t.tm_mon], 3);
+        memcpy_s(buf.data(), 3, DAY_NAMES[t.tm_wday], 3);
+        memcpy_s(buf.data() + 8, 3, MONTH_NAMES[t.tm_mon], 3);
 #else
-        memcpy(buf, DAY_NAMES[t.tm_wday], 3);
-        memcpy(buf + 8, MONTH_NAMES[t.tm_mon], 3);
+        memcpy(buf.data(), DAY_NAMES[t.tm_wday], 3);
+        memcpy(buf.data() + 8, MONTH_NAMES[t.tm_mon], 3);
 #endif
         return buf;
     }
@@ -187,11 +187,12 @@ namespace SudaGureum
 
         auto digest = hashSha1(data);
 
-        std::string str;
-        for(uint8_t b: digest)
+        std::string str(digest.size() * 2, 0);
+        for(size_t i = 0; i < digest.size(); ++i)
         {
-            str += HexDigits[(b & 0xF0) >> 4];
-            str += HexDigits[b & 0x0F];
+            uint8_t b = digest[i];
+            str[i * 2] = HexDigits[(b & 0xF0) >> 4];
+            str[i * 2 + 1] = HexDigits[b & 0x0F];
         }
 
         return str;
