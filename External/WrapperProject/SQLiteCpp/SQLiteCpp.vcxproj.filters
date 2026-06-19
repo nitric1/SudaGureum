@@ -45,6 +45,18 @@
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\VariadicBind.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\ExecuteMany.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Savepoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\SQLiteCppExport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Column.cpp">
@@ -66,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Backup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Savepoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

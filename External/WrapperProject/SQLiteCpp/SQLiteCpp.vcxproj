@@ -24,9 +24,13 @@
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Column.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Database.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Exception.h" />
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\ExecuteMany.h" />
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Savepoint.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\SQLiteCpp.h" />
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\SQLiteCppExport.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Statement.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Transaction.h" />
+    <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\Utils.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\include\SQLiteCpp\VariadicBind.h" />
     <ClInclude Include="..\..\SubmoduleLib\SQLiteCpp\sqlite3\sqlite3.h" />
   </ItemGroup>
@@ -36,6 +40,7 @@
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Column.cpp" />
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Database.cpp" />
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Exception.cpp" />
+    <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Savepoint.cpp" />
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Statement.cpp" />
     <ClCompile Include="..\..\SubmoduleLib\SQLiteCpp\src\Transaction.cpp" />
   </ItemGroup>
@@ -49,26 +54,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

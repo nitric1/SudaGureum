@@ -7,7 +7,7 @@
 
 namespace SQLite // SQLiteCpp custom function implementation
 {
-    void assertion_failed(const char *file, long line, const char *func, const char *expr, const char *message)
+    void assertion_failed(const char *file, const int line, const char *func, const char *expr, const char *message)
     {
 #ifdef _DEBUG
         auto &log = SudaGureum::Log::instance();
