@@ -433,7 +433,7 @@ namespace SudaGureum
                     size_t nextParamIdx = 2;
                     auto nextParam = [&message, &nextParamIdx]() { return message.params_.at(nextParamIdx ++); };
 
-                    boost::logic::tribool operation = boost::logic::indeterminate;
+                    std::optional<bool> operation = std::nullopt;
                     // XXX: need to follow CHANMODES and PREFIX?
                     for(char ch: modifier)
                     {
@@ -448,7 +448,7 @@ namespace SudaGureum
                             continue;
                         }
 
-                        if(boost::logic::indeterminate(operation)) // a +/- sign required for server response
+                        if(!operation.has_value()) // a +/- sign required for server response
                             continue;
 
                         switch(ch)
@@ -461,14 +461,14 @@ namespace SudaGureum
                         case 'o': // op
                         case 'h': // half-op
                         case 'v': // voice
-                            if(!boost::logic::indeterminate(operation))
+                            if(operation.has_value())
                             {
                                 auto partIt = it->second.participants_.find(nextParam());
                                 if(partIt != it->second.participants_.end())
                                 {
                                     it->second.participants_.modify(partIt, [operation, ch](Participant &p)
                                     {
-                                        if(operation)
+                                        if(operation.value())
                                         {
                                             p.modes_.set(participantModeFromPermission(ch));
                                         }

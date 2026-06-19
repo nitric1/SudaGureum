@@ -61,7 +61,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/logic/tribool.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/indexed_by.hpp>

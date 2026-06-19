@@ -8,10 +8,14 @@ namespace SudaGureum
 {
     class HttpServer;
 
-    class WebSocketContext : private boost::noncopyable
+    class WebSocketContext
     {
     public:
         WebSocketContext();
+
+    private:
+        WebSocketContext(const WebSocketContext &) = delete;
+        WebSocketContext &operator =(const WebSocketContext &) = delete;
 
     public:
         bool authorized() const;
