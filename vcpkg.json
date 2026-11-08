@@ -12,7 +12,6 @@
     "boost-logic",
     "boost-multi-index",
     "boost-program-options",
-    "boost-regex",
     "boost-serialization",
     "boost-signals2",
     "boost-uuid",

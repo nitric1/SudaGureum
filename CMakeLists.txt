@@ -42,7 +42,6 @@ find_package(Boost 1.51.0 COMPONENTS
     logic
     multi_index
     program_options
-    regex
     serialization
     signals2
     uuid

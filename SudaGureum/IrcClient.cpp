@@ -597,9 +597,10 @@ namespace SudaGureum
                 }
                 else if(name == "PREFIX")
                 {
-                    static const boost::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)", boost::regex::extended);
-                    boost::smatch matched;
-                    if(boost::regex_match(value, matched, PrefixRegex))
+                    static const std::regex PrefixRegex("\\(([A-Za-z]+)\\)(.+)",
+                        std::regex::extended | std::regex::collate);
+                    std::smatch matched;
+                    if(std::regex_match(value, matched, PrefixRegex))
                     {
                         if(matched[1].length() == matched[2].length())
                         {

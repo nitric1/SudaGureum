@@ -188,8 +188,9 @@ namespace SudaGureum
             }
         }
 
-        static const boost::regex CommandRegex("[A-Za-z]+|[0-9]{3}", boost::regex::extended); // TODO: non-static or something
-        if(!boost::regex_match(message.command_, CommandRegex))
+        static const std::regex CommandRegex("[A-Za-z]+|[0-9]{3}",
+            std::regex::extended | std::regex::collate); // TODO: non-static or something
+        if(!std::regex_match(message.command_, CommandRegex))
         {
             return false;
         }
