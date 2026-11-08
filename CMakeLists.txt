@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.12)
 
 project(SudaGureum)
 
@@ -54,7 +54,6 @@ include_directories(
     ${Boost_INCLUDE_DIR}
     ${OpenSSL_INCLUDE_DIR}
     ${SQLite3_INCLUDE_DIR}
-    ${ZLIB_INCLUDE_DIR}
     "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib"
     "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/rapidjson/include"
     "${CMAKE_CURRENT_LIST_DIR}/External/SubmoduleLib/SQLiteCpp/include"
@@ -63,4 +62,4 @@ include_directories(
 link_directories(${Boost_LIBRARY_DIR} ${OpenSSL_LIBRARY_DIR} ${SQLite3_LIBRARY_DIR})
 
 add_executable(SudaGureum ${SOURCES})
-target_link_libraries(SudaGureum ${Boost_LIBRARIES} ${OpenSSL_LIBRARIES} ${SQLite3_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(SudaGureum ${Boost_LIBRARIES} ${OpenSSL_LIBRARIES} ${SQLite3_LIBRARIES} ZLIB::ZLIB)

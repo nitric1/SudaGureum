@@ -15,6 +15,7 @@
     "boost-regex",
     "boost-serialization",
     "boost-signals2",
-    "boost-uuid"
+    "boost-uuid",
+    "zlib"
   ]
 }
