@@ -24,8 +24,10 @@
 #include <algorithm>
 #include <atomic>
 #include <bitset>
+#include <charconv>
 #include <chrono>
 #include <codecvt>
+#include <concepts>
 #include <deque>
 #include <filesystem>
 #include <format>
@@ -57,7 +59,6 @@
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/endian/conversion.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/indexed_by.hpp>

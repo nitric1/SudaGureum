@@ -7,7 +7,6 @@
     "boost-algorithm",
     "boost-date-time",
     "boost-endian",
-    "boost-lexical-cast",
     "boost-locale",
     "boost-logic",
     "boost-multi-index",

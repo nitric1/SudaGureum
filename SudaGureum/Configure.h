@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Singleton.h"
+#include "Utility.h"
 
 namespace SudaGureum
 {
@@ -28,7 +29,7 @@ namespace SudaGureum
             auto value = get(name);
             if(!value)
                 return defaultValue;
-            return boost::lexical_cast<T>(value.value());
+            return parseInteger<T>(value.value());
         }
 
     private:

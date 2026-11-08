@@ -641,7 +641,7 @@ namespace SudaGureum
             {
                 it->second.topicSetter_ = message.params_.at(2);
                 it->second.topicSetTime_ = std::chrono::system_clock::from_time_t(
-                    boost::lexical_cast<time_t>(message.params_.at(3)));
+                    parseInteger<time_t>(message.params_.at(3)));
             }
         }
         else if(message.command_ == "353") // RPL_NAMREPLY

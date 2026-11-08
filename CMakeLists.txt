@@ -37,7 +37,6 @@ find_package(Boost 1.51.0 COMPONENTS
     algorithm
     date_time
     endian
-    lexical_cast
     locale
     logic
     multi_index

@@ -25,6 +25,26 @@ namespace SudaGureum
     template<typename ValueT>
     using CaseInsensitiveMultimap = std::multimap<std::string, ValueT, LessCaseInsensitive>;
 
+    template<std::integral T> requires (!std::same_as<T, bool>)
+    T parseInteger(std::string_view text)
+    {
+        T value{};
+        if(!text.empty())
+        {
+            const char *end = text.data() + text.size();
+            const auto result = std::from_chars(text.data(), end, value);
+            if(result.ec == std::errc{} && result.ptr == end)
+                return value;
+        }
+
+        // Preserve leading '+', unsigned negatives and locale-aware grouping.
+        std::istringstream stream{std::string(text)};
+        stream >> std::noskipws >> value;
+        if(stream.fail() || !stream.eof())
+            throw std::invalid_argument("invalid or out-of-range integer");
+        return value;
+    }
+
     std::string encodeUtf8(const std::wstring &str);
     std::wstring decodeUtf8(const std::string &str);
 
