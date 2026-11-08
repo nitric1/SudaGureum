@@ -187,7 +187,7 @@ namespace SudaGureum
     private:
         IrcClientPool &pool_;
         size_t connectionId_;
-        asio::io_service &ios_;
+        asio::io_context &ioc_;
         std::shared_ptr<SocketBase> socket_;
 
         std::string encoding_;

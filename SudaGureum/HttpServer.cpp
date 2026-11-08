@@ -15,18 +15,18 @@ namespace SudaGureum
 
     HttpConnection::HttpConnection(HttpServer &server, bool ssl)
         : server_(server)
-        , ios_(server.ios_)
+        , ioc_(server.ioc_)
         , continueRead_(true)
         , bufferToRead_()
         , upgradeWebSocket_(false)
         , keepAliveCount_(Configure::instance().getAs(
             "http_server_keep_alive_max_count", DefaultConfigureValue::HttpServerKeepAliveMaxCount))
-        , keepAliveTimer_(ios_)
+        , keepAliveTimer_(ioc_)
     {
         if(ssl)
-            socket_ = std::make_shared<BufferedWriterSocket<TcpSslSocket>>(ios_, server.ctx_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSslSocket>>(ioc_, server.ctx_);
         else
-            socket_ = std::make_shared<BufferedWriterSocket<TcpSocket>>(ios_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSocket>>(ioc_);
     }
 
     HttpConnection::~HttpConnection()
@@ -222,7 +222,7 @@ namespace SudaGureum
 
     void HttpConnection::setKeepAliveTimeout()
     {
-        keepAliveTimer_.expires_from_now(std::chrono::seconds(
+        keepAliveTimer_.expires_after(std::chrono::seconds(
             Configure::instance().getAs("http_server_keep_alive_timeout_sec",
                 DefaultConfigureValue::HttpServerKeepAliveTimeoutSec)));
         keepAliveTimer_.async_wait(std::bind(
@@ -233,8 +233,14 @@ namespace SudaGureum
 
     void HttpConnection::cancelKeepAliveTimeout()
     {
-        std::error_code ec;
-        keepAliveTimer_.cancel(ec);
+        try
+        {
+            keepAliveTimer_.cancel();
+        }
+        catch(asio::system_error &)
+        {
+            // eat
+        }
     }
 
     void HttpConnection::handleHandshake(const std::error_code &ec)
@@ -413,7 +419,7 @@ namespace SudaGureum
 
     HttpServer::HttpServer(uint16_t port, bool ssl)
         : ssl_(ssl)
-        , acceptor_(ios_)
+        , acceptor_(ioc_)
     {
         try
         {

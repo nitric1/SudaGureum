@@ -47,7 +47,7 @@ namespace SudaGureum
 
     private:
         HttpServer &server_;
-        asio::io_service &ios_;
+        asio::io_context &ioc_;
         std::shared_ptr<BufferedWriterSocketBase> socket_;
 
         HttpParser parser_;

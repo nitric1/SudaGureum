@@ -97,14 +97,14 @@ namespace SudaGureum
     IrcClient::IrcClient(IrcClientPool &pool, size_t connectionId)
         : pool_(pool)
         , connectionId_(connectionId)
-        , ios_(pool.ios_)
+        , ioc_(pool.ioc_)
         , bufferToRead_()
         , inWrite_(false)
         , nicknamePrefixMap_(DefaultNicknamePrefixMap)
         , connectBeginning_(false)
         , currentNicknameIndex_(0)
         , quitReady_(false)
-        , closeTimer_(ios_)
+        , closeTimer_(ioc_)
         , clearMe_(false)
     {
     }
@@ -165,16 +165,15 @@ namespace SudaGureum
         nicknameCandidates_ = std::move(nicknames);
         currentNicknameIndex_ = 0;
 
-        asio::ip::tcp::resolver resolver(ios_);
-        asio::ip::tcp::resolver::query query(host, fmt::format_int(port).str());
-        auto endpointIt = resolver.resolve(query);
+        asio::ip::tcp::resolver resolver(ioc_);
+        auto endpoints = resolver.resolve(host, fmt::format_int(port).str());
 
         if(ssl)
-            socket_ = std::make_shared<TcpSslSocket>(ios_);
+            socket_ = std::make_shared<TcpSslSocket>(ioc_);
         else
-            socket_ = std::make_shared<TcpSocket>(ios_);
-        socket_->asyncConnect(endpointIt,
-            [&](const std::error_code &ec, asio::ip::tcp::resolver::iterator resolverIt)
+            socket_ = std::make_shared<TcpSocket>(ioc_);
+        socket_->asyncConnect(endpoints,
+            [&](const std::error_code &ec, asio::ip::tcp::endpoint endpoint)
             {
                 if(ec)
                 {
@@ -275,7 +274,7 @@ namespace SudaGureum
         quitReady_ = true;
         clearMe_ = clearMe;
         sendMessage(IrcMessage("QUIT", {"Bye!"}));
-        closeTimer_.expires_from_now(std::chrono::seconds(
+        closeTimer_.expires_after(std::chrono::seconds(
             Configure::instance().getAs("irc_client_close_timeout_sec", DefaultConfigureValue::IrcClientCloseTimeoutSec)
         ));
         closeTimer_.async_wait(std::bind(
@@ -707,7 +706,7 @@ namespace SudaGureum
     }
 
     IrcClientPool::IrcClientPool()
-        : signals_(ios_)
+        : signals_(ioc_)
         , nextConnectionId_(1)
     {
         signals_.add(SIGINT);

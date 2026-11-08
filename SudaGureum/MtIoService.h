@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 namespace SudaGureum
 {
     class MtIoService
     {
     private:
-        static void runImpl(asio::io_service &ios);
+        static void runImpl(asio::io_context &ioc);
 
     public:
         virtual ~MtIoService() = 0;
@@ -16,7 +16,7 @@ namespace SudaGureum
         void stop();
 
     protected:
-        asio::io_service ios_;
+        asio::io_context ioc_;
         std::vector<std::shared_ptr<std::thread>> threads_;
     };
 }

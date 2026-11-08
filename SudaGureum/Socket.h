@@ -8,32 +8,32 @@ namespace SudaGureum
     {
     public:
         virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler) = 0;
-        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncReadSome(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler) = 0;
-        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::const_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler) = 0;
-        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler) = 0;
-        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler) = 0;
+        virtual void asyncConnect(asio::ip::tcp::resolver::results_type endpoints,
+            std::function<void (const std::error_code &, asio::ip::tcp::endpoint)> handler) = 0;
         virtual std::error_code close() = 0;
     };
 
     class TcpSocket : public SocketBase
     {
     public:
-        TcpSocket(asio::io_service &ios);
+        TcpSocket(asio::io_context &ioc);
 
     public:
         virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler);
-        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncReadSome(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::const_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler);
+        virtual void asyncConnect(asio::ip::tcp::resolver::results_type endpoints,
+            std::function<void (const std::error_code &, asio::ip::tcp::endpoint)> handler);
         virtual std::error_code close();
 
     public:
@@ -46,19 +46,19 @@ namespace SudaGureum
     class TcpSslSocket : public SocketBase
     {
     public:
-        TcpSslSocket(asio::io_service &ios);
-        TcpSslSocket(asio::io_service &ios, std::shared_ptr<asio::ssl::context> context);
+        TcpSslSocket(asio::io_context &ioc);
+        TcpSslSocket(asio::io_context &ioc, std::shared_ptr<asio::ssl::context> context);
 
     public:
         virtual void asyncHandshakeAsServer(std::function<void (const std::error_code &)> handler);
-        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncReadSome(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::const_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler);
-        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler);
+        virtual void asyncConnect(asio::ip::tcp::resolver::results_type endpoints,
+            std::function<void (const std::error_code &, asio::ip::tcp::endpoint)> handler);
         virtual std::error_code close();
 
     public:
@@ -83,8 +83,8 @@ namespace SudaGureum
     {
     public:
         template<typename ...Args>
-        BufferedWriterSocket(asio::io_service &ios, Args &&...args)
-            : socket_(ios, std::forward<Args>(args)...)
+        BufferedWriterSocket(asio::io_context &ioc, Args &&...args)
+            : socket_(ioc, std::forward<Args>(args)...)
             , inWrite_(false)
         {
         }
@@ -94,25 +94,25 @@ namespace SudaGureum
         {
             socket_.asyncHandshakeAsServer(std::move(handler));
         }
-        virtual void asyncReadSome(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncReadSome(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncReadSome(buffer, std::move(handler));
         }
-        virtual void asyncWrite(const asio::const_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::const_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncWrite(buffer, std::move(handler));
         }
-        virtual void asyncWrite(const asio::mutable_buffers_1 &buffer,
+        virtual void asyncWrite(const asio::mutable_buffer &buffer,
             std::function<void (const std::error_code &, size_t)> handler)
         {
             socket_.asyncWrite(buffer, std::move(handler));
         }
-        virtual void asyncConnect(asio::ip::tcp::resolver::iterator endPointIt,
-            std::function<void (const std::error_code &, asio::ip::tcp::resolver::iterator)> handler)
+        virtual void asyncConnect(asio::ip::tcp::resolver::results_type endpoints,
+            std::function<void (const std::error_code &, asio::ip::tcp::endpoint)> handler)
         {
-            socket_.asyncConnect(endPointIt, std::move(handler));
+            socket_.asyncConnect(endpoints, std::move(handler));
         }
         virtual std::error_code close()
         {

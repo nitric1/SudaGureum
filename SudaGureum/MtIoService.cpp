@@ -4,11 +4,11 @@
 
 namespace SudaGureum
 {
-    void MtIoService::runImpl(asio::io_service &ios)
+    void MtIoService::runImpl(asio::io_context &ioc)
     {
         try
         {
-            ios.run();
+            ioc.run();
         }
         catch(const std::system_error &e)
         {
@@ -37,7 +37,7 @@ namespace SudaGureum
         for(uint16_t i = 0; i < numThreads; ++ i)
         {
             std::shared_ptr<std::thread> thread(
-                new std::thread(std::bind(&MtIoService::runImpl, std::ref(ios_))));
+                new std::thread(std::bind(&MtIoService::runImpl, std::ref(ioc_))));
             threads_.push_back(thread);
         }
     }
@@ -52,6 +52,6 @@ namespace SudaGureum
 
     void MtIoService::stop()
     {
-        ios_.stop();
+        ioc_.stop();
     }
 }

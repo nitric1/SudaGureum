@@ -51,24 +51,24 @@ namespace SudaGureum
 
     WebSocketConnection::WebSocketConnection(HttpServer &server, bool ssl)
         : server_(server)
-        , ios_(server.ios_)
+        , ioc_(server.ioc_)
         , closeReady_(false)
-        , closeTimer_(ios_)
+        , closeTimer_(ioc_)
         , closeReceived_(false)
     {
         if(ssl)
-            socket_ = std::make_shared<BufferedWriterSocket<TcpSslSocket>>(ios_, server.ctx_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSslSocket>>(ioc_, server.ctx_);
         else
-            socket_ = std::make_shared<BufferedWriterSocket<TcpSocket>>(ios_);
+            socket_ = std::make_shared<BufferedWriterSocket<TcpSocket>>(ioc_);
     }
 
     WebSocketConnection::WebSocketConnection(HttpServer &server,
         std::shared_ptr<BufferedWriterSocketBase> socket, const std::vector<uint8_t> &readBuffer)
         : server_(server)
-        , ios_(server.ios_)
+        , ioc_(server.ioc_)
         , socket_(std::move(socket))
         , closeReady_(false)
-        , closeTimer_(ios_)
+        , closeTimer_(ioc_)
         , closeReceived_(false)
     {
         if(readBuffer.size() > bufferToRead_.size())
@@ -140,7 +140,7 @@ namespace SudaGureum
     {
         closeReady_ = true;
         sendWebSocketResponse(WebSocketResponse(WebSocketResponse::Command::Close));
-        closeTimer_.expires_from_now(std::chrono::seconds(
+        closeTimer_.expires_after(std::chrono::seconds(
             Configure::instance().getAs("websocket_server_close_timeout_sec",
                 DefaultConfigureValue::WebSocketServerCloseTimeoutSec)));
         closeTimer_.async_wait(std::bind(
