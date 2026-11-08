@@ -5,10 +5,8 @@
   "dependencies": [
     "openssl",
     "boost-algorithm",
-    "boost-date-time",
     "boost-endian",
     "boost-locale",
-    "boost-logic",
     "boost-multi-index",
     "boost-program-options",
     "boost-serialization",

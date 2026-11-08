@@ -75,9 +75,6 @@ namespace SudaGureum
         time_t beginEpoch = std::chrono::system_clock::to_time_t(begin);
         time_t endEpoch = std::chrono::system_clock::to_time_t(end);
 
-        // boost::gregorian::date beginDate = boost::posix_time::from_time_t(beginEpoch).date();
-        // boost::gregorian::date endDate = boost::posix_time::from_time_t(endEpoch).date();
-
         SQLite::Statement query(db_,
             "SELECT idx, userId, serverName, channel, logTime, nickname, logType, message FROM Log"
             " WHERE userId = @userId AND serverName = @serverName AND channel = @channel"
@@ -101,7 +98,6 @@ namespace SudaGureum
             return {};
 
         time_t endEpoch = std::chrono::system_clock::to_time_t(end);
-        // boost::gregorian::date endDate = boost::posix_time::from_time_t(endEpoch).date();
 
         SQLite::Statement query(db_,
             "SELECT idx, userId, serverName, channel, logTime, nickname, logType, message FROM Log"

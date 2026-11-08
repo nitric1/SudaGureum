@@ -55,9 +55,6 @@
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
-#include <boost/date_time/c_time.hpp>
-#include <boost/date_time/gregorian/gregorian_types.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
@@ -65,7 +62,6 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/program_options.hpp>
-#include <boost/serialization/serialization.hpp>
 #include <boost/signals2.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
